@@ -1,11 +1,12 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DragDetectEvent;
@@ -23,38 +24,29 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tracker;
 
 public class DragTab {
-	private final Shell shell;
-	
 	private Runnable dragCallback = null;
 	private Set<CTabFolder> folders = new HashSet<>();
+	private int tabCount = 0;
 
-	public DragTab(Shell shell) {
-		this.shell = shell;
+	public DragTab(Composite parent) {
+		parent.setLayout(new FillLayout());
 		
-		shell.setLayout(new FillLayout());
+		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
+		folders.add(folder);
+		setupTabFolder(folder);
 		
-		SashForm verticalSashForm = new SashForm(shell, SWT.VERTICAL);
-		
-		CTabFolder folder1 = new CTabFolder(verticalSashForm, SWT.BORDER);
-		
-		SashForm horizontalSashForm = new SashForm(verticalSashForm, SWT.HORIZONTAL);
-		CTabFolder folder2 = new CTabFolder(horizontalSashForm, SWT.BORDER);
-		CTabFolder folder3 = new CTabFolder(horizontalSashForm, SWT.BORDER);
-		
-		folders.addAll(Arrays.asList(folder1, folder2, folder3));
-		
-		for(int x = 0; x < 9; x++) {
-			CTabFolder folder = (x < 3) ? folder1 : folder2;
-			if(x > 6) folder = folder3;
-			
-			Text text = new Text(folder, SWT.MULTI);
-			text.setText("Text " + x);
-			createTabItem(folder, text, "Item " + x);
+		for(int x = 0; x < 8; x++) {
+			Text text = new Text(parent, SWT.MULTI);
+			newTab(folder, text);
 		}
 		
-		setupTabFolder(folder1);
-		setupTabFolder(folder2);
-		setupTabFolder(folder3);
+		if(folder.getItemCount() > 0) {
+			folder.setSelection(0);
+		}
+	}
+	
+	public void newTab(CTabFolder folder, Control contents) {
+		createTabItem(folder, contents, "Item " + tabCount++);
 	}
 
 	/**
@@ -114,6 +106,7 @@ public class DragTab {
 					tracker.setRectangles(new Rectangle[] {
 						new Rectangle(folderOffsetX + startX, folderOffsetY + item.getBounds().y, 0, item.getBounds().height)
 					});
+					dragCallback = () -> moveTabItem(dragItem, item, true);
 					return true;
 				}
 				
@@ -122,6 +115,7 @@ public class DragTab {
 					tracker.setRectangles(new Rectangle[] {
 						new Rectangle(folderOffsetX + endX, folderOffsetY + item.getBounds().y, 0, item.getBounds().height)
 					});
+					dragCallback = () -> moveTabItem(dragItem, item, false);
 					return true;
 				}
 			}
@@ -180,66 +174,110 @@ public class DragTab {
 		tracker.setRectangles(new Rectangle[0]);
 		return false;
 	}
-	
+
+	/**
+	 * Moves the tab item, draggedItem, before or after destinationItem.
+	 */
+	private void moveTabItem(CTabItem draggedItem, CTabItem destinationItem, boolean placeBefore) {
+		CTabFolder draggedFolder = draggedItem.getParent();
+		
+		int index = destinationItem.getParent().indexOf(destinationItem);
+		if(!placeBefore) {
+			index++;
+		}
+		
+		// Check that tab is not already at destination.
+		if(destinationItem.getParent().indexOf(draggedItem) != index) {
+			CTabItem newTabItem = createTabItem(destinationItem.getParent(), draggedItem.getControl(), draggedItem.getText(), index);
+			draggedItem.dispose();
+			
+			newTabItem.getParent().setSelection(newTabItem);
+			
+			removeIfEmpty(draggedFolder);
+		}
+	}
+
 	/**
 	 * Splits a folder into two panes, putting draggedItem into one of them and the existing tabs the another.
 	 * DraggedItem is put into the top pane if dy < 0, the left pane if dx < 0, bottom if dy > 0, or right if dx > 0.
 	 */
 	private void split(CTabFolder folder, CTabItem draggedItem, int dx, int dy) {
-		CTabItem[] items = folder.getItems();
-		
-		Control draggedControl = draggedItem.getControl();
-		
-		List<Control> controls = new ArrayList<>();
-		for(CTabItem item:items) {
-			controls.add(item.getControl());
-		}
-		
+		CTabFolder draggedFolder = draggedItem.getParent();
 		Composite parent = folder.getParent();
 		
-		boolean firstChild = parent.getChildren()[0] == folder;
-		
 		SashForm sashForm = new SashForm(parent, (dx == 0) ? SWT.VERTICAL : SWT.HORIZONTAL);
+		sashForm.moveAbove(folder);
 		
-		if(firstChild) {
-			sashForm.moveAbove(parent.getChildren()[0]);
+		folder.setParent(sashForm);
+		
+		Control control = draggedItem.getControl();
+		String text = draggedItem.getText();
+		
+		draggedItem.dispose();
+		CTabFolder newFolder = new CTabFolder(sashForm, SWT.BORDER);
+		createTabItem(newFolder, control, text);
+		if(dx < 0 || dy < 0) {
+			newFolder.moveAbove(folder);
 		}
 		
-		CTabFolder folder1 = new CTabFolder(sashForm, SWT.BORDER);
-		CTabFolder folder2 = new CTabFolder(sashForm, SWT.BORDER);
+		setupTabFolder(newFolder);
+		folders.add(newFolder);
 		
-		for(int i = 0; i < controls.size(); i++) {
-			Control control = controls.get(i);
-			if(control != draggedControl) {
-				createTabItem(folder1, control, items[i].getText());
+		parent.layout();
+		
+		removeIfEmpty(draggedFolder);
+	}
+	
+	/**
+	 * Removes folder if it contains no items.
+	 */
+	private void removeIfEmpty(CTabFolder folder) {
+		if(!folder.isDisposed() && folder.getItemCount() == 0) {
+			Composite parent = folder.getParent();
+			if(parent instanceof SashForm) {
+				merge((SashForm) parent, folder);
+			}
+		}
+	}
+
+	/**
+	 * Merges the children in sashForm together, removing the empty folder.
+	 */
+	private void merge(SashForm sashForm, CTabFolder folder) {
+		// Find the sashForm child that is not folder.
+		Control nonEmptyChild = null;
+		for(Control child:sashForm.getChildren()) {
+			if(child instanceof CTabFolder || child instanceof SashForm) {
+				if(child != folder) {
+					nonEmptyChild = child;
+				}
 			}
 		}
 		
-		createTabItem(folder2, draggedControl, draggedItem.getText());
-		
-		folder.dispose();
 		folders.remove(folder);
 		
-		draggedItem.dispose();
-		
-		if(dx < 0 || dy < 0) {
-			folder2.moveAbove(folder1);
+		// Replace sashForm with nonEmptyChild.
+		if(nonEmptyChild != null) {
+			Composite parent = sashForm.getParent();
+			nonEmptyChild.setParent(parent);
+			nonEmptyChild.moveAbove(sashForm);
+			sashForm.dispose();
+			parent.layout();
 		}
-		
-		setupTabFolder(folder1);
-		setupTabFolder(folder2);
-		
-		folders.add(folder1);
-		folders.add(folder2);
-		
-		parent.layout();
 	}
 	
 	/**
 	 * Returns a new tab item for a folder containing the given control and text.
 	 */
 	private CTabItem createTabItem(CTabFolder folder, Control control, String text) {
-		CTabItem item = new CTabItem(folder, SWT.NONE);
+		return createTabItem(folder, control, text, folder.getItemCount());
+	}
+
+	/**
+	 * Returns a new tab item for a folder containing the given control and text, at a specific index.
+	 */
+	private CTabItem createTabItem(CTabFolder folder, Control control, String text, int index) {
+		CTabItem item = new CTabItem(folder, SWT.NONE, index);
 		control.setParent(folder);
 		item.setText(text);
 		item.setControl(control);
@@ -257,6 +295,12 @@ public class DragTab {
 		if(folder.getItemCount() > 0) {
 			folder.setSelection(folder.getItems()[0]);
 		}
+		
+		folder.addCTabFolder2Listener(new CTabFolder2Adapter() {
+			public void close(CTabFolderEvent event) {
+				Display.getCurrent().asyncExec(() -> removeIfEmpty(folder));
+			}
+		});
 		
 		addDragDetectListener(folder);
 	}
@@ -288,4 +332,3 @@ public class DragTab {
 		display.dispose();
 	}
 }
-
