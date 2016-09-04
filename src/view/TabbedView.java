@@ -40,10 +40,11 @@ public class TabbedView {
 		}
 	}
 	
-	public void addTab(String title, Function<Composite, Control> contentFactory) {
+	public <T extends Control> T addTab(String title, Function<Composite, T> contentFactory) {
 		CTabFolder folder = folders.iterator().next();
-		Control content = contentFactory.apply(folder);
+		T content = contentFactory.apply(folder);
 		createTabItem(folder, content, title);
+		return content;
 	}
 
 	/**

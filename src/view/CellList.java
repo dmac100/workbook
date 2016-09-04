@@ -2,6 +2,7 @@ package view;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import layout.GridLayoutBuilder;
 
@@ -26,6 +27,8 @@ public class CellList {
 	
 	private final List<Cell> prompts = new ArrayList<>();
 	
+	private Function<String, String> executeFunction;
+	
 	public CellList(Composite parent) {
 		Display display = parent.getDisplay();
 		
@@ -48,7 +51,7 @@ public class CellList {
 				selectLast();
 			}
 		});
-		
+
 		addPrompt();
 	}
 	
@@ -68,6 +71,8 @@ public class CellList {
 	
 	private void addPrompt() {
 		final Cell prompt = new Cell(cellsComposite);
+		
+		prompt.setExecuteFunction(command -> executeFunction.apply(command));
 		
 		prompt.addUpCallback(new Runnable() {
 			public void run() {
@@ -128,6 +133,10 @@ public class CellList {
 			prompts.get(index).setFocus();
 			scrollTo(prompts.get(index).getBounds());
 		}
+	}
+	
+	public void setExecuteFunction(Function<String, String> executeFunction) {
+		this.executeFunction = executeFunction;
 	}
 	
 	private void scrollTo(Rectangle bounds) {

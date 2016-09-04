@@ -27,15 +27,10 @@ public class Script {
 	
 	public String eval(String command) {
 		Consumer<String> nullCallback = x -> {};
-		
-		try {
-			return eval(command, nullCallback, nullCallback);
-		} catch(ScriptException e) {
-			throw new RuntimeException("Error evaluating command", e);
-		}
+		return eval(command, nullCallback, nullCallback);
 	}
 	
-	public String eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) throws ScriptException {
+	public String eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
         PrintStream out = System.out;
         PrintStream err = System.err;
         try {
@@ -55,6 +50,13 @@ public class Script {
 			errorReader.waitUntilDone();
 			
 			return value;
+        } catch(ScriptException e) {
+        	System.setOut(out);
+        	System.setErr(err);
+        	
+        	e.printStackTrace();
+        	errorCallback.accept(e.getMessage());
+        	return null;
         } finally {
         	System.setOut(out);
         	System.setErr(err);

@@ -2,6 +2,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import controller.MainController;
 import view.CellList;
 import view.Console;
 import view.MenuBuilder;
@@ -15,10 +16,21 @@ public class Workbook {
 		
 		shell.setLayout(new FillLayout());
 
+		MainController mainController = new MainController();
+		
 		TabbedView tabbedView = new TabbedView(shell);
 		
-		tabbedView.addTab("Script", parent -> new CellList(parent).getControl());
-		tabbedView.addTab("Console", parent -> new Console(parent).getControl());
+		tabbedView.addTab("Script", parent -> {
+			CellList cellList = new CellList(parent);
+			mainController.addCellList(cellList);
+			return cellList.getControl();
+		});
+		
+		tabbedView.addTab("Console", parent -> {
+			Console console = new Console(parent);
+			mainController.addConsole(console);
+			return console.getControl();
+		});
 		
 		createMenuBar(shell);
 	}
