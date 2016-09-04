@@ -3,7 +3,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import view.CellList;
+import view.Console;
 import view.MenuBuilder;
+import view.TabbedView;
 
 public class Workbook {
 	private final Shell shell;
@@ -12,8 +14,11 @@ public class Workbook {
 		this.shell = shell;
 		
 		shell.setLayout(new FillLayout());
+
+		TabbedView tabbedView = new TabbedView(shell);
 		
-		CellList promptsList = new CellList(shell);
+		tabbedView.addTab("Script", parent -> new CellList(parent).getControl());
+		tabbedView.addTab("Console", parent -> new Console(parent).getControl());
 		
 		createMenuBar(shell);
 	}

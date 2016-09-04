@@ -3,8 +3,6 @@ package view;
 import java.util.ArrayList;
 import java.util.List;
 
-import layout.GridDataBuilder;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -15,6 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+
+import layout.GridDataBuilder;
 
 public class Cell {
 	private final Label prompt;

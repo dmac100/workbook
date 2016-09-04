@@ -1,7 +1,8 @@
-import java.util.ArrayList;
+package view;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -20,33 +21,29 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tracker;
 
-public class DragTab {
+public class TabbedView {
 	private Runnable dragCallback = null;
 	private Set<CTabFolder> folders = new HashSet<>();
 	private int tabCount = 0;
 
-	public DragTab(Composite parent) {
+	public TabbedView(Composite parent) {
 		parent.setLayout(new FillLayout());
 		
 		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
 		folders.add(folder);
 		setupTabFolder(folder);
 		
-		for(int x = 0; x < 8; x++) {
-			Text text = new Text(parent, SWT.MULTI);
-			newTab(folder, text);
-		}
-		
 		if(folder.getItemCount() > 0) {
 			folder.setSelection(0);
 		}
 	}
 	
-	public void newTab(CTabFolder folder, Control contents) {
-		createTabItem(folder, contents, "Item " + tabCount++);
+	public void addTab(String title, Function<Composite, Control> contentFactory) {
+		CTabFolder folder = folders.iterator().next();
+		Control content = contentFactory.apply(folder);
+		createTabItem(folder, content, title);
 	}
 
 	/**
@@ -319,7 +316,7 @@ public class DragTab {
 		
 		shell.setSize(900, 600);
 		
-		new DragTab(shell);
+		new TabbedView(shell);
 		
 		shell.setVisible(true);
 		
