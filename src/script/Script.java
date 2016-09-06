@@ -25,12 +25,16 @@ public class Script {
 		engine.put(name, value);
 	}
 	
-	public String eval(String command) {
+	public Object getVariable(String name) {
+		return engine.get(name);
+	}
+	
+	public Object eval(String command) {
 		Consumer<String> nullCallback = x -> {};
 		return eval(command, nullCallback, nullCallback);
 	}
 	
-	public String eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
         PrintStream out = System.out;
         PrintStream err = System.err;
         try {
@@ -40,8 +44,7 @@ public class Script {
 	        System.setOut(new PrintStream(outputReader.getOutputStream()));
 	        System.setErr(new PrintStream(errorReader.getOutputStream()));
 	        
-			Object output = engine.eval("with(new JavaImporter(java.util, java.lang)) { " + command + "}");
-			String value = String.valueOf(output);
+			Object value = engine.eval("with(new JavaImporter(java.util, java.lang)) { " + command + "}");
 
 			System.out.close();
 			System.err.close();

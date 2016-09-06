@@ -27,7 +27,7 @@ public class CellList {
 	
 	private final List<Cell> prompts = new ArrayList<>();
 	
-	private Function<String, String> executeFunction;
+	private Function<String, Object> executeFunction;
 	
 	public CellList(Composite parent) {
 		Display display = parent.getDisplay();
@@ -135,7 +135,7 @@ public class CellList {
 		}
 	}
 	
-	public void setExecuteFunction(Function<String, String> executeFunction) {
+	public void setExecuteFunction(Function<String, Object> executeFunction) {
 		this.executeFunction = executeFunction;
 	}
 	

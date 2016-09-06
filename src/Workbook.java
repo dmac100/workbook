@@ -3,6 +3,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import controller.MainController;
+import editor.StringEditor;
 import view.CellList;
 import view.Console;
 import view.MenuBuilder;
@@ -30,6 +31,12 @@ public class Workbook {
 			Console console = new Console(parent);
 			mainController.addConsole(console);
 			return console.getControl();
+		});
+		
+		tabbedView.addTab("Editor: x", parent -> {
+			StringEditor stringEditor = new StringEditor(parent, "x");
+			mainController.addEditor(stringEditor);
+			return stringEditor.getControl();
 		});
 		
 		createMenuBar(shell);

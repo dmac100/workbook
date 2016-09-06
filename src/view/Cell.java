@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -20,28 +21,28 @@ import layout.GridDataBuilder;
 public class Cell {
 	private final Label prompt;
 	private final Text command;
-	private final Text result;
+	private final StyledText result;
 	
 	private final List<Runnable> upCallbacks = new ArrayList<>();
 	private final List<Runnable> downCallbacks = new ArrayList<>();
 	private final List<Runnable> deleteCallbacks = new ArrayList<>();
 	private final List<Runnable> runCallbacks = new ArrayList<>();
 	
-	private Function<String, String> executeFunction = null;
+	private Function<String, Object> executeFunction = null;
 	
 	public Cell(Composite parent) {
 		Display display = parent.getDisplay();
 		
 		prompt = addLabel(parent, ">>>");
 		command = new Text(parent, SWT.NONE);
-		result = new Text(parent, SWT.NONE);
+		result = new StyledText(parent, SWT.NONE);
 		
 		command.setFont(FontList.consolas10);
 		result.setFont(FontList.consolas10);
 		
 		command.addSelectionListener(new SelectionAdapter() {
 			public void widgetDefaultSelected(SelectionEvent event) {
-				String resultText = executeFunction.apply(command.getText());
+				String resultText = String.valueOf(executeFunction.apply(command.getText()));
 				result.setText(String.valueOf(resultText));
 				
 				for(Runnable callback:runCallbacks) {
@@ -88,7 +89,7 @@ public class Cell {
 		return result.getText();
 	}
 	
-	public void setExecuteFunction(Function<String, String> executeFunction) {
+	public void setExecuteFunction(Function<String, Object> executeFunction) {
 		this.executeFunction = executeFunction;
 	}
 	
