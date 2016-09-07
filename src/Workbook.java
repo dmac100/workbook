@@ -25,7 +25,7 @@ public class Workbook {
 		
 		createMenuBar(shell);
 		
-		addScript();
+		addWorksheet();
 		addConsole();
 	}
 	
@@ -34,7 +34,7 @@ public class Workbook {
 		
 		menuBuilder.addMenu("&File")
 			.addItem("New Console").addSelectionListener(() -> addConsole())
-			.addItem("New Script").addSelectionListener(() -> addScript())
+			.addItem("New Worksheet").addSelectionListener(() -> addWorksheet())
 			.addSeparator()
 			.addItem("New String Editor...").addSelectionListener(() -> addStringEditor())
 			.addSeparator()
@@ -43,8 +43,8 @@ public class Workbook {
 		menuBuilder.build();
 	}
 	
-	private void addScript() {
-		tabbedView.addTab("Script", parent -> {
+	private void addWorksheet() {
+		tabbedView.addTab("Worksheet", parent -> {
 			CellList cellList = new CellList(parent);
 			mainController.addCellList(cellList);
 			return cellList.getControl();
