@@ -21,12 +21,13 @@ public class MainController {
 	public void addCellList(CellList cellList) {
 		cellList.setExecuteFunction(command -> {
 			Object result = script.eval(command, this::addOutput, this::addError);
-			onEval();
+			onEval(result);
 			return result;
 		});
 	}
 	
-	private void onEval() {
+	private void onEval(Object result) {
+		script.addVariable("_", result);
 		editors.forEach(Editor::readValue);
 	}
 
