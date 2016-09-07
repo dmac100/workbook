@@ -27,6 +27,7 @@ public class Cell {
 	private final List<Runnable> downCallbacks = new ArrayList<>();
 	private final List<Runnable> deleteCallbacks = new ArrayList<>();
 	private final List<Runnable> runCallbacks = new ArrayList<>();
+	private final List<Runnable> runAllCallbacks = new ArrayList<>();
 	
 	private Function<String, Object> executeFunction = null;
 	
@@ -42,11 +43,15 @@ public class Cell {
 		
 		command.addSelectionListener(new SelectionAdapter() {
 			public void widgetDefaultSelected(SelectionEvent event) {
-				String resultText = String.valueOf(executeFunction.apply(command.getText()));
-				result.setText(String.valueOf(resultText));
-				
-				for(Runnable callback:runCallbacks) {
-					callback.run();
+				evaluate(true);
+			}
+		});
+		
+		command.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent event) {
+				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+					runAllCallbacks.forEach(Runnable::run);
+					event.doit = false;
 				}
 			}
 		});
@@ -54,17 +59,11 @@ public class Cell {
 		command.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent event) {
 				if(event.character == SWT.BS && command.getText().isEmpty()) {
-					for(Runnable callback:deleteCallbacks) {
-						callback.run();
-					}
+					deleteCallbacks.forEach(Runnable::run);
 				} else if(event.keyCode == SWT.ARROW_UP) {
-					for(Runnable callback:upCallbacks) {
-						callback.run();
-					}
+					upCallbacks.forEach(Runnable::run);
 				} else if(event.keyCode == SWT.ARROW_DOWN) {
-					for(Runnable callback:downCallbacks) {
-						callback.run();
-					}
+					downCallbacks.forEach(Runnable::run);
 				}
 			}
 		});
@@ -79,6 +78,17 @@ public class Cell {
 		result.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 		
 		prompt.setForeground(display.getSystemColor(SWT.COLOR_DARK_CYAN));
+	}
+	
+	public void evaluate(boolean fireCallbacks) {
+		if(!command.getText().trim().isEmpty()) {
+			String resultText = String.valueOf(executeFunction.apply(command.getText()));
+			result.setText(String.valueOf(resultText));
+			
+			if(fireCallbacks) {
+				runCallbacks.forEach(Runnable::run);
+			}
+		}
 	}
 	
 	public String getCommand() {
@@ -107,6 +117,10 @@ public class Cell {
 	
 	public void addRunCallback(Runnable callback) {
 		runCallbacks.add(callback);
+	}
+	
+	public void addRunAllCallback(Runnable callback) {
+		runAllCallbacks.add(callback);
 	}
 	
 	public Rectangle getBounds() {

@@ -120,6 +120,14 @@ public class CellList {
 			}
 		});
 		
+		prompt.addRunAllCallback(new Runnable() {
+			public void run() {
+				for(Cell prompt:prompts) {
+					prompt.evaluate(false);
+				}
+			}
+		});
+		
 		prompts.add(prompt);
 		prompt.setFocus();
 		pack();
