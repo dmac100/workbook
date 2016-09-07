@@ -9,17 +9,17 @@ import org.eclipse.swt.widgets.Control;
 
 public class StringEditor implements Editor {
 	private final Composite parent;
-	private final String name;
+	private final String expression;
 	
 	private final StyledText text;
 	
 	private Reference reference;
 
-	public StringEditor(Composite parent, String name) {
+	public StringEditor(Composite parent, String expression) {
 		this.parent = parent;
-		this.name = name;
+		this.expression = expression;
 		
-		text = new StyledText(parent, SWT.NONE);
+		text = new StyledText(parent, SWT.V_SCROLL);
 		
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
@@ -28,8 +28,8 @@ public class StringEditor implements Editor {
 		});
 	}
 	
-	public String getValue() {
-		return text.getText();
+	public String getExpression() {
+		return expression;
 	}
 	
 	public void setReference(Reference reference) {
@@ -53,9 +53,5 @@ public class StringEditor implements Editor {
 
 	public Control getControl() {
 		return text;
-	}
-
-	public String getName() {
-		return name;
 	}
 }

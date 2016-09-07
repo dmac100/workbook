@@ -157,7 +157,7 @@ public class CellList {
 		scrolledCellsComposite.setOrigin(origin);
 	}
 	
-	private void pack() {
+	public void pack() {
 		cellsComposite.pack();
 		scrolledCellsComposite.setMinSize(cellsComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}

@@ -61,8 +61,8 @@ public class MenuBuilder {
 		return this;
 	}
 	
-	public void addSelectionListener(Runnable callback) {
-		addSelectionListener(new SelectionAdapter() {
+	public MenuBuilder addSelectionListener(Runnable callback) {
+		return addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				callback.run();
 			}

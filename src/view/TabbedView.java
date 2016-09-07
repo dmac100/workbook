@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tracker;
+import org.eclipse.swt.widgets.Widget;
 
 public class TabbedView {
 	private Runnable dragCallback = null;
@@ -44,6 +45,7 @@ public class TabbedView {
 		CTabFolder folder = folders.iterator().next();
 		T content = contentFactory.apply(folder);
 		createTabItem(folder, content, title);
+		folder.setSelection(folder.getItemCount() - 1);
 		return content;
 	}
 
@@ -291,7 +293,7 @@ public class TabbedView {
 		folder.setTabHeight(24);
 		
 		if(folder.getItemCount() > 0) {
-			folder.setSelection(folder.getItems()[0]);
+			folder.setSelection(0);
 		}
 		
 		folder.addCTabFolder2Listener(new CTabFolder2Adapter() {
@@ -308,25 +310,5 @@ public class TabbedView {
 	 */
 	private void setupTabItem(CTabItem item) {
 		item.setShowClose(true);
-	}
-
-	public static void main(String[] args) {
-		Display display = new Display();
-		
-		Shell shell = new Shell(display);
-		
-		shell.setSize(900, 600);
-		
-		new TabbedView(shell);
-		
-		shell.setVisible(true);
-		
-		while(!shell.isDisposed()) {
-			if(!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		
-		display.dispose();
 	}
 }

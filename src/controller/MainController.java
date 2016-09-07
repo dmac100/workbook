@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import editor.Editor;
-import editor.ScriptBindingReference;
-import editor.StringEditor;
+import editor.OgnlReference;
 import script.Script;
 import view.CellList;
 import view.Console;
@@ -43,8 +42,8 @@ public class MainController {
 		consoles.add(console);
 	}
 
-	public void addEditor(StringEditor editor) {
-		editor.setReference(new ScriptBindingReference(script, editor.getName()));
+	public void addEditor(Editor editor) {
+		editor.setReference(new OgnlReference(script.getVariableMap(), editor.getExpression()));
 		editors.add(editor);
 	}
 }

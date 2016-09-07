@@ -1,8 +1,10 @@
 package script;
 
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
@@ -27,6 +29,10 @@ public class Script {
 	
 	public Object getVariable(String name) {
 		return engine.get(name);
+	}
+	
+	public Map<String, Object> getVariableMap() {
+		return engine.getBindings(ScriptContext.ENGINE_SCOPE);
 	}
 	
 	public Object eval(String command) {
