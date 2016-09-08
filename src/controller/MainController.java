@@ -19,11 +19,13 @@ public class MainController {
 	private final List<Console> consoles = new ArrayList<>();
 	private final List<Editor> editors = new ArrayList<>();
 	
-	private final Consumer<Object> evalConsumer = new ThrottledConsumer<>(100, true, result -> onEval(result));
+	private final Consumer<Object> evalConsumer;
 	
 	public MainController(Display display) {
 		this.display = display;
 		this.script = new Script();
+		
+		evalConsumer = new ThrottledConsumer<>(100, true, result -> display.asyncExec(() -> onEval(result)));
 	}
 
 	public void addCellList(CellList cellList) {
@@ -35,10 +37,8 @@ public class MainController {
 	}
 	
 	private void onEval(Object result) {
-		display.asyncExec(() -> {
-			script.addVariable("_", result);
-			editors.forEach(Editor::readValue);
-		});
+		script.addVariable("_", result);
+		editors.forEach(Editor::readValue);
 	}
 
 	private void addOutput(String output) {
