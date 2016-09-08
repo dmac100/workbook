@@ -20,7 +20,7 @@ public class Workbook {
 		
 		shell.setLayout(new FillLayout());
 
-		mainController = new MainController();
+		mainController = new MainController(shell.getDisplay());
 		tabbedView = new TabbedView(shell);
 		
 		createMenuBar(shell);

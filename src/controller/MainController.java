@@ -2,33 +2,43 @@ package controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+
+import org.eclipse.swt.widgets.Display;
 
 import editor.Editor;
 import editor.OgnlReference;
 import script.Script;
+import util.ThrottledConsumer;
 import view.CellList;
 import view.Console;
 
 public class MainController {
+	private final Display display;
 	private final Script script;
 	private final List<Console> consoles = new ArrayList<>();
 	private final List<Editor> editors = new ArrayList<>();
 	
-	public MainController() {
+	private final Consumer<Object> evalConsumer = new ThrottledConsumer<>(100, true, result -> onEval(result));
+	
+	public MainController(Display display) {
+		this.display = display;
 		this.script = new Script();
 	}
 
 	public void addCellList(CellList cellList) {
 		cellList.setExecuteFunction(command -> {
 			Object result = script.eval(command, this::addOutput, this::addError);
-			onEval(result);
+			evalConsumer.accept(result);
 			return result;
 		});
 	}
 	
 	private void onEval(Object result) {
-		script.addVariable("_", result);
-		editors.forEach(Editor::readValue);
+		display.asyncExec(() -> {
+			script.addVariable("_", result);
+			editors.forEach(Editor::readValue);
+		});
 	}
 
 	private void addOutput(String output) {
