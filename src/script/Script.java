@@ -47,8 +47,8 @@ public class Script {
         	LineReader outputReader = new LineReader(outputCallback);
         	LineReader errorReader = new LineReader(errorCallback);
         	
-	        System.setOut(new PrintStream(outputReader.getOutputStream()));
-	        System.setErr(new PrintStream(errorReader.getOutputStream()));
+        	System.setOut(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(outputReader.getOutputStream()), out));
+        	System.setErr(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(errorReader.getOutputStream()), err));
 	        
 			Object value = engine.eval("with(new JavaImporter(java.util, java.lang)) { " + command + "}");
 
@@ -60,10 +60,7 @@ public class Script {
 			
 			return value;
         } catch(ScriptException e) {
-        	System.setOut(out);
-        	System.setErr(err);
-        	
-        	e.printStackTrace();
+        	e.printStackTrace(err);
         	errorCallback.accept(e.getMessage());
         	return null;
         } finally {
