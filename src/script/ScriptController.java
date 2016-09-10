@@ -1,12 +1,12 @@
 package script;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 public class ScriptController {
-	private final ArrayBlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(50);
+	private final LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 	private final Script script = new Script();
 	
 	private volatile Thread thread;
