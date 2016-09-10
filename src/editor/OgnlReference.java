@@ -1,6 +1,6 @@
 package editor;
 
-import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import ognl.DefaultClassResolver;
 import ognl.DefaultMemberAccess;
@@ -8,16 +8,17 @@ import ognl.DefaultTypeConverter;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
+import script.ScriptController;
 
 public class OgnlReference implements Reference {
-	private final Map<String, Object> rootObject;
 	private final OgnlContext context;
 	
 	private Object expression = null;
+	private final ScriptController scriptController;
 
-	public OgnlReference(Map<String, Object> rootObject, String expression) {
-		this.rootObject = rootObject;
+	public OgnlReference(ScriptController scriptController, String expression) {
 		this.context = new OgnlContext(new DefaultClassResolver(), new DefaultTypeConverter(), new DefaultMemberAccess(true));
+		this.scriptController = scriptController;
 		try {
 			this.expression = Ognl.parseExpression(expression);
 		} catch (OgnlException e) {
@@ -26,21 +27,32 @@ public class OgnlReference implements Reference {
 	}
 
 	@Override
-	public void set(Object value) {
-		try {
-			Ognl.setValue(expression, context, rootObject, value);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+	public CompletableFuture<Object> set(Object value) {
+		CompletableFuture<Object> future = new CompletableFuture<>();
+		scriptController.getScript(script -> {
+			try {
+				Ognl.setValue(expression, context, script.getVariableMap(), value);
+				future.complete(null);
+			} catch (OgnlException e) {
+				e.printStackTrace();
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
 	}
 
 	@Override
-	public Object get() {
-		try {
-			return Ognl.getValue(expression, context, rootObject);
-		} catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	public CompletableFuture<Object> get() {
+		CompletableFuture<Object> future = new CompletableFuture<>();
+		scriptController.getScript(script -> {
+			try {
+				Object value = Ognl.getValue(expression, context, script.getVariableMap());
+				future.complete(value);
+			} catch (OgnlException e) {
+				e.printStackTrace();
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
 	}
 }

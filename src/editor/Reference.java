@@ -1,6 +1,8 @@
 package editor;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface Reference {
-	public void set(Object value);
-	public Object get();
+	public CompletableFuture<Object> set(Object value);
+	public CompletableFuture<Object> get();
 }

@@ -2,6 +2,7 @@ package view;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
@@ -29,7 +30,7 @@ public class Cell {
 	private final List<Runnable> runCallbacks = new ArrayList<>();
 	private final List<Runnable> runAllCallbacks = new ArrayList<>();
 	
-	private Function<String, Object> executeFunction = null;
+	private Function<String, CompletableFuture<Object>> executeFunction = null;
 	
 	public Cell(Composite parent) {
 		Display display = parent.getDisplay();
@@ -82,12 +83,17 @@ public class Cell {
 	
 	public void evaluate(boolean fireCallbacks) {
 		if(!command.getText().trim().isEmpty()) {
-			String resultText = String.valueOf(executeFunction.apply(command.getText()));
-			result.setText(String.valueOf(resultText));
-			
-			if(fireCallbacks) {
-				runCallbacks.forEach(Runnable::run);
-			}
+			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
+				String resultText = String.valueOf(resultObject);
+				
+				Display.getDefault().asyncExec(() -> {
+					result.setText(String.valueOf(resultText));
+					
+					if(fireCallbacks) {
+						runCallbacks.forEach(Runnable::run);
+					}
+				});
+			});
 		}
 	}
 	
@@ -99,7 +105,7 @@ public class Cell {
 		return result.getText();
 	}
 	
-	public void setExecuteFunction(Function<String, Object> executeFunction) {
+	public void setExecuteFunction(Function<String, CompletableFuture<Object>> executeFunction) {
 		this.executeFunction = executeFunction;
 	}
 	

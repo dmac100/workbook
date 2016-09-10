@@ -34,14 +34,18 @@ public class StringEditor implements Editor {
 	
 	public void setReference(Reference reference) {
 		this.reference = reference;
+		readValue();
 	}
 	
 	public void readValue() {
 		if(reference != null) {
-			Object value = reference.get();
-			if(value instanceof String) {
-				text.setText((String)value);
-			}
+			reference.get().thenAccept(value -> {
+				if(value instanceof String) {
+					text.getDisplay().asyncExec(() -> {
+						text.setText((String)value);
+					});
+				}
+			});
 		}
 	}
 	

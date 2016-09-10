@@ -4,45 +4,48 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import script.Script;
+import script.ScriptController;
 
 public class OgnlReferenceTest {
 	@Test
-	public void getSetScriptObject() {
-		Script script = new Script();
-		script.eval("x = { a: { b: 1 } }");
+	public void getSetScriptObject() throws Exception {
+		ScriptController scriptController = new ScriptController();
+		scriptController.startQueueThread();
+		scriptController.eval("x = { a: { b: 1 } }", x -> {}, x -> {}).get();
 		
-		OgnlReference reference = new OgnlReference(script.getVariableMap(), "x.a.b");
+		OgnlReference reference = new OgnlReference(scriptController, "x.a.b");
 		
-		assertEquals(1, reference.get());
+		assertEquals(1, reference.get().get());
 		
 		reference.set(2);
-		assertEquals(2, reference.get());
+		assertEquals(2, reference.get().get());
 	}
 	
 	@Test
-	public void getSetScriptArray() {
-		Script script = new Script();
-		script.eval("x = [1, 2, 3]");
+	public void getSetScriptArray() throws Exception {
+		ScriptController scriptController = new ScriptController();
+		scriptController.startQueueThread();
+		scriptController.eval("x = [1, 2, 3]", x -> {}, x -> {}).get();
 		
-		OgnlReference reference = new OgnlReference(script.getVariableMap(), "x[\"1\"]");
+		OgnlReference reference = new OgnlReference(scriptController, "x[\"1\"]");
 		
-		assertEquals(2, reference.get());
+		assertEquals(2, reference.get().get());
 		
 		reference.set(3);
-		assertEquals(3, reference.get());
+		assertEquals(3, reference.get().get());
 	}
 	
 	@Test
-	public void getSetJavaArray() {
-		Script script = new Script();
-		script.addVariable("x", new int[] { 1, 2, 3 });
+	public void getSetJavaArray() throws Exception {
+		ScriptController scriptController = new ScriptController();
+		scriptController.startQueueThread();
+		scriptController.setVariable("x", new int[] { 1, 2, 3 }).get();
 		
-		OgnlReference reference = new OgnlReference(script.getVariableMap(), "x[1]");
+		OgnlReference reference = new OgnlReference(scriptController, "x[1]");
 		
-		assertEquals(2, reference.get());
+		assertEquals(2, reference.get().get());
 		
 		reference.set(3);
-		assertEquals(3, reference.get());
+		assertEquals(3, reference.get().get());
 	}
 }

@@ -2,18 +2,15 @@ package view;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-
-import layout.GridLayoutBuilder;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -21,13 +18,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+import layout.GridLayoutBuilder;
+
 public class CellList {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	
 	private final List<Cell> prompts = new ArrayList<>();
 	
-	private Function<String, Object> executeFunction;
+	private Function<String, CompletableFuture<Object>> executeFunction;
 	
 	public CellList(Composite parent) {
 		Display display = parent.getDisplay();
@@ -143,7 +142,7 @@ public class CellList {
 		}
 	}
 	
-	public void setExecuteFunction(Function<String, Object> executeFunction) {
+	public void setExecuteFunction(Function<String, CompletableFuture<Object>> executeFunction) {
 		this.executeFunction = executeFunction;
 	}
 	

@@ -23,7 +23,7 @@ public class Script {
 		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
 	}
 	
-	public void addVariable(String name, Object value) {
+	public void setVariable(String name, Object value) {
 		engine.put(name, value);
 	}
 	
