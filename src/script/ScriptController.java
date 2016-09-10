@@ -9,11 +9,13 @@ public class ScriptController {
 	private final ArrayBlockingQueue<Runnable> runnableQueue = new ArrayBlockingQueue<>(50);
 	private final Script script = new Script();
 	
+	private volatile Thread thread;
+	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
 	 */
 	public void startQueueThread() {
-		Thread thread = new Thread(this::runQueue);
+		this.thread = new Thread(this::runQueue);
 		thread.setDaemon(true);
 		thread.setName("Script Thread");
 		thread.start();
@@ -21,8 +23,6 @@ public class ScriptController {
 		// Restart thread on exception.
 		thread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
-				runnableQueue.clear();
-				
 				e.printStackTrace();
 				startQueueThread();
 			}
@@ -30,13 +30,12 @@ public class ScriptController {
 	}
 	
 	private void runQueue() {
-		try {
-			while(true) {
+		while(true) {
+			try {
 				runnableQueue.take().run();
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return;
 		}
 	}
 	
@@ -62,5 +61,11 @@ public class ScriptController {
 		runnableQueue.add(() -> {
 			consumer.accept(script);
 		});
+	}
+
+	public void interrupt() {
+		if(thread != null && thread.isAlive()) {
+			thread.interrupt();
+		}
 	}
 }

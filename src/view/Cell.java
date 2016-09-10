@@ -83,14 +83,18 @@ public class Cell {
 	
 	public void evaluate(boolean fireCallbacks) {
 		if(!command.getText().trim().isEmpty()) {
+			result.setText("...");
+			
+			if(fireCallbacks) {
+				runCallbacks.forEach(Runnable::run);
+			}
+			
 			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
 				String resultText = String.valueOf(resultObject);
 				
 				Display.getDefault().asyncExec(() -> {
-					result.setText(String.valueOf(resultText));
-					
-					if(fireCallbacks) {
-						runCallbacks.forEach(Runnable::run);
+					if(!result.isDisposed()) {
+						result.setText(String.valueOf(resultText));
 					}
 				});
 			});

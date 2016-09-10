@@ -42,7 +42,9 @@ public class StringEditor implements Editor {
 			reference.get().thenAccept(value -> {
 				if(value instanceof String) {
 					text.getDisplay().asyncExec(() -> {
-						text.setText((String)value);
+						if(!text.isDisposed()) {
+							text.setText((String)value);
+						}
 					});
 				}
 			});

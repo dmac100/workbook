@@ -40,6 +40,9 @@ public class Workbook {
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
+		menuBuilder.addMenu("&Script")
+			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt());
+		
 		menuBuilder.build();
 	}
 	

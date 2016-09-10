@@ -61,4 +61,8 @@ public class MainController {
 		editor.setReference(new OgnlReference(scriptController, editor.getExpression()));
 		editors.add(editor);
 	}
+	
+	public void interrupt() {
+		scriptController.interrupt();
+	}
 }
