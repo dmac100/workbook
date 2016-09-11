@@ -27,6 +27,7 @@ public class Workbook {
 		
 		addWorksheet();
 		addConsole();
+		addStringEditor("_");
 	}
 	
 	private void createMenuBar(final Shell shell) {
@@ -47,7 +48,7 @@ public class Workbook {
 	}
 	
 	private void addWorksheet() {
-		tabbedView.addTab("Worksheet", parent -> {
+		tabbedView.addLeftTab("Worksheet", parent -> {
 			CellList cellList = new CellList(parent);
 			mainController.addCellList(cellList);
 			return cellList.getControl();
@@ -55,7 +56,7 @@ public class Workbook {
 	}
 	
 	private void addConsole() {
-		tabbedView.addTab("Console", parent -> {
+		tabbedView.addBottomTab("Console", parent -> {
 			Console console = new Console(parent);
 			mainController.addConsole(console);
 			return console.getControl();
@@ -70,7 +71,7 @@ public class Workbook {
 	}
 	
 	private void addStringEditor(String expression) {
-		tabbedView.addTab("Editor: " + expression, parent -> {
+		tabbedView.addRightTab("Editor: " + expression, parent -> {
 			StringEditor stringEditor = new StringEditor(parent, expression);
 			mainController.addEditor(stringEditor);
 			return stringEditor.getControl();
@@ -85,7 +86,7 @@ public class Workbook {
 		Workbook main = new Workbook(shell);
 		
 		shell.setText("Workbook");
-		shell.setSize(900, 600);
+		shell.setSize(1000, 700);
 		shell.open();
 
 		while(!shell.isDisposed()) {

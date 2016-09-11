@@ -20,29 +20,52 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tracker;
-import org.eclipse.swt.widgets.Widget;
 
 public class TabbedView {
 	private Runnable dragCallback = null;
 	private Set<CTabFolder> folders = new HashSet<>();
 	private int tabCount = 0;
+	
+	private CTabFolder leftFolder;
+	private CTabFolder rightFolder;
+	private CTabFolder bottomFolder;
 
 	public TabbedView(Composite parent) {
 		parent.setLayout(new FillLayout());
 		
-		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
-		folders.add(folder);
-		setupTabFolder(folder);
+		leftFolder = new CTabFolder(parent, SWT.BORDER);
+		folders.add(leftFolder);
+		setupTabFolder(leftFolder);
 		
-		if(folder.getItemCount() > 0) {
-			folder.setSelection(0);
+		if(leftFolder.getItemCount() > 0) {
+			leftFolder.setSelection(0);
 		}
+		
+		bottomFolder = split(leftFolder, 0, 1, 60);
+		rightFolder = split(leftFolder, 1, 0, 60);
+	}
+	
+	public <T extends Control> T addLeftTab(String title, Function<Composite, T> contentFactory) {
+		return addTab(leftFolder, title, contentFactory);
+	}
+	
+	public <T extends Control> T addRightTab(String title, Function<Composite, T> contentFactory) {
+		return addTab(rightFolder, title, contentFactory);
+	}
+	
+	public <T extends Control> T addBottomTab(String title, Function<Composite, T> contentFactory) {
+		return addTab(bottomFolder, title, contentFactory);
 	}
 	
 	public <T extends Control> T addTab(String title, Function<Composite, T> contentFactory) {
-		CTabFolder folder = folders.iterator().next();
+		return addTab(folders.iterator().next(), title, contentFactory);
+	}
+	
+	public <T extends Control> T addTab(CTabFolder folder, String title, Function<Composite, T> contentFactory) {
+		if(folder == null || folder.isDisposed()) {
+			folder = folders.iterator().next();
+		}
 		T content = contentFactory.apply(folder);
 		createTabItem(folder, content, title);
 		folder.setSelection(folder.getItemCount() - 1);
@@ -92,6 +115,23 @@ public class TabbedView {
 		
 		Point point = folder.toControl(Display.getCurrent().getCursorLocation());
 		tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		
+		Rectangle clientArea = folder.getClientArea();
+		
+		// Check drag to empty folder.
+		if(folder.getItemCount() == 0) {
+			int x = clientArea.x + folderOffsetX;
+			int y = clientArea.y + folderOffsetY;
+			int width = clientArea.width;
+			int height = clientArea.height;
+			
+			tracker.setStippled(false);
+			tracker.setRectangles(new Rectangle[] {
+				new Rectangle(x, y, width, height)
+			});
+			dragCallback = () -> moveToEmptyFolder(folder, dragItem);
+			return true;
+		}
 
 		// Check drag to tab headers.
 		for(int i = 0; i < folder.getItemCount(); i++) {
@@ -101,6 +141,7 @@ public class TabbedView {
 				int startX = item.getBounds().x;
 				int endX = item.getBounds().x + item.getBounds().width;
 				
+				// Check placement to the left of item i.
 				if((i == 0 || folder.getItem(i - 1) != dragItem) && Math.abs(point.x - startX) < width / 2) {
 					tracker.setStippled(false);
 					tracker.setRectangles(new Rectangle[] {
@@ -110,6 +151,7 @@ public class TabbedView {
 					return true;
 				}
 				
+				// Check placement to the right of item i.
 				if(item != dragItem && Math.abs(point.x - endX) < width / 2) {
 					tracker.setStippled(false);
 					tracker.setRectangles(new Rectangle[] {
@@ -122,7 +164,6 @@ public class TabbedView {
 		}
 		
 		// Check drag to folder client area.
-		Rectangle clientArea = folder.getClientArea();
 		if(clientArea.contains(point)) {
 			int fromTop = Math.abs(point.y - clientArea.y);
 			int fromBottom = Math.abs(point.y - (clientArea.y + clientArea.height));
@@ -145,25 +186,25 @@ public class TabbedView {
 					new Rectangle(x, y, width, height / 2 - 1),
 					new Rectangle(x, y + height / 2 + 1, width, height / 2 - 1)
 				});
-				dragCallback = () -> split(folder, dragItem, 0, -1);
+				dragCallback = () -> split(folder, dragItem, 0, -1, 50);
 			} else if(fromBottom == min) {
 				tracker.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width, height / 2 - 1),
 					new Rectangle(x, y + height / 2 + 1, width, height / 2 - 1)
 				});
-				dragCallback = () -> split(folder, dragItem, 0, 1);
+				dragCallback = () -> split(folder, dragItem, 0, 1, 50);
 			} else if(fromLeft == min) {
 				tracker.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width / 2 - 1, height),
 					new Rectangle(x + width / 2 + 1, y, width / 2 - 1, height)
 				});
-				dragCallback = () -> split(folder, dragItem, -1, 0);
+				dragCallback = () -> split(folder, dragItem, -1, 0, 50);
 			} else if(fromRight == min) {
 				tracker.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width / 2 - 1, height),
 					new Rectangle(x + width / 2 + 1, y, width / 2 - 1, height)
 				});
-				dragCallback = () -> split(folder, dragItem, 1, 0);
+				dragCallback = () -> split(folder, dragItem, 1, 0, 50);
 			}
 			
 			return true;
@@ -173,6 +214,20 @@ public class TabbedView {
 		tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_NO));
 		tracker.setRectangles(new Rectangle[0]);
 		return false;
+	}
+
+	/**
+	 * Moves the tab item, draggedItem, to an empty folder.
+	 */
+	private void moveToEmptyFolder(CTabFolder folder, CTabItem draggedItem) {
+		CTabFolder draggedFolder = draggedItem.getParent();
+		
+		CTabItem newTabItem = createTabItem(folder, draggedItem.getControl(), draggedItem.getText());
+		draggedItem.dispose();
+		
+		newTabItem.getParent().setSelection(newTabItem);
+		
+		removeIfEmpty(draggedFolder);
 	}
 
 	/**
@@ -198,24 +253,44 @@ public class TabbedView {
 	}
 
 	/**
-	 * Splits a folder into two panes, putting draggedItem into one of them and the existing tabs the another.
+	 * Splits a folder into two panes, putting draggedItem into one of them, and the existing tabs in the other.
 	 * DraggedItem is put into the top pane if dy < 0, the left pane if dx < 0, bottom if dy > 0, or right if dx > 0.
+	 * Weight is the percentage that the left or top folder takes up.
 	 */
-	private void split(CTabFolder folder, CTabItem draggedItem, int dx, int dy) {
+	private void split(CTabFolder folder, CTabItem draggedItem, int dx, int dy, int weight) {
 		CTabFolder draggedFolder = draggedItem.getParent();
+		Control control = draggedItem.getControl();
+		String text = draggedItem.getText();
+		
+		draggedItem.dispose();
+		CTabFolder newFolder = split(folder, dx, dy, weight);
+		createTabItem(newFolder, control, text);
+		
+		removeIfEmpty(draggedFolder);
+		
+		newFolder.setSelection(0);
+	}
+	
+	/**
+	 * Splits a folder into two panes, putting a new folder in one of them, and the existing tabs in the other.
+	 * The new folder is put into the top pane if dy < 0, the left pane if dx < 0, bottom if dy > 0, or right if dx > 0.
+	 * Weight is the percentage that the left or top folder takes up.
+	 */
+	private CTabFolder split(CTabFolder folder, int dx, int dy, int weight) {
 		Composite parent = folder.getParent();
+		parent.layout();
+		
+		int[] oldWeights = null;
+		if(parent instanceof SashForm) {
+			oldWeights = ((SashForm) parent).getWeights();
+		}
 		
 		SashForm sashForm = new SashForm(parent, (dx == 0) ? SWT.VERTICAL : SWT.HORIZONTAL);
 		sashForm.moveAbove(folder);
 		
 		folder.setParent(sashForm);
 		
-		Control control = draggedItem.getControl();
-		String text = draggedItem.getText();
-		
-		draggedItem.dispose();
 		CTabFolder newFolder = new CTabFolder(sashForm, SWT.BORDER);
-		createTabItem(newFolder, control, text);
 		if(dx < 0 || dy < 0) {
 			newFolder.moveAbove(folder);
 		}
@@ -223,9 +298,14 @@ public class TabbedView {
 		setupTabFolder(newFolder);
 		folders.add(newFolder);
 		
+		sashForm.setWeights(new int[] { weight, 100 - weight });
 		parent.layout();
 		
-		removeIfEmpty(draggedFolder);
+		if(parent instanceof SashForm) {
+			((SashForm) parent).setWeights(oldWeights);
+		}
+		
+		return newFolder;
 	}
 	
 	/**
