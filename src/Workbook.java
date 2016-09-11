@@ -65,12 +65,16 @@ public class Workbook {
 	private void addStringEditor() {
 		String expression = InputDialog.open(shell, "Expression", "Expression");
 		if(expression != null && !expression.trim().isEmpty()) {
-			tabbedView.addTab("Editor: " + expression.trim(), parent -> {
-				StringEditor stringEditor = new StringEditor(parent, expression.trim());
-				mainController.addEditor(stringEditor);
-				return stringEditor.getControl();
-			});
+			addStringEditor(expression.trim());
 		}
+	}
+	
+	private void addStringEditor(String expression) {
+		tabbedView.addTab("Editor: " + expression, parent -> {
+			StringEditor stringEditor = new StringEditor(parent, expression);
+			mainController.addEditor(stringEditor);
+			return stringEditor.getControl();
+		});
 	}
 	
 	public static void main(String[] args) {
