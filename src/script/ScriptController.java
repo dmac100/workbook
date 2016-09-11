@@ -1,7 +1,6 @@
 package script;
 
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
@@ -39,8 +38,8 @@ public class ScriptController {
 		}
 	}
 	
-	public CompletableFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		CompletableFuture<Object> future = new CompletableFuture<>();
+	public ScriptFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		ScriptFuture<Object> future = new ScriptFuture<>();
 		runnableQueue.add(() -> {
 			Object result = script.eval(expression, outputCallback, errorCallback);
 			future.complete(result);
@@ -48,8 +47,8 @@ public class ScriptController {
 		return future;
 	}
 
-	public CompletableFuture<Void> setVariable(String name, Object value) {
-		CompletableFuture<Void> future = new CompletableFuture<>();
+	public ScriptFuture<Void> setVariable(String name, Object value) {
+		ScriptFuture<Void> future = new ScriptFuture<>();
 		runnableQueue.add(() -> {
 			script.setVariable(name, value);
 			future.complete(null);

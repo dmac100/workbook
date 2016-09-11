@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import layout.GridDataBuilder;
+import script.ScriptFuture;
 
 public class Cell {
 	private final Label prompt;
@@ -30,7 +31,7 @@ public class Cell {
 	private final List<Runnable> runCallbacks = new ArrayList<>();
 	private final List<Runnable> runAllCallbacks = new ArrayList<>();
 	
-	private Function<String, CompletableFuture<Object>> executeFunction = null;
+	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	
 	public Cell(Composite parent) {
 		Display display = parent.getDisplay();
@@ -109,7 +110,7 @@ public class Cell {
 		return result.getText();
 	}
 	
-	public void setExecuteFunction(Function<String, CompletableFuture<Object>> executeFunction) {
+	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
 		this.executeFunction = executeFunction;
 	}
 	

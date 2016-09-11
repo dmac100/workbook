@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import layout.GridLayoutBuilder;
+import script.ScriptFuture;
 
 public class CellList {
 	private final ScrolledComposite scrolledCellsComposite;
@@ -26,7 +27,7 @@ public class CellList {
 	
 	private final List<Cell> prompts = new ArrayList<>();
 	
-	private Function<String, CompletableFuture<Object>> executeFunction;
+	private Function<String, ScriptFuture<Object>> executeFunction;
 	
 	public CellList(Composite parent) {
 		Display display = parent.getDisplay();
@@ -142,7 +143,7 @@ public class CellList {
 		}
 	}
 	
-	public void setExecuteFunction(Function<String, CompletableFuture<Object>> executeFunction) {
+	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
 		this.executeFunction = executeFunction;
 	}
 	

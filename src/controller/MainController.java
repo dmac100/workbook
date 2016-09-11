@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Display;
 import editor.Editor;
 import editor.OgnlReference;
 import script.ScriptController;
+import script.ScriptFuture;
 import util.ThrottledConsumer;
 import view.CellList;
 import view.Console;
@@ -33,7 +34,7 @@ public class MainController {
 
 	public void addCellList(CellList cellList) {
 		cellList.setExecuteFunction(command -> {
-			CompletableFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
+			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
 			return result;
 		});

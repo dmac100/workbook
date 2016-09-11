@@ -1,7 +1,5 @@
 package editor;
 
-import java.util.concurrent.CompletableFuture;
-
 import ognl.DefaultClassResolver;
 import ognl.DefaultMemberAccess;
 import ognl.DefaultTypeConverter;
@@ -9,6 +7,7 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import script.ScriptController;
+import script.ScriptFuture;
 
 public class OgnlReference implements Reference {
 	private final OgnlContext context;
@@ -27,30 +26,28 @@ public class OgnlReference implements Reference {
 	}
 
 	@Override
-	public CompletableFuture<Object> set(Object value) {
-		CompletableFuture<Object> future = new CompletableFuture<>();
+	public ScriptFuture<Object> set(Object value) {
+		ScriptFuture<Object> future = new ScriptFuture<>();
 		scriptController.getScript(script -> {
 			try {
 				Ognl.setValue(expression, context, script.getVariableMap(), value);
 				future.complete(null);
 			} catch (OgnlException e) {
-				e.printStackTrace();
-				future.completeExceptionally(e);
+				throw new RuntimeException("Error setting ognl value", e);
 			}
 		});
 		return future;
 	}
 
 	@Override
-	public CompletableFuture<Object> get() {
-		CompletableFuture<Object> future = new CompletableFuture<>();
+	public ScriptFuture<Object> get() {
+		ScriptFuture<Object> future = new ScriptFuture<>();
 		scriptController.getScript(script -> {
 			try {
 				Object value = Ognl.getValue(expression, context, script.getVariableMap());
 				future.complete(value);
 			} catch (OgnlException e) {
-				e.printStackTrace();
-				future.completeExceptionally(e);
+				throw new RuntimeException("Error getting ognl value", e);
 			}
 		});
 		return future;

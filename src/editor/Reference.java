@@ -1,8 +1,8 @@
 package editor;
 
-import java.util.concurrent.CompletableFuture;
+import script.ScriptFuture;
 
 public interface Reference {
-	public CompletableFuture<Object> set(Object value);
-	public CompletableFuture<Object> get();
+	public ScriptFuture<Object> set(Object value);
+	public ScriptFuture<Object> get();
 }
