@@ -163,6 +163,23 @@ public class TabbedView {
 			}
 		}
 		
+		// Check drag to right all tab items.
+		if(folder.getItemCount() > 0) {
+			CTabItem item = folder.getItem(folder.getItemCount() - 1);
+			if(point.y >= 0 && point.y <= item.getBounds().height) {
+				int endX = item.getBounds().x + item.getBounds().width;
+				if(item != dragItem && point.x > endX) {
+					tracker.setStippled(false);
+					tracker.setRectangles(new Rectangle[] {
+						new Rectangle(folderOffsetX + endX, folderOffsetY + item.getBounds().y, 0, item.getBounds().height)
+					});
+					dragCallback = () -> moveTabItem(dragItem, item, false);
+					return true;
+				}
+				
+			}
+		}
+		
 		// Check drag to folder client area.
 		if(clientArea.contains(point)) {
 			int fromTop = Math.abs(point.y - clientArea.y);
