@@ -1,0 +1,44 @@
+package editor;
+
+import script.Script;
+import script.ScriptController;
+import script.ScriptFuture;
+
+public abstract class AbstractScriptReference implements Reference {
+	private final ScriptController scriptController;
+
+	protected abstract void setSync(Script script, Object value) throws Exception;
+	protected abstract Object getSync(Script script) throws Exception;
+	
+	public AbstractScriptReference(ScriptController scriptController) {
+		this.scriptController = scriptController;
+	}
+	
+	@Override
+	public ScriptFuture<Object> set(Object value) {
+		ScriptFuture<Object> future = new ScriptFuture<>();
+		scriptController.getScript(script -> {
+			try {
+				setSync(script, value);
+				future.complete(null);
+			} catch (Exception e) {
+				throw new RuntimeException("Error setting value", e);
+			}
+		});
+		return future;
+	}
+	
+	@Override
+	public ScriptFuture<Object> get() {
+		ScriptFuture<Object> future = new ScriptFuture<>();
+		scriptController.getScript(script -> {
+			try {
+				Object value = getSync(script);
+				future.complete(value);
+			} catch (Exception e) {
+				throw new RuntimeException("Error getting value", e);
+			}
+		});
+		return future;
+	}
+}
