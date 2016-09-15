@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -21,6 +22,32 @@ public class Script {
 		}
 		
 		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
+	}
+	
+	public boolean isIterable(Object value) throws ScriptException {
+		Bindings bindings = engine.createBindings();
+		bindings.put("arg", value);
+		return (Boolean) engine.eval("Object.prototype.toString.call(arg) === '[object Array]'", bindings);
+	}
+
+	public void iterateObject(Object array, Consumer<Object> consumer) {
+		Map<?, ?> map = (Map<?, ?>) array;
+		Long length = getNumeric(map.get("length"));
+		if(length != null) {
+			for(int i = 0; i < (Long) length; i++) {
+				consumer.accept(map.get(String.valueOf(i)));
+			}
+		}
+	}
+	
+	private static Long getNumeric(Object object) {
+		if(object instanceof Integer) {
+			return Long.valueOf((Integer) object);
+		} else if(object instanceof Long) {
+			return (Long) object;
+		} else {
+			return null;
+		}
 	}
 	
 	public void setVariable(String name, Object value) {
