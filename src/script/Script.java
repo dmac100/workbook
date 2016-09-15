@@ -10,6 +10,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class Script {
 	private final ScriptEngine engine;
@@ -75,6 +76,15 @@ public class Script {
 	public Map<String, Object> getVariableMap() {
 		checkThreadAccess();
 		return engine.getBindings(ScriptContext.ENGINE_SCOPE);
+	}
+
+	public boolean isScriptObject(Object object) {
+		return object instanceof ScriptObjectMirror;
+	}
+
+	public Map<String, Object> getPropertyMap(Object object) {
+		checkThreadAccess();
+		return (Map<String, Object>) object;
 	}
 	
 	public Object eval(String command) {

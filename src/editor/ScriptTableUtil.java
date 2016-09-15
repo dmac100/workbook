@@ -54,7 +54,12 @@ public class ScriptTableUtil {
 	private Map<String, String> getTableRow(Object object) {
 		Map<String, String> row = new TreeMap<>();
 		
-		if(object instanceof Map) {
+		if(script.isScriptObject(object)) {
+			Map<?, ?> map = script.getPropertyMap(object);
+			map.forEach((k, v) -> {
+				row.put(toKeyValue(k), toCellValue(v));
+			});
+		} else if(object instanceof Map) {
 			Map<?, ?> map = (Map<?, ?>) object;
 			map.forEach((k, v) -> {
 				row.put(toKeyValue(k), toCellValue(v));
