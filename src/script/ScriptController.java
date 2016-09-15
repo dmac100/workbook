@@ -9,13 +9,12 @@ public class ScriptController {
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 	private final Script script = new Script();
 	
-	private volatile Thread thread;
-	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
 	 */
 	public void startQueueThread() {
-		this.thread = new Thread(this::runQueue);
+		Thread thread = new Thread(this::runQueue);
+		script.thread = thread;
 		thread.setDaemon(true);
 		thread.setName("Script Thread");
 		thread.start();
@@ -64,6 +63,7 @@ public class ScriptController {
 	}
 
 	public void interrupt() {
+		Thread thread = script.thread;
 		if(thread != null && thread.isAlive()) {
 			thread.interrupt();
 		}
