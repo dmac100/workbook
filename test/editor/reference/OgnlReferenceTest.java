@@ -1,9 +1,10 @@
-package editor;
+package editor.reference;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import editor.reference.OgnlReference;
 import script.ScriptController;
 
 public class OgnlReferenceTest {

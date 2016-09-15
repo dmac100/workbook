@@ -11,6 +11,9 @@ import java.util.function.BiConsumer;
 
 import javax.script.ScriptException;
 
+import editor.reference.JavaPropertyReference;
+import editor.reference.MapPropertyReference;
+import editor.reference.Reference;
 import script.Script;
 import script.ScriptController;
 

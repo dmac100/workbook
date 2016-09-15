@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 
 import org.eclipse.swt.widgets.Display;
 
-import editor.Editor;
-import editor.OgnlReference;
+import editor.reference.OgnlReference;
+import editor.ui.Editor;
 import script.ScriptController;
 import script.ScriptFuture;
 import util.ThrottledConsumer;

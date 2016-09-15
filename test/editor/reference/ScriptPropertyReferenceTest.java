@@ -1,9 +1,11 @@
-package editor;
+package editor.reference;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import editor.reference.Reference;
+import editor.reference.ScriptPropertyReference;
 import script.ScriptController;
 
 public class ScriptPropertyReferenceTest {

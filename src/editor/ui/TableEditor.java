@@ -1,4 +1,4 @@
-package editor;
+package editor.ui;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+
+import editor.ScriptTableUtil;
+import editor.reference.Reference;
 
 public class TableEditor implements Editor {
 	private final Composite parent;

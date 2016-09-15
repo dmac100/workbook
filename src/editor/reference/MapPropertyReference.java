@@ -1,4 +1,4 @@
-package editor;
+package editor.reference;
 
 import java.util.Map;
 

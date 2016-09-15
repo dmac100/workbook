@@ -1,4 +1,4 @@
-package editor;
+package editor.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -6,6 +6,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+
+import editor.reference.Reference;
 
 public class StringEditor implements Editor {
 	private final Composite parent;

@@ -1,4 +1,4 @@
-package editor;
+package editor.reference;
 
 import static org.junit.Assert.*;
 
@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import editor.reference.MapPropertyReference;
 import script.ScriptController;
 
 public class MapPropertyReferenceTest {

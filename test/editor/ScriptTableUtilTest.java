@@ -15,6 +15,7 @@ import javax.script.ScriptException;
 import org.junit.Before;
 import org.junit.Test;
 
+import editor.reference.Reference;
 import script.ScriptController;
 import script.ScriptFuture;
 

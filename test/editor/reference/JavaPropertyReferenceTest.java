@@ -1,4 +1,4 @@
-package editor;
+package editor.reference;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
+import editor.reference.JavaPropertyReference;
 import script.ScriptController;
 
 public class JavaPropertyReferenceTest {
