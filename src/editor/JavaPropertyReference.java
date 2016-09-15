@@ -20,11 +20,17 @@ public class JavaPropertyReference extends AbstractScriptReference {
 	
 	@Override
 	protected void setSync(Script script, Object value) throws Exception {
-		setMethod.invoke(object, value);
+		if(setMethod != null) {
+			setMethod.invoke(object, value);
+		}
 	}
 
 	@Override
 	protected Object getSync(Script script) throws Exception {
-		return getMethod.invoke(object);
+		if(getMethod == null) {
+			return null;
+		} else {
+			return getMethod.invoke(object);
+		}
 	}
 }

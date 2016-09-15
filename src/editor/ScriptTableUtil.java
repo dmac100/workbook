@@ -12,11 +12,14 @@ import java.util.function.BiConsumer;
 import javax.script.ScriptException;
 
 import script.Script;
+import script.ScriptController;
 
 public class ScriptTableUtil {
+	private final ScriptController scriptController;
 	private final Script script;
 
-	public ScriptTableUtil(Script script) {
+	public ScriptTableUtil(ScriptController scriptController, Script script) {
+		this.scriptController = scriptController;
 		this.script = script;
 	}
 	
@@ -31,8 +34,8 @@ public class ScriptTableUtil {
 	/**
 	 * Returns a table containing the properties of a single object or list of objects.
 	 */
-	public Map<String, List<String>> getTable(Object object) throws ScriptException {
-		List<Map<String, String>> rows = new ArrayList<>();
+	public Map<String, List<Reference>> getTable(Object object) throws ScriptException {
+		List<Map<String, Reference>> rows = new ArrayList<>();
 		
 		if(script.isIterable(object)) {
 			script.iterateObject(object, value -> {
@@ -51,22 +54,24 @@ public class ScriptTableUtil {
 	/**
 	 * Returns a single row of a table containing the properties of an object.
 	 */
-	private Map<String, String> getTableRow(Object object) {
-		Map<String, String> row = new TreeMap<>();
+	private Map<String, Reference> getTableRow(Object object) {
+		Map<String, Reference> row = new TreeMap<>();
 		
 		if(script.isScriptObject(object)) {
-			Map<?, ?> map = script.getPropertyMap(object);
+			Map<String, Object> map = script.getPropertyMap(object);
 			map.forEach((k, v) -> {
-				row.put(toKeyValue(k), toCellValue(v));
+				row.put(toKeyValue(k), new MapPropertyReference(scriptController, map, String.valueOf(k)));
 			});
 		} else if(object instanceof Map) {
-			Map<?, ?> map = (Map<?, ?>) object;
+			Map<Object, Object> map = (Map<Object, Object>) object;
 			map.forEach((k, v) -> {
-				row.put(toKeyValue(k), toCellValue(v));
+				if(k instanceof String) {
+					row.put(toKeyValue(k), new MapPropertyReference(scriptController, (Map<String, Object>) (Map) map, String.valueOf(k)));
+				}
 			});
 		} else if(object != null) {
 			iterateJavaObjectProperties(object, (k, v) -> {
-				row.put(toKeyValue(k), toCellValue(v));
+				row.put(toKeyValue(k), v);
 			});
 		}
 		
@@ -74,39 +79,48 @@ public class ScriptTableUtil {
 	}
 	
 	/**
-	 * Iterate over the properties in a Java object (with get and is methods).
+	 * Iterate over the properties in a Java object (with get, set and is methods).
 	 */
-	private static void iterateJavaObjectProperties(Object object, BiConsumer<String, Object> consumer) {
-		for(Method method:object.getClass().getMethods()) {
-			if(method.getName().matches("(is|get).*") && method.getParameterCount() == 0) {
-				try {
-					String name = method.getName().replaceAll("^(is|get)", "");
-					if(name.length() > 0) {
-						name = name.substring(0, 1).toLowerCase() + name.substring(1);
-					}
-					method.setAccessible(true);
-					Object result = method.invoke(object);
-					consumer.accept(name, result);
-				} catch(ReflectiveOperationException e) {
-					e.printStackTrace();
+	private void iterateJavaObjectProperties(Object object, BiConsumer<String, Reference> consumer) {
+		for(Method getMethod:object.getClass().getMethods()) {
+			if(getMethod.getName().matches("(is|get).*") && getMethod.getParameterCount() == 0) {
+				String name = getMethod.getName().replaceAll("^(is|get)", "");
+				Method setMethod = getSetMethod(object.getClass(), name);
+				if(name.length() > 0) {
+					name = name.substring(0, 1).toLowerCase() + name.substring(1);
 				}
+				getMethod.setAccessible(true);
+				consumer.accept(name, new JavaPropertyReference(scriptController, object, getMethod, setMethod));
 			}
 		}
 	}
 
 	/**
-	 * Converts a List<Map<String, String>> to a Map<String, List<String>> by combining all keys together.
+	 * Returns the set method corresponding to a property on and class.
 	 */
-	private Map<String, List<String>> combineKeys(List<Map<String, String>> rows) {
-		Map<String, List<String>> combinedRows = new TreeMap<>();
+	private static Method getSetMethod(Class<?> clazz, String name) {
+		for(Method setMethod:clazz.getMethods()) {
+			if(setMethod.getName().equals("set" + name) && setMethod.getParameterCount() == 1) {
+				setMethod.setAccessible(true);
+				return setMethod;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Converts a List<Map<A, B>> to a Map<A, List<B>> by combining all keys together.
+	 */
+	private <A, B> Map<A, List<B>> combineKeys(List<Map<A, B>> rows) {
+		Map<A, List<B>> combinedRows = new TreeMap<>();
 		
 		if(rows != null) {
-			for(Map<String, String> row:rows) {
-				for(String key:getAllKeys(rows)) {
+			for(Map<A, B> row:rows) {
+				for(A key:getAllKeys(rows)) {
 					if(!combinedRows.containsKey(key)) {
 						combinedRows.put(key, new ArrayList<>());
 					}
-					combinedRows.get(key).add(toCellValue(row.get(key)));
+					combinedRows.get(key).add(row.get(key));
 				}
 			}
 		}
