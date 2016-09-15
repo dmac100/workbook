@@ -4,6 +4,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ScriptController {
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
@@ -38,6 +39,14 @@ public class ScriptController {
 		}
 	}
 	
+	public <T> ScriptFuture<T> exec(Supplier<T> supplier) {
+		ScriptFuture<T> future = new ScriptFuture<>();
+		runnableQueue.add(() -> {
+			future.complete(supplier.get());
+		});
+		return future;
+	}
+	
 	public ScriptFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
 		ScriptFuture<Object> future = new ScriptFuture<>();
 		runnableQueue.add(() -> {
@@ -60,6 +69,10 @@ public class ScriptController {
 		runnableQueue.add(() -> {
 			consumer.accept(script);
 		});
+	}
+	
+	public Script getScriptSync() {
+		return script;
 	}
 
 	public void interrupt() {

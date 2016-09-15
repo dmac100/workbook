@@ -16,15 +16,9 @@ import script.ScriptController;
 
 public class ScriptTableUtil {
 	private final ScriptController scriptController;
-	private final Script script;
 
-	public ScriptTableUtil(ScriptController scriptController, Script script) {
+	public ScriptTableUtil(ScriptController scriptController) {
 		this.scriptController = scriptController;
-		this.script = script;
-	}
-	
-	private String toCellValue(Object value) {
-		return String.valueOf(value);
 	}
 	
 	private String toKeyValue(Object value) {
@@ -36,6 +30,8 @@ public class ScriptTableUtil {
 	 */
 	public Map<String, List<Reference>> getTable(Object object) throws ScriptException {
 		List<Map<String, Reference>> rows = new ArrayList<>();
+		
+		Script script = scriptController.getScriptSync();
 		
 		if(script.isIterable(object)) {
 			script.iterateObject(object, value -> {
@@ -57,17 +53,17 @@ public class ScriptTableUtil {
 	private Map<String, Reference> getTableRow(Object object) {
 		Map<String, Reference> row = new TreeMap<>();
 		
+		Script script = scriptController.getScriptSync();
+		
 		if(script.isScriptObject(object)) {
 			Map<String, Object> map = script.getPropertyMap(object);
 			map.forEach((k, v) -> {
-				row.put(toKeyValue(k), new MapPropertyReference(scriptController, map, String.valueOf(k)));
+				row.put(toKeyValue(k), new MapPropertyReference(scriptController, map, k));
 			});
 		} else if(object instanceof Map) {
 			Map<Object, Object> map = (Map<Object, Object>) object;
 			map.forEach((k, v) -> {
-				if(k instanceof String) {
-					row.put(toKeyValue(k), new MapPropertyReference(scriptController, (Map<String, Object>) (Map) map, String.valueOf(k)));
-				}
+				row.put(toKeyValue(k), new MapPropertyReference(scriptController, map, k));
 			});
 		} else if(object != null) {
 			iterateJavaObjectProperties(object, (k, v) -> {

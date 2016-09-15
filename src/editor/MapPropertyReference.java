@@ -6,13 +6,13 @@ import script.Script;
 import script.ScriptController;
 
 public class MapPropertyReference extends AbstractScriptReference {
-	private final Map<String, Object> object;
-	private final String property;
+	private final Map<Object, Object> object;
+	private final Object property;
 
-	public MapPropertyReference(ScriptController scriptController, Map<String, Object> object, String property) {
+	public <K, V> MapPropertyReference(ScriptController scriptController, Map<K, V> object, K property) {
 		super(scriptController);
 		
-		this.object = object;
+		this.object = (Map<Object, Object>) object;
 		this.property = property;
 	}
 	

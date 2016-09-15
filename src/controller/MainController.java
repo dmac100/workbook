@@ -66,4 +66,8 @@ public class MainController {
 	public void interrupt() {
 		scriptController.interrupt();
 	}
+
+	public ScriptController getScriptController() {
+		return scriptController;
+	}
 }

@@ -8,16 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import script.Script;
 import script.ScriptController;
+import script.ScriptFuture;
 
 public class ScriptTableUtilTest {
 	private static class JavaObject {
@@ -40,20 +39,31 @@ public class ScriptTableUtilTest {
 	
 	private static final String JAVAOBJECT_CLASS = new JavaObject(null, null).getClass().toString();
 	
-	private final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
+	private ScriptController scriptController = new ScriptController();
 	
 	private ScriptTableUtil scriptTableUtil;
 	
 	@Before
 	public void before() {
-		ScriptController scriptController = new ScriptController();
 		scriptController.startQueueThread();
-		scriptTableUtil = new ScriptTableUtil(scriptController, new Script());
+		scriptTableUtil = new ScriptTableUtil(scriptController);
 	}
 
+	private Map<String, List<String>> getTable(Object object) throws ScriptException, InterruptedException, ExecutionException {
+		ScriptFuture<Map<String, List<Reference>>> table = scriptController.exec(() -> {
+			try {
+				return scriptTableUtil.getTable(object);
+			} catch(ScriptException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		
+		return resolveReferences(table.get());
+	}
+	
 	@Test
 	public void getTable_singleJsObject() throws Exception {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(scriptEngine.eval("({a: 1})")));
+		Map<String, List<String>> table = getTable(jsEval("({a: 1})"));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1")
@@ -64,7 +74,7 @@ public class ScriptTableUtilTest {
 	
 	@Test
 	public void getTable_jsListSingleJsObject() throws Exception {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(scriptEngine.eval("[{a: 1}]")));
+		Map<String, List<String>> table = getTable(jsEval("[{a: 1}]"));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1")
@@ -75,7 +85,7 @@ public class ScriptTableUtilTest {
 	
 	@Test
 	public void getTable_jsListMultipleJsObject() throws Exception {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(scriptEngine.eval("[{a: 1}, {b: 2}, {a: 3, b: 4}]")));
+		Map<String, List<String>> table = getTable(jsEval("[{a: 1}, {b: 2}, {a: 3, b: 4}]"));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1", "null", "3"),
@@ -87,7 +97,7 @@ public class ScriptTableUtilTest {
 	
 	@Test
 	public void getTable_singleJsNull() throws Exception {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(scriptEngine.eval("null")));
+		Map<String, List<String>> table = getTable(jsEval("null"));
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -96,7 +106,7 @@ public class ScriptTableUtilTest {
 	
 	@Test
 	public void getTable_jsListJsNull() throws Exception {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(scriptEngine.eval("[null]")));
+		Map<String, List<String>> table = getTable(jsEval("[null]"));
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -105,7 +115,7 @@ public class ScriptTableUtilTest {
 	
 	@Test
 	public void getTable_jsListEmpty() throws Exception {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(scriptEngine.eval("[]")));
+		Map<String, List<String>> table = getTable(jsEval("[]"));
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -113,8 +123,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_singleJavaNull() throws ScriptException {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(null));
+	public void getTable_singleJavaNull() throws Exception {
+		Map<String, List<String>> table = getTable(null);
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -122,8 +132,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_singleJavaObject() throws ScriptException {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(new JavaObject(1, 2)));
+	public void getTable_singleJavaObject() throws Exception {
+		Map<String, List<String>> table = getTable(new JavaObject(1, 2));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1"),
@@ -135,8 +145,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_javaListSingleJavaObject() throws ScriptException {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(Arrays.asList(new JavaObject(1, 2))));
+	public void getTable_javaListSingleJavaObject() throws Exception {
+		Map<String, List<String>> table = getTable(Arrays.asList(new JavaObject(1, 2)));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1"),
@@ -148,8 +158,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_javaListSingleJavaMap() throws ScriptException {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(Arrays.asList(Map("a", 1, "b", 2))));
+	public void getTable_javaListSingleJavaMap() throws Exception {
+		Map<String, List<String>> table = getTable(Map("a", 1, "b", 2));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1"),
@@ -160,8 +170,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_javaListMultipleJavaObject() throws ScriptException {
-		Map<String, List<String>> table = resolveReferences(scriptTableUtil.getTable(Arrays.asList(new JavaObject(1, 2), new JavaObject(3, 4))));
+	public void getTable_javaListMultipleJavaObject() throws Exception {
+		Map<String, List<String>> table = getTable(Arrays.asList(new JavaObject(1, 2), new JavaObject(3, 4)));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1", "3"),
@@ -170,6 +180,10 @@ public class ScriptTableUtilTest {
 		);
 		
 		assertEquals(expected, table);
+	}
+	
+	private Object jsEval(String expression) throws InterruptedException, ExecutionException {
+		return scriptController.eval(expression, x -> {}, x -> {}).get();
 	}
 	
 	private static Map<String, List<String>> resolveReferences(Map<String, List<Reference>> map) {
