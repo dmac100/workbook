@@ -33,18 +33,35 @@ public class ScriptTableUtil {
 	 */
 	public Map<String, List<Reference>> getTable(Object object) throws ScriptException {
 		List<Map<String, Reference>> rows = new ArrayList<>();
+		List<Object> objects = new ArrayList<>();
 		
 		Script script = scriptController.getScriptSync();
 		
+		// Add row for object of each element if it's iterable.
 		if(script.isIterable(object)) {
 			script.iterateObject(object, value -> {
 				rows.add(getTableRow(value));
+				objects.add(value);
 			});
 		} else if(object instanceof Iterable) {
 			Iterable<?> iterable = (Iterable<?>) object;
-			iterable.forEach(value -> rows.add(getTableRow(value)));
+			iterable.forEach(value -> {
+				rows.add(getTableRow(value));
+				objects.add(value);
+			});
 		} else {
 			rows.add(getTableRow(object));
+			objects.add(object);
+		}
+		
+		// Add missing properties to each object that exist in other objects.
+		for(String key:getAllKeys(rows)) {
+			for(int i = 0; i < rows.size(); i++) {
+				Map<String, Reference> row = rows.get(i);
+				if(!row.containsKey(key)) {
+					row.put(key, getNewPropertyReference(objects.get(i), key));
+				}
+			}
 		}
 		
 		return combineKeys(rows);
@@ -75,6 +92,25 @@ public class ScriptTableUtil {
 		}
 		
 		return row;
+	}
+	
+	/**
+	 * Returns a reference to modify an non-existing property of an object.
+	 */
+	private Reference getNewPropertyReference(Object object, String key) {
+		Script script = scriptController.getScriptSync();
+		
+		if(script.isScriptObject(object)) {
+			Map<String, Object> map = script.getPropertyMap(object);
+			return new MapPropertyReference(scriptController, map, key);
+		} else if(object instanceof Map) {
+			Map<Object, Object> map = (Map<Object, Object>) object;
+			return new MapPropertyReference(scriptController, map, key);
+		} else if(object != null) {
+			return null;
+		}
+		
+		return null;
 	}
 	
 	/**
