@@ -3,7 +3,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import controller.MainController;
-import editor.StringEditor;
+import editor.ScriptTableUtil;
+import editor.ui.StringEditor;
+import editor.ui.TableEditor;
 import view.CellList;
 import view.Console;
 import view.InputDialog;
@@ -27,7 +29,7 @@ public class Workbook {
 		
 		addWorksheet();
 		addConsole();
-		addStringEditor("_");
+		addTableEditor("x");
 	}
 	
 	private void createMenuBar(final Shell shell) {
@@ -75,6 +77,15 @@ public class Workbook {
 			StringEditor stringEditor = new StringEditor(parent, expression);
 			mainController.addEditor(stringEditor);
 			return stringEditor.getControl();
+		});
+	}
+	
+	private void addTableEditor(String expression) {
+		tabbedView.addRightTab("Editor: " + expression, parent -> {
+			ScriptTableUtil scriptTableUtil = new ScriptTableUtil(mainController.getScriptController());
+			TableEditor tableEditor = new TableEditor(parent, expression, scriptTableUtil);
+			mainController.addEditor(tableEditor);
+			return tableEditor.getControl();
 		});
 	}
 	

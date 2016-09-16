@@ -191,8 +191,9 @@ public class TableEditor implements Editor {
 		if(references != null && index - 1 < references.size()) {
 			Reference reference = references.get(index - 1);
 			if(reference != null) {
-				reference.set(value);
-				readItemValue(tableItem, index, reference);
+				reference.set(value).thenRunAlways(() -> {
+					readItemValue(tableItem, index, reference);
+				});
 			}
 		}
 	}

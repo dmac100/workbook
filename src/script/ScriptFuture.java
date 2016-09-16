@@ -36,6 +36,17 @@ public class ScriptFuture<T> {
 			.exceptionally(this::exceptionHandler);
 	}
 	
+	public void thenRunAlways(Runnable callback) {
+		future
+			.thenRun(callback)
+			.exceptionally(e -> {
+				exceptionHandler(e);
+				callback.run();
+				return null;
+			})
+			.exceptionally(this::exceptionHandler);
+	}
+	
 	private <V> V exceptionHandler(Throwable e) {
 		e.printStackTrace();
 		return null;
