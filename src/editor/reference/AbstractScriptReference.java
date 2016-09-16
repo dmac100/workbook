@@ -15,14 +15,14 @@ public abstract class AbstractScriptReference implements Reference {
 	}
 	
 	@Override
-	public ScriptFuture<Object> set(Object value) {
-		ScriptFuture<Object> future = new ScriptFuture<>();
+	public ScriptFuture<Void> set(Object value) {
+		ScriptFuture<Void> future = new ScriptFuture<>();
 		scriptController.getScript(script -> {
 			try {
 				setSync(script, value);
 				future.complete(null);
-			} catch (Exception e) {
-				throw new RuntimeException("Error setting value", e);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
 			}
 		});
 		return future;
@@ -35,8 +35,8 @@ public abstract class AbstractScriptReference implements Reference {
 			try {
 				Object value = getSync(script);
 				future.complete(value);
-			} catch (Exception e) {
-				throw new RuntimeException("Error getting value", e);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
 			}
 		});
 		return future;

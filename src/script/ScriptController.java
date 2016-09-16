@@ -42,7 +42,11 @@ public class ScriptController {
 	public <T> ScriptFuture<T> exec(Supplier<T> supplier) {
 		ScriptFuture<T> future = new ScriptFuture<>();
 		runnableQueue.add(() -> {
-			future.complete(supplier.get());
+			try {
+				future.complete(supplier.get());
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
 		});
 		return future;
 	}
@@ -50,8 +54,12 @@ public class ScriptController {
 	public ScriptFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
 		ScriptFuture<Object> future = new ScriptFuture<>();
 		runnableQueue.add(() -> {
-			Object result = script.eval(expression, outputCallback, errorCallback);
-			future.complete(result);
+			try {
+				Object result = script.eval(expression, outputCallback, errorCallback);
+				future.complete(result);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
 		});
 		return future;
 	}
@@ -59,8 +67,12 @@ public class ScriptController {
 	public ScriptFuture<Void> setVariable(String name, Object value) {
 		ScriptFuture<Void> future = new ScriptFuture<>();
 		runnableQueue.add(() -> {
-			script.setVariable(name, value);
-			future.complete(null);
+			try {
+				script.setVariable(name, value);
+				future.complete(null);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
 		});
 		return future;
 	}

@@ -15,6 +15,10 @@ public class ScriptFuture<T> {
 		future.complete(result);
 		future.exceptionally(this::exceptionHandler);
 	}
+	
+	public void completeExceptionally(Throwable throwable) {
+		future.completeExceptionally(throwable);
+	}
 
 	public T get() throws InterruptedException, ExecutionException {
 		return future.get();
