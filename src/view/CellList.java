@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Display;
 import layout.GridLayoutBuilder;
 import script.ScriptFuture;
 
-public class CellList {
+public class CellList implements View {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	

@@ -25,7 +25,6 @@ import org.eclipse.swt.widgets.Tracker;
 public class TabbedView {
 	private Runnable dragCallback = null;
 	private Set<CTabFolder> folders = new HashSet<>();
-	private int tabCount = 0;
 	
 	private CTabFolder leftFolder;
 	private CTabFolder rightFolder;
@@ -46,30 +45,31 @@ public class TabbedView {
 		rightFolder = split(leftFolder, 1, 0, 60);
 	}
 	
-	public <T extends Control> T addLeftTab(String title, Function<Composite, T> contentFactory) {
-		return addTab(leftFolder, title, contentFactory);
+	public <T extends View> T addLeftTab(String title, Function<Composite, T> viewFactory) {
+		return addTab(leftFolder, title, viewFactory);
 	}
 	
-	public <T extends Control> T addRightTab(String title, Function<Composite, T> contentFactory) {
-		return addTab(rightFolder, title, contentFactory);
+	public <T extends View> T addRightTab(String title, Function<Composite, T> viewFactory) {
+		return addTab(rightFolder, title, viewFactory);
 	}
 	
-	public <T extends Control> T addBottomTab(String title, Function<Composite, T> contentFactory) {
-		return addTab(bottomFolder, title, contentFactory);
+	public <T extends View> T addBottomTab(String title, Function<Composite, T> viewFactory) {
+		return addTab(bottomFolder, title, viewFactory);
 	}
 	
-	public <T extends Control> T addTab(String title, Function<Composite, T> contentFactory) {
-		return addTab(folders.iterator().next(), title, contentFactory);
+	public <T extends View> T addTab(String title, Function<Composite, T> viewFactory) {
+		return addTab(folders.iterator().next(), title, viewFactory);
 	}
 	
-	public <T extends Control> T addTab(CTabFolder folder, String title, Function<Composite, T> contentFactory) {
+	public <T extends View> T addTab(CTabFolder folder, String title, Function<Composite, T> viewFactory) {
 		if(folder == null || folder.isDisposed()) {
 			folder = folders.iterator().next();
 		}
-		T content = contentFactory.apply(folder);
-		createTabItem(folder, content, title);
+		T view = viewFactory.apply(folder);
+		CTabItem tabItem = createTabItem(folder, view.getControl(), title);
+		tabItem.setData(view);
 		folder.setSelection(folder.getItemCount() - 1);
-		return content;
+		return view;
 	}
 
 	/**

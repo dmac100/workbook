@@ -8,8 +8,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import editor.reference.Reference;
+import view.View;
 
-public class StringEditor implements Editor {
+public class StringEditor implements Editor, View {
 	private final Composite parent;
 	private final String expression;
 	

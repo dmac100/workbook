@@ -23,8 +23,9 @@ import org.eclipse.swt.widgets.Text;
 
 import editor.ScriptTableUtil;
 import editor.reference.Reference;
+import view.View;
 
-public class TableEditor implements Editor {
+public class TableEditor implements Editor, View {
 	private final Composite parent;
 	private final String expression;
 	private final ScriptTableUtil scriptTableUtil;

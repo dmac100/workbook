@@ -9,7 +9,7 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-public class ScriptEditor {
+public class ScriptEditor implements View {
 	private final StyledText text;
 	
 	private Consumer<String> executeCallback;

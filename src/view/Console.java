@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
-public class Console {
+public class Console implements View {
 	private final Composite parent;
 	
 	private final StyledText text;

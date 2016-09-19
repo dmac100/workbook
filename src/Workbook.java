@@ -59,7 +59,7 @@ public class Workbook {
 		tabbedView.addLeftTab("Worksheet", parent -> {
 			CellList cellList = new CellList(parent);
 			mainController.addCellList(cellList);
-			return cellList.getControl();
+			return cellList;
 		});
 	}
 	
@@ -67,7 +67,7 @@ public class Workbook {
 		tabbedView.addLeftTab("Script", parent -> {
 			ScriptEditor scriptEditor = new ScriptEditor(parent);
 			mainController.addScriptEditor(scriptEditor);
-			return scriptEditor.getControl();
+			return scriptEditor;
 		});
 	}
 	
@@ -75,7 +75,7 @@ public class Workbook {
 		tabbedView.addBottomTab("Console", parent -> {
 			Console console = new Console(parent);
 			mainController.addConsole(console);
-			return console.getControl();
+			return console;
 		});		
 	}
 	
@@ -104,7 +104,7 @@ public class Workbook {
 		tabbedView.addRightTab("Editor: " + expression, parent -> {
 			StringEditor stringEditor = new StringEditor(parent, expression);
 			mainController.addEditor(stringEditor);
-			return stringEditor.getControl();
+			return stringEditor;
 		});
 	}
 	
@@ -113,7 +113,7 @@ public class Workbook {
 			ScriptTableUtil scriptTableUtil = new ScriptTableUtil(mainController.getScriptController());
 			TableEditor tableEditor = new TableEditor(parent, expression, scriptTableUtil);
 			mainController.addEditor(tableEditor);
-			return tableEditor.getControl();
+			return tableEditor;
 		});
 	}
 	
@@ -122,7 +122,7 @@ public class Workbook {
 			ScriptTableUtil scriptTableUtil = new ScriptTableUtil(mainController.getScriptController());
 			TreeEditor treeEditor = new TreeEditor(parent, expression, scriptTableUtil);
 			mainController.addEditor(treeEditor);
-			return treeEditor.getControl();
+			return treeEditor;
 		});
 	}
 	
