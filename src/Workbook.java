@@ -40,6 +40,7 @@ public class Workbook {
 			.addItem("New Worksheet").addSelectionListener(() -> addWorksheet())
 			.addSeparator()
 			.addItem("New String Editor...").addSelectionListener(() -> addStringEditor())
+			.addItem("New Table Editor...").addSelectionListener(() -> addTableEditor())
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
@@ -69,6 +70,13 @@ public class Workbook {
 		String expression = InputDialog.open(shell, "Expression", "Expression");
 		if(expression != null && !expression.trim().isEmpty()) {
 			addStringEditor(expression.trim());
+		}
+	}
+	
+	private void addTableEditor() {
+		String expression = InputDialog.open(shell, "Expression", "Expression");
+		if(expression != null && !expression.trim().isEmpty()) {
+			addTableEditor(expression.trim());
 		}
 	}
 	
