@@ -138,8 +138,7 @@ public class ScriptTableUtilTest {
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1"),
-			"b", Arrays.asList("2"),
-			"class", Arrays.asList(JAVAOBJECT_CLASS)
+			"b", Arrays.asList("2")
 		);
 		
 		assertEquals(expected, table);
@@ -151,8 +150,7 @@ public class ScriptTableUtilTest {
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1"),
-			"b", Arrays.asList("2"),
-			"class", Arrays.asList(JAVAOBJECT_CLASS)
+			"b", Arrays.asList("2")
 		);
 		
 		assertEquals(expected, table);
@@ -176,8 +174,7 @@ public class ScriptTableUtilTest {
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1", "3"),
-			"b", Arrays.asList("2", "4"),
-			"class", Arrays.asList(JAVAOBJECT_CLASS, JAVAOBJECT_CLASS)
+			"b", Arrays.asList("2", "4")
 		);
 		
 		assertEquals(expected, table);
