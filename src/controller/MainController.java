@@ -14,6 +14,7 @@ import script.ScriptFuture;
 import util.ThrottledConsumer;
 import view.CellList;
 import view.Console;
+import view.ScriptEditor;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
@@ -37,6 +38,13 @@ public class MainController {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
 			return result;
+		});
+	}
+	
+	public void addScriptEditor(ScriptEditor scriptEditor) {
+		scriptEditor.setExecuteCallback(command -> {
+			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
+			result.thenAccept(evalConsumer);
 		});
 	}
 	

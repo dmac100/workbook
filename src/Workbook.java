@@ -11,6 +11,7 @@ import view.CellList;
 import view.Console;
 import view.InputDialog;
 import view.MenuBuilder;
+import view.ScriptEditor;
 import view.TabbedView;
 
 public class Workbook {
@@ -29,6 +30,7 @@ public class Workbook {
 		createMenuBar(shell);
 		
 		addWorksheet();
+		addScript();
 		addConsole();
 		addTreeEditor("x");
 	}
@@ -39,6 +41,7 @@ public class Workbook {
 		menuBuilder.addMenu("&File")
 			.addItem("New Console").addSelectionListener(() -> addConsole())
 			.addItem("New Worksheet").addSelectionListener(() -> addWorksheet())
+			.addItem("New Script").addSelectionListener(() -> addScript())
 			.addSeparator()
 			.addItem("New String Editor...").addSelectionListener(() -> addStringEditor())
 			.addItem("New Table Editor...").addSelectionListener(() -> addTableEditor())
@@ -57,6 +60,14 @@ public class Workbook {
 			CellList cellList = new CellList(parent);
 			mainController.addCellList(cellList);
 			return cellList.getControl();
+		});
+	}
+	
+	private void addScript() {
+		tabbedView.addLeftTab("Script", parent -> {
+			ScriptEditor scriptEditor = new ScriptEditor(parent);
+			mainController.addScriptEditor(scriptEditor);
+			return scriptEditor.getControl();
 		});
 	}
 	
