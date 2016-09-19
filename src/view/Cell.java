@@ -11,6 +11,8 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -42,6 +44,12 @@ public class Cell {
 		
 		command.setFont(FontList.consolas10);
 		result.setFont(FontList.consolas10);
+		
+		command.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent event) {
+				event.text = event.text.trim();
+			}
+		});
 		
 		command.addSelectionListener(new SelectionAdapter() {
 			public void widgetDefaultSelected(SelectionEvent event) {
