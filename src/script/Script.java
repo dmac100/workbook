@@ -113,7 +113,7 @@ public class Script {
 			errorReader.waitUntilDone();
 			
 			return value;
-        } catch(ScriptException e) {
+        } catch(Exception e) {
         	e.printStackTrace(err);
         	errorCallback.accept(e.getMessage());
         	return null;
