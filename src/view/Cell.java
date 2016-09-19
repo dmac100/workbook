@@ -78,6 +78,16 @@ public class Cell {
 			}
 		});
 		
+		result.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent event) {
+				if(event.keyCode == SWT.ARROW_UP) {
+					upCallbacks.forEach(Runnable::run);
+				} else if(event.keyCode == SWT.ARROW_DOWN) {
+					downCallbacks.forEach(Runnable::run);
+				}
+			}
+		});
+		
 		command.setLayoutData(new GridDataBuilder().fillHorizontal().build());
 		result.setLayoutData(new GridDataBuilder().fillHorizontal().horizontalSpan(2).build());
 		
