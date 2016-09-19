@@ -47,7 +47,7 @@ public class Cell {
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
-				event.text = event.text.trim();
+				event.text = event.text.replaceAll("(^[\r\n]+)|([\r\n]+$)", "");
 			}
 		});
 		
