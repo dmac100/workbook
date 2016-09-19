@@ -11,7 +11,6 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
-import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -58,13 +57,20 @@ public class TreeEditor implements Editor {
 	}
 	
 	private void onMouseDown(MouseEvent event) {
+		checkBounds(tree.getItems(), event);
+	}
+
+	private void checkBounds(TreeItem[] items, MouseEvent event) {
 		Rectangle clientArea = tree.getClientArea();
-		for(int y = tree.indexOf(tree.getTopItem()); y < tree.getItemCount(); y++) {
-			TreeItem item = tree.getItem(y);
+		for(TreeItem item:items) {
 			Rectangle bounds = item.getBounds(1);
-			if(bounds.contains(new Point(event.x, event.y))) {
-				editValue(item);
-				return;
+			if(item.getExpanded()) {
+				checkBounds(item.getItems(), event);
+			} else {
+				if(bounds.contains(new Point(event.x, event.y))) {
+					editValue(item);
+					return;
+				}
 			}
 			if(!bounds.intersects(clientArea)) {
 				return;
