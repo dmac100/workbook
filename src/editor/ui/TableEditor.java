@@ -75,10 +75,14 @@ public class TableEditor implements Editor {
 	private void editValue(TableItem item, int x) {
 		Text text = new Text(table, SWT.NONE);
 		
+		String originalValue = item.getText(x);
+		
 		text.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent event) {
 				if(!text.isDisposed()) {
-					writeItemValue(item, x, text.getText());
+					if(!text.getText().equals(originalValue)) {
+						writeItemValue(item, x, text.getText());
+					}
 					text.dispose();
 				}
 			}
@@ -88,7 +92,9 @@ public class TableEditor implements Editor {
 			public void keyTraversed(TraverseEvent event) {
 				if(!text.isDisposed()) {
 					if(event.detail == SWT.TRAVERSE_RETURN) {
-						writeItemValue(item, x, text.getText());
+						if(!text.getText().equals(originalValue)) {
+							writeItemValue(item, x, text.getText());
+						}
 						text.dispose();
 						event.doit = false;
 					}
@@ -102,7 +108,7 @@ public class TableEditor implements Editor {
 		});
 		
 		tableEditor.setEditor(text, item, x);
-		text.setText(item.getText(x));
+		text.setText(originalValue);
 		text.selectAll();
 		text.setFocus();
 	}

@@ -81,10 +81,14 @@ public class TreeEditor implements Editor {
 	private void editValue(TreeItem item) {
 		Text text = new Text(tree, SWT.NONE);
 		
+		String originalValue = item.getText(1);
+		
 		text.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent event) {
 				if(!text.isDisposed()) {
-					writeItemValue(item, text.getText());
+					if(!text.getText().equals(originalValue)) {
+						writeItemValue(item, text.getText());
+					}
 					text.dispose();
 				}
 			}
@@ -94,7 +98,9 @@ public class TreeEditor implements Editor {
 			public void keyTraversed(TraverseEvent event) {
 				if(!text.isDisposed()) {
 					if(event.detail == SWT.TRAVERSE_RETURN) {
-						writeItemValue(item, text.getText());
+						if(!text.getText().equals(originalValue)) {
+							writeItemValue(item, text.getText());
+						}
 						text.dispose();
 						event.doit = false;
 					}
@@ -108,7 +114,7 @@ public class TreeEditor implements Editor {
 		});
 		
 		treeEditor.setEditor(text, item, 1);
-		text.setText(item.getText(1));
+		text.setText(originalValue);
 		text.selectAll();
 		text.setFocus();
 	}
