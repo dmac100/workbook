@@ -1,5 +1,8 @@
 package editor.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -30,6 +33,7 @@ public class TreeEditor implements Editor {
 	
 	private final Tree tree;
 	private final org.eclipse.swt.custom.TreeEditor treeEditor;
+	private final List<List<String>> expandedItems = new ArrayList<>();
 	
 	private Reference reference;
 	
@@ -51,7 +55,7 @@ public class TreeEditor implements Editor {
 		
 		tree.addTreeListener(new TreeAdapter() {
 			public void treeExpanded(TreeEvent event) {
-				onItemExpanded((TreeItem) event.item);
+				expandItem((TreeItem) event.item);
 			}
 		});
 	}
@@ -119,7 +123,8 @@ public class TreeEditor implements Editor {
 		text.setFocus();
 	}
 	
-	private void onItemExpanded(TreeItem treeItem) {
+	private void expandItem(TreeItem treeItem) {
+		treeItem.setExpanded(true);
 		Reference reference = (Reference) treeItem.getData();
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
@@ -158,7 +163,22 @@ public class TreeEditor implements Editor {
 		}
 	}
 	
+	private void getExpandedItems(List<List<String>> expandedItems, List<String> expandedPrefix, TreeItem[] treeItems) {
+		for(TreeItem treeItem:treeItems) {
+			if(treeItem.getExpanded()) {
+				ArrayList<String> expandedItem = new ArrayList<>(expandedPrefix);
+				expandedItem.add(treeItem.getText());
+				expandedItems.add(expandedItem);
+				
+				getExpandedItems(expandedItems, expandedItem, treeItem.getItems());
+			}
+		}
+	}
+	
 	private void setTreeItems(Map<String, Reference> rows) {
+		expandedItems.clear();
+		getExpandedItems(expandedItems, new ArrayList<>(), tree.getItems());
+		
 		for(TreeColumn treeColumn:tree.getColumns()) {
 			treeColumn.dispose();
 		}
@@ -173,10 +193,10 @@ public class TreeEditor implements Editor {
 		valueColumn.setText("Value");
 		valueColumn.setWidth(100);
 		
-		addTreeItems(tree, rows);
+		addTreeItems(tree, rows, expandedItems);
 	}
-	
-	private void addTreeItems(Tree parent, Map<String, Reference> rows) {
+
+	private void addTreeItems(Tree parent, Map<String, Reference> rows, List<List<String>> expandedItem) {
 		TreeItem[] oldItems = parent.getItems();
 		
 		rows.forEach((name, value) -> {
@@ -184,6 +204,8 @@ public class TreeEditor implements Editor {
 			treeItem.setText(0, name);
 			treeItem.setData(value);
 			readItemValue(treeItem, value);
+			
+			treeItem.setExpanded(true);
 		});
 		
 		for(TreeItem treeItem:oldItems) {
@@ -217,6 +239,9 @@ public class TreeEditor implements Editor {
 						treeItem.setText(1, stringValue);
 						if(hasChild) {
 							new TreeItem(treeItem, SWT.NONE);
+							if(shouldExpand(treeItem)) {
+								expandItem(treeItem);
+							}
 						}
 					}
 				});
@@ -224,6 +249,18 @@ public class TreeEditor implements Editor {
 		}
 	}
 	
+	private boolean shouldExpand(TreeItem treeItem) {
+		List<String> path = new ArrayList<>();
+		TreeItem parent = treeItem.getParentItem();
+		path.add(treeItem.getText());
+		while(parent != null) {
+			path.add(parent.getText());
+			parent = parent.getParentItem();
+		}
+		Collections.reverse(path);
+		return expandedItems.contains(path);
+	}
+
 	private void writeItemValue(TreeItem treeItem, String value) {
 		treeItem.setText(1, "");
 		
