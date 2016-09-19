@@ -16,7 +16,7 @@ public abstract class AbstractScriptReference implements Reference {
 	
 	@Override
 	public ScriptFuture<Void> set(Object value) {
-		ScriptFuture<Void> future = new ScriptFuture<>();
+		ScriptFuture<Void> future = new ScriptFuture<>(scriptController);
 		scriptController.getScript(script -> {
 			try {
 				setSync(script, value);
@@ -30,7 +30,7 @@ public abstract class AbstractScriptReference implements Reference {
 	
 	@Override
 	public ScriptFuture<Object> get() {
-		ScriptFuture<Object> future = new ScriptFuture<>();
+		ScriptFuture<Object> future = new ScriptFuture<>(scriptController);
 		scriptController.getScript(script -> {
 			try {
 				Object value = getSync(script);

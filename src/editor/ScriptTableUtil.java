@@ -70,7 +70,7 @@ public class ScriptTableUtil {
 	/**
 	 * Returns a single row of a table containing the properties of an object.
 	 */
-	private Map<String, Reference> getTableRow(Object object) {
+	public Map<String, Reference> getTableRow(Object object) {
 		Map<String, Reference> row = new TreeMap<>();
 		
 		Script script = scriptController.getScriptSync();
@@ -118,6 +118,8 @@ public class ScriptTableUtil {
 	 */
 	private void iterateJavaObjectProperties(Object object, BiConsumer<String, Reference> consumer) {
 		for(Method getMethod:object.getClass().getMethods()) {
+			if(getMethod.getName().equals("getClass")) continue;
+			
 			if(getMethod.getName().matches("(is|get).*") && getMethod.getParameterCount() == 0) {
 				String name = getMethod.getName().replaceAll("^(is|get)", "");
 				Method setMethod = getSetMethod(object.getClass(), name);

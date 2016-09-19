@@ -6,6 +6,7 @@ import controller.MainController;
 import editor.ScriptTableUtil;
 import editor.ui.StringEditor;
 import editor.ui.TableEditor;
+import editor.ui.TreeEditor;
 import view.CellList;
 import view.Console;
 import view.InputDialog;
@@ -29,7 +30,7 @@ public class Workbook {
 		
 		addWorksheet();
 		addConsole();
-		addTableEditor("x");
+		addTreeEditor("x");
 	}
 	
 	private void createMenuBar(final Shell shell) {
@@ -41,6 +42,7 @@ public class Workbook {
 			.addSeparator()
 			.addItem("New String Editor...").addSelectionListener(() -> addStringEditor())
 			.addItem("New Table Editor...").addSelectionListener(() -> addTableEditor())
+			.addItem("New Tree Editor...").addSelectionListener(() -> addTreeEditor())
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
@@ -80,6 +82,13 @@ public class Workbook {
 		}
 	}
 	
+	private void addTreeEditor() {
+		String expression = InputDialog.open(shell, "Expression", "Expression");
+		if(expression != null && !expression.trim().isEmpty()) {
+			addTreeEditor(expression.trim());
+		}
+	}
+	
 	private void addStringEditor(String expression) {
 		tabbedView.addRightTab("Editor: " + expression, parent -> {
 			StringEditor stringEditor = new StringEditor(parent, expression);
@@ -94,6 +103,15 @@ public class Workbook {
 			TableEditor tableEditor = new TableEditor(parent, expression, scriptTableUtil);
 			mainController.addEditor(tableEditor);
 			return tableEditor.getControl();
+		});
+	}
+	
+	private void addTreeEditor(String expression) {
+		tabbedView.addRightTab("Editor: " + expression, parent -> {
+			ScriptTableUtil scriptTableUtil = new ScriptTableUtil(mainController.getScriptController());
+			TreeEditor treeEditor = new TreeEditor(parent, expression, scriptTableUtil);
+			mainController.addEditor(treeEditor);
+			return treeEditor.getControl();
 		});
 	}
 	
