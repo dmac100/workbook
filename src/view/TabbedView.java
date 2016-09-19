@@ -117,6 +117,13 @@ public class TabbedView {
 		tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 		
 		Rectangle clientArea = folder.getClientArea();
+
+		// Check if point is within folder bounds.
+		if(!(point.x >= 0 && point.y >= 0 && point.x < folder.getBounds().width && point.y < folder.getBounds().height)) {
+			tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_NO));
+			tracker.setRectangles(new Rectangle[0]);
+			return false;
+		}
 		
 		// Check drag to empty folder.
 		if(folder.getItemCount() == 0) {
