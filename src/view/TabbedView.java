@@ -21,8 +21,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 public class TabbedView {
+	private final Composite parent;
+	
 	private Runnable dragCallback = null;
 	private Set<CTabFolder> folders = new HashSet<>();
 	
@@ -31,6 +37,7 @@ public class TabbedView {
 	private CTabFolder bottomFolder;
 
 	public TabbedView(Composite parent) {
+		this.parent = parent;
 		parent.setLayout(new FillLayout());
 		
 		leftFolder = new CTabFolder(parent, SWT.BORDER);
@@ -414,5 +421,49 @@ public class TabbedView {
 	 */
 	private void setupTabItem(CTabItem item) {
 		item.setShowClose(true);
+	}
+	
+	public String serialize() {
+		Document document = new Document();
+		Element element = new Element("Tabs");
+		document.addContent(element);
+		
+		for(Control control:parent.getChildren()) {
+			serialize(element, control);
+		}
+		
+		return new XMLOutputter(Format.getPrettyFormat()).outputString(document);
+	}
+	
+	public void serialize(Element parent, Control control) {
+		if(control instanceof CTabFolder) {
+			serialize(parent, (CTabFolder) control);
+		} else if(control instanceof SashForm) {
+			serialize(parent, (SashForm) control);
+		}
+	}
+
+	private void serialize(Element parent, SashForm sashForm) {
+		int[] weights = sashForm.getWeights();
+		
+		Element splitElement = new Element("Split");
+		splitElement.setAttribute("weight1", String.valueOf(weights[0]));
+		splitElement.setAttribute("weight2", String.valueOf(weights[1]));
+		parent.addContent(splitElement);
+		
+		for(Control control:sashForm.getChildren()) {
+			serialize(splitElement, control);
+		}
+	}
+
+	private void serialize(Element parent, CTabFolder tabFolder) {
+		Element folderElement = new Element("Items");
+		parent.addContent(folderElement);
+		
+		for(CTabItem tabItem:tabFolder.getItems()) {
+			Element itemElement = new Element("Item");
+			itemElement.setAttribute("text", tabItem.getText());
+			folderElement.addContent(itemElement);
+		}
 	}
 }

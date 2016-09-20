@@ -47,6 +47,8 @@ public class Workbook {
 			.addItem("New Table Editor...").addSelectionListener(() -> addTableEditor())
 			.addItem("New Tree Editor...").addSelectionListener(() -> addTreeEditor())
 			.addSeparator()
+			.addItem("Save").addSelectionListener(() -> save())
+			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
 		menuBuilder.addMenu("&Script")
@@ -55,6 +57,11 @@ public class Workbook {
 		menuBuilder.build();
 	}
 	
+	private void save() {
+		String document = tabbedView.serialize();
+		System.out.println(document);
+	}
+
 	private void addWorksheet() {
 		tabbedView.addLeftTab("Worksheet", parent -> {
 			CellList cellList = new CellList(parent);
