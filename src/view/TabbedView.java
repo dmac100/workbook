@@ -52,20 +52,16 @@ public class TabbedView {
 		rightFolder = split(leftFolder, 1, 0, 60);
 	}
 	
-	public <T extends View> T addLeftTab(String title, Function<Composite, T> viewFactory) {
-		return addTab(leftFolder, title, viewFactory);
+	public CTabFolder getLeftFolder() {
+		return leftFolder;
 	}
 	
-	public <T extends View> T addRightTab(String title, Function<Composite, T> viewFactory) {
-		return addTab(rightFolder, title, viewFactory);
+	public CTabFolder getRightFolder() {
+		return rightFolder;
 	}
 	
-	public <T extends View> T addBottomTab(String title, Function<Composite, T> viewFactory) {
-		return addTab(bottomFolder, title, viewFactory);
-	}
-	
-	public <T extends View> T addTab(String title, Function<Composite, T> viewFactory) {
-		return addTab(folders.iterator().next(), title, viewFactory);
+	public CTabFolder getBottomFolder() {
+		return bottomFolder;
 	}
 	
 	public <T extends View> T addTab(CTabFolder folder, String title, Function<Composite, T> viewFactory) {
