@@ -25,19 +25,15 @@ import editor.ScriptTableUtil;
 import editor.reference.Reference;
 import view.View;
 
-public class TableEditor implements Editor, View {
+public class TableEditor extends Editor implements View {
 	private final Composite parent;
-	private final String expression;
 	private final ScriptTableUtil scriptTableUtil;
 	
 	private final Table table;
 	private final org.eclipse.swt.custom.TableEditor tableEditor;
-	
-	private Reference reference;
-	
-	public TableEditor(Composite parent, String expression, ScriptTableUtil scriptTableUtil) {
+
+	public TableEditor(Composite parent, ScriptTableUtil scriptTableUtil) {
 		this.parent = parent;
-		this.expression = expression;
 		this.scriptTableUtil = scriptTableUtil;
 		
 		this.table = new Table(parent, SWT.NONE);
@@ -112,16 +108,6 @@ public class TableEditor implements Editor, View {
 		text.setText(originalValue);
 		text.selectAll();
 		text.setFocus();
-	}
-	
-	@Override
-	public void setReference(Reference reference) {
-		this.reference = reference;
-		readValue();
-	}
-
-	public String getExpression() {
-		return expression;
 	}
 	
 	public void readValue() {

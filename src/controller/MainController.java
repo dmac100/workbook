@@ -66,7 +66,7 @@ public class MainController {
 	}
 
 	public void addEditor(Editor editor) {
-		editor.setReference(new OgnlReference(scriptController, editor.getExpression()));
+		editor.setReferenceFunction(expression -> new OgnlReference(scriptController, expression));
 		editors.add(editor);
 	}
 	

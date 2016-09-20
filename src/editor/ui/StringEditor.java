@@ -7,20 +7,14 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import editor.reference.Reference;
 import view.View;
 
-public class StringEditor implements Editor, View {
+public class StringEditor extends Editor implements View {
 	private final Composite parent;
-	private final String expression;
-	
 	private final StyledText text;
 	
-	private Reference reference;
-
-	public StringEditor(Composite parent, String expression) {
+	public StringEditor(Composite parent) {
 		this.parent = parent;
-		this.expression = expression;
 		
 		text = new StyledText(parent, SWT.V_SCROLL);
 		
@@ -29,15 +23,6 @@ public class StringEditor implements Editor, View {
 				writeValue();
 			}
 		});
-	}
-	
-	public String getExpression() {
-		return expression;
-	}
-	
-	public void setReference(Reference reference) {
-		this.reference = reference;
-		readValue();
 	}
 	
 	public void readValue() {

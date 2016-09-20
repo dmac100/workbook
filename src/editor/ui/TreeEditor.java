@@ -27,20 +27,16 @@ import editor.ScriptTableUtil;
 import editor.reference.Reference;
 import view.View;
 
-public class TreeEditor implements Editor, View {
+public class TreeEditor extends Editor implements View {
 	private final Composite parent;
-	private final String expression;
 	private final ScriptTableUtil scriptTableUtil;
 	
 	private final Tree tree;
 	private final org.eclipse.swt.custom.TreeEditor treeEditor;
 	private final List<List<String>> expandedItems = new ArrayList<>();
 	
-	private Reference reference;
-	
-	public TreeEditor(Composite parent, String expression, ScriptTableUtil scriptTableUtil) {
+	public TreeEditor(Composite parent, ScriptTableUtil scriptTableUtil) {
 		this.parent = parent;
-		this.expression = expression;
 		this.scriptTableUtil = scriptTableUtil;
 		
 		this.tree = new Tree(parent, SWT.NONE);
@@ -137,16 +133,6 @@ public class TreeEditor implements Editor, View {
 				}
 			});
 		}
-	}
-	
-	@Override
-	public void setReference(Reference reference) {
-		this.reference = reference;
-		readValue();
-	}
-
-	public String getExpression() {
-		return expression;
 	}
 	
 	public void readValue() {
