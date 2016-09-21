@@ -10,22 +10,20 @@ import org.jdom2.Element;
 
 public class Console implements TabbedView {
 	private final Composite parent;
-	
 	private final StyledText text;
-
+	
 	public Console(Composite parent) {
 		this.parent = parent;
 		
-		this.text = new StyledText(parent, SWT.MULTI | SWT.V_SCROLL);
-		
+		text = new StyledText(parent, SWT.WRAP | SWT.V_SCROLL);
 		text.setFont(FontList.consolas10);
-		
 		text.setEditable(false);
 	}
 	
 	public void addOutput(String output) {
 		text.getDisplay().asyncExec(() -> {
-			text.append(output + "\n");
+			text.append(output);
+			text.setTopIndex(text.getLineCount() - 1);
 		});
 	}
 	
@@ -33,14 +31,14 @@ public class Console implements TabbedView {
 		text.getDisplay().asyncExec(() -> {
 			int start = text.getCharCount();
 			
-			text.append(error + "\n");
+			text.append(error);
 			
 			StyleRange styleRange = new StyleRange();
 			styleRange.start = start;
-			styleRange.length = error.length() + 1;
+			styleRange.length = error.length();
 			styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 			
-			text.replaceStyleRanges(start, error.length() + 1, new StyleRange[] { styleRange });
+			text.replaceStyleRanges(start, error.length(), new StyleRange[] { styleRange });
 		});
 	}
 

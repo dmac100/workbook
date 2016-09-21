@@ -36,15 +36,14 @@ public class ThrottledConsumer<T> implements Consumer<T> {
 				shouldCall = true;
 				lastTime = System.currentTimeMillis();
 			} else if(trailing) {
-				if(timer != null) {
-					timer.cancel();
+				if(timer == null) {
+					timer = new Timer(false);
+					timer.schedule(new TimerTask() {
+						public void run() {
+							later(param);
+						}
+					}, Math.max(0, waitTime - elapsedTime));
 				}
-				timer = new Timer(false);
-				timer.schedule(new TimerTask() {
-					public void run() {
-						later(param);
-					}
-				}, Math.max(0, waitTime - elapsedTime));
 			}
 		}
 		

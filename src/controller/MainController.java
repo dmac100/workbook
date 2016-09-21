@@ -21,6 +21,10 @@ public class MainController {
 	private final List<Editor> editors = new ArrayList<>();
 	
 	private final Consumer<Object> evalConsumer;
+	private final Consumer<Void> flushConsoleConsumer;
+	
+	private final StringBuilder outputBuffer = new StringBuilder();
+	private final StringBuilder errorBuffer = new StringBuilder();
 	
 	public MainController() {
 		scriptController.startQueueThread();
@@ -30,6 +34,8 @@ public class MainController {
 				() -> onEval(result)
 			);
 		});
+		
+		flushConsoleConsumer = new ThrottledConsumer<Void>(100, true, result -> flushConsole());
 	}
 	
 	public void clear() {
@@ -57,12 +63,23 @@ public class MainController {
 			.setVariable("_", result)
 			.thenRun(() -> editors.forEach(Editor::readValue));
 	}
-
+	
 	private void addOutput(String output) {
-		consoles.forEach(console -> console.addOutput(output));
+		outputBuffer.append(output + "\n");
+		flushConsoleConsumer.accept(null);
 	}
 	
 	private void addError(String error) {
+		errorBuffer.append(error + "\n");
+		flushConsoleConsumer.accept(null);
+	}
+	
+	private void flushConsole() {
+		String output = outputBuffer.toString();
+		String error = errorBuffer.toString();
+		outputBuffer.setLength(0);
+		errorBuffer.setLength(0);
+		consoles.forEach(console -> console.addOutput(output));
 		consoles.forEach(console -> console.addError(error));
 	}
 
