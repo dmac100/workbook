@@ -17,19 +17,20 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.jdom2.Element;
 
 import layout.GridLayoutBuilder;
 import script.ScriptFuture;
 
-public class WorkSheet implements TabbedView {
+public class Worksheet implements TabbedView {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	
-	private final List<Cell> prompts = new ArrayList<>();
+	private final List<Cell> cells = new ArrayList<>();
 	
 	private Function<String, ScriptFuture<Object>> executeFunction;
 	
-	public WorkSheet(Composite parent) {
+	public Worksheet(Composite parent) {
 		Display display = parent.getDisplay();
 		
 		parent.setLayout(new FillLayout());
@@ -69,77 +70,79 @@ public class WorkSheet implements TabbedView {
 		return scrolledComposite;
 	}
 	
-	private void addPrompt() {
-		final Cell prompt = new Cell(cellsComposite);
+	private Cell addPrompt() {
+		final Cell cell = new Cell(cellsComposite);
 		
-		prompt.setExecuteFunction(command -> executeFunction.apply(command));
+		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
-		prompt.addUpCallback(new Runnable() {
+		cell.addUpCallback(new Runnable() {
 			public void run() {
-				int index = prompts.indexOf(prompt) - 1;
+				int index = cells.indexOf(cell) - 1;
 				if(index >= 0) {
-					prompts.get(index).setFocus();
-					scrollTo(prompts.get(index).getBounds());
+					cells.get(index).setFocus();
+					scrollTo(cells.get(index).getBounds());
 				}
 			}
 		});
 		
-		prompt.addDownCallback(new Runnable() {
+		cell.addDownCallback(new Runnable() {
 			public void run() {
-				int index = prompts.indexOf(prompt) + 1;
-				if(index < prompts.size()) {
-					prompts.get(index).setFocus();
-					scrollTo(prompts.get(index).getBounds());
+				int index = cells.indexOf(cell) + 1;
+				if(index < cells.size()) {
+					cells.get(index).setFocus();
+					scrollTo(cells.get(index).getBounds());
 				}
 			}
 		});
 		
-		prompt.addDeleteCallback(new Runnable() {
+		cell.addDeleteCallback(new Runnable() {
 			public void run() {
-				if(prompts.size() > 1) {
-					int index = prompts.indexOf(prompt);
-					prompts.remove(index);
+				if(cells.size() > 1) {
+					int index = cells.indexOf(cell);
+					cells.remove(index);
 					index = Math.max(0, index - 1);
-					prompts.get(index).setFocus();
-					prompt.dispose();
+					cells.get(index).setFocus();
+					cell.dispose();
 					pack();
-					scrollTo(prompts.get(index).getBounds());
+					scrollTo(cells.get(index).getBounds());
 				}
 			}
 		});
 		
-		prompt.addRunCallback(new Runnable() {
+		cell.addRunCallback(new Runnable() {
 			public void run() {
-				if(prompt == prompts.get(prompts.size() - 1)) {
+				if(cell == cells.get(cells.size() - 1)) {
 					addPrompt();
 				} else {
-					int index = prompts.indexOf(prompt) + 1;
-					prompts.get(index).setFocus();
-					scrollTo(prompts.get(index).getBounds());
+					int index = cells.indexOf(cell) + 1;
+					cells.get(index).setFocus();
+					scrollTo(cells.get(index).getBounds());
 				}
 			}
 		});
 		
-		prompt.addRunAllCallback(new Runnable() {
+		cell.addRunAllCallback(new Runnable() {
 			public void run() {
-				for(Cell prompt:prompts) {
+				for(Cell prompt:cells) {
 					prompt.evaluate(false);
 				}
 			}
 		});
 		
-		prompts.add(prompt);
-		prompt.setFocus();
+		cells.add(cell);
+		cell.setFocus();
 		pack();
 		
-		scrollTo(prompt.getBounds());
+		scrollTo(cell.getBounds());
+		
+		return cell;
 	}
 	
 	private void selectLast() {
-		if(!prompts.isEmpty()) {
-			int index = prompts.size() - 1;
-			prompts.get(index).setFocus();
-			scrollTo(prompts.get(index).getBounds());
+		if(!cells.isEmpty()) {
+			int index = cells.size() - 1;
+			cells.get(index).setFocus();
+			scrollTo(cells.get(index).getBounds());
 		}
 	}
 	
@@ -172,5 +175,29 @@ public class WorkSheet implements TabbedView {
 	
 	public Control getControl() {
 		return scrolledCellsComposite;
+	}
+	
+	private void clear() {
+		for(Cell cell:cells) {
+			cell.dispose();
+		}
+		cells.clear();
+	}
+
+	public void serialize(Element element) {
+		for(Cell cell:cells) {
+			Element command = new Element("Command");
+			command.setText(cell.getCommand());
+			element.addContent(command);
+		}
+	}
+
+	public void deserialize(Element element) {
+		clear();
+		
+		for(Element command:element.getChildren("Command")) {
+			Cell cell = addPrompt();
+			cell.setCommand(command.getText());
+		}
 	}
 }

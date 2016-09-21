@@ -1,5 +1,7 @@
 package view;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -23,6 +25,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
@@ -64,13 +68,23 @@ public class TabbedViewLayout {
 		return bottomFolder;
 	}
 	
+	public void clear() {
+		for(Control child:parent.getChildren()) {
+			child.dispose();
+		}
+		
+		folders.clear();
+		leftFolder = null;
+		rightFolder = null;
+		bottomFolder = null;
+	}
+	
 	public <T extends TabbedView> T addTab(CTabFolder folder, String title, Function<Composite, T> viewFactory) {
 		if(folder == null || folder.isDisposed()) {
 			folder = folders.iterator().next();
 		}
 		T view = viewFactory.apply(folder);
-		CTabItem tabItem = createTabItem(folder, view.getControl(), title);
-		tabItem.setData(view);
+		CTabItem tabItem = createTabItem(folder, view.getControl(), title, view);
 		folder.setSelection(folder.getItemCount() - 1);
 		return view;
 	}
@@ -249,7 +263,7 @@ public class TabbedViewLayout {
 	private void moveToEmptyFolder(CTabFolder folder, CTabItem draggedItem) {
 		CTabFolder draggedFolder = draggedItem.getParent();
 		
-		CTabItem newTabItem = createTabItem(folder, draggedItem.getControl(), draggedItem.getText());
+		CTabItem newTabItem = createTabItem(folder, draggedItem.getControl(), draggedItem.getText(), (TabbedView) draggedItem.getData());
 		draggedItem.dispose();
 		
 		newTabItem.getParent().setSelection(newTabItem);
@@ -270,7 +284,7 @@ public class TabbedViewLayout {
 		
 		// Check that tab is not already at destination.
 		if(destinationItem.getParent().indexOf(draggedItem) != index) {
-			CTabItem newTabItem = createTabItem(destinationItem.getParent(), draggedItem.getControl(), draggedItem.getText(), index);
+			CTabItem newTabItem = createTabItem(destinationItem.getParent(), draggedItem.getControl(), draggedItem.getText(), (TabbedView) draggedItem.getData(), index);
 			draggedItem.dispose();
 			
 			newTabItem.getParent().setSelection(newTabItem);
@@ -287,11 +301,12 @@ public class TabbedViewLayout {
 	private void split(CTabFolder folder, CTabItem draggedItem, int dx, int dy, int weight) {
 		CTabFolder draggedFolder = draggedItem.getParent();
 		Control control = draggedItem.getControl();
+		TabbedView data = (TabbedView) draggedItem.getData();
 		String text = draggedItem.getText();
 		
 		draggedItem.dispose();
 		CTabFolder newFolder = split(folder, dx, dy, weight);
-		createTabItem(newFolder, control, text);
+		createTabItem(newFolder, control, text, data);
 		
 		removeIfEmpty(draggedFolder);
 		
@@ -376,18 +391,19 @@ public class TabbedViewLayout {
 	/**
 	 * Returns a new tab item for a folder containing the given control and text.
 	 */
-	private CTabItem createTabItem(CTabFolder folder, Control control, String text) {
-		return createTabItem(folder, control, text, folder.getItemCount());
+	private CTabItem createTabItem(CTabFolder folder, Control control, String text, TabbedView data) {
+		return createTabItem(folder, control, text, data, folder.getItemCount());
 	}
 
 	/**
 	 * Returns a new tab item for a folder containing the given control and text, at a specific index.
 	 */
-	private CTabItem createTabItem(CTabFolder folder, Control control, String text, int index) {
+	private CTabItem createTabItem(CTabFolder folder, Control control, String text, TabbedView data, int index) {
 		CTabItem item = new CTabItem(folder, SWT.NONE, index);
 		control.setParent(folder);
 		item.setText(text);
 		item.setControl(control);
+		item.setData(data);
 		setupTabItem(item);
 		return item;
 	}
@@ -419,6 +435,9 @@ public class TabbedViewLayout {
 		item.setShowClose(true);
 	}
 	
+	/**
+	 * Serializes the state of the view to a String, and returns it.
+	 */
 	public String serialize() {
 		Document document = new Document();
 		Element element = new Element("Tabs");
@@ -431,7 +450,7 @@ public class TabbedViewLayout {
 		return new XMLOutputter(Format.getPrettyFormat()).outputString(document);
 	}
 	
-	public void serialize(Element parent, Control control) {
+	private void serialize(Element parent, Control control) {
 		if(control instanceof CTabFolder) {
 			serialize(parent, (CTabFolder) control);
 		} else if(control instanceof SashForm) {
@@ -445,6 +464,7 @@ public class TabbedViewLayout {
 		Element splitElement = new Element("Split");
 		splitElement.setAttribute("weight1", String.valueOf(weights[0]));
 		splitElement.setAttribute("weight2", String.valueOf(weights[1]));
+		splitElement.setAttribute("orientation", (sashForm.getOrientation() == SWT.HORIZONTAL) ? "horizontal" : "vertical");
 		parent.addContent(splitElement);
 		
 		for(Control control:sashForm.getChildren()) {
@@ -457,9 +477,57 @@ public class TabbedViewLayout {
 		parent.addContent(folderElement);
 		
 		for(CTabItem tabItem:tabFolder.getItems()) {
+			TabbedView tabbedView = (TabbedView) tabItem.getData();
+			
 			Element itemElement = new Element("Item");
-			itemElement.setAttribute("text", tabItem.getText());
+			itemElement.setAttribute("title", tabItem.getText());
+			itemElement.setAttribute("type", tabbedView.getClass().getSimpleName());
 			folderElement.addContent(itemElement);
+			
+			tabbedView.serialize(itemElement);
+		}
+	}
+
+	/**
+	 * Deserializes the state of the view from the given String.
+	 */
+	public void deserialize(ViewFactory viewFactory, String documentText) throws JDOMException, IOException {
+		Document document = new SAXBuilder().build(new StringReader(documentText));
+		
+		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
+		folders.add(folder);
+		setupTabFolder(folder);
+		
+		deserialize(viewFactory, document.getRootElement().getChildren().get(0), folder);
+	}
+
+	private void deserialize(ViewFactory viewFactory, Element element, CTabFolder folder) {
+		if(element.getName().equals("Split")) {
+			int weight1 = Integer.parseInt(element.getAttributeValue("weight1"));
+			int weight2 = Integer.parseInt(element.getAttributeValue("weight2"));
+			String orientation = element.getAttributeValue("orientation");
+			int weight = (weight1 * 100) / (weight1 + weight2);
+			
+			CTabFolder newFolder;
+			if(orientation.equals("horizontal")) {
+				newFolder = split(folder, 1, 0, weight);
+			} else {
+				newFolder = split(folder, 0, 1, weight);
+			}
+			
+			if(element.getChildren().size() == 2) {
+				deserialize(viewFactory, element.getChildren().get(0), folder);
+				deserialize(viewFactory, element.getChildren().get(1), newFolder);
+			}
+		} else if(element.getName().equals("Items")) {
+			for(Element child:element.getChildren()) {
+				if(child.getName().equals("Item")) {
+					String title = child.getAttributeValue("title");
+					String type = child.getAttributeValue("type");
+					TabbedView view = viewFactory.addView(type, folder, title);
+					view.deserialize(child);
+				}
+			}
 		}
 	}
 }

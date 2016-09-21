@@ -8,6 +8,7 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.jdom2.Element;
 
 public class ScriptEditor implements TabbedView {
 	private final StyledText text;
@@ -35,5 +36,16 @@ public class ScriptEditor implements TabbedView {
 
 	public void setExecuteCallback(Consumer<String> callback) {
 		this.executeCallback = callback;
+	}
+
+	public void serialize(Element element) {
+		Element content = new Element("Content");
+		content.setText(text.getText());
+		element.addContent(content);
+	}
+
+	public void deserialize(Element element) {
+		String content = element.getChildText("Content");
+		text.setText(content);
 	}
 }

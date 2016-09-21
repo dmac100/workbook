@@ -1,13 +1,19 @@
+import java.io.File;
 import java.util.function.Consumer;
 
+import org.apache.commons.io.FileUtils;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import controller.MainController;
 import view.InputDialog;
 import view.MenuBuilder;
 import view.TabbedViewLayout;
+import view.ViewFactory;
 
 public class Workbook {
 	private final Shell shell;
@@ -45,7 +51,8 @@ public class Workbook {
 			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTableEditor(expression)))
 			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTreeEditor(expression)))
 			.addSeparator()
-			.addItem("Save").addSelectionListener(() -> save())
+			.addItem("Open...").addSelectionListener(() -> open())
+			.addItem("Save...").addSelectionListener(() -> save())
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
@@ -64,7 +71,59 @@ public class Workbook {
 	
 	private void save() {
 		String document = tabbedViewLayout.serialize();
-		System.out.println(document);
+		String location = selectSaveLocation();
+		if(location != null) {
+			try {
+				FileUtils.writeStringToFile(new File(location), document, "UTF-8");
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void open() {
+		open(selectOpenLocation());
+	}
+	
+	private void save(String location) {
+		save(selectOpenLocation());
+	}
+	
+	private void open(String location) {
+		if(location != null) {
+			try {
+				String document = FileUtils.readFileToString(new File(location), "UTF-8");
+				mainController.clear();
+				tabbedViewLayout.clear();
+				tabbedViewLayout.deserialize(viewFactory, document);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private String selectSaveLocation() {
+		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+		dialog.setText("Save");
+		dialog.setFileName("book.wb");
+		return dialog.open();
+	}
+	
+	private String selectOpenLocation() {
+		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+		dialog.setText("Open");
+		dialog.setFilterExtensions(new String[] { "*.wb", "*.*" });
+		
+		return dialog.open();
+	}
+	
+	private void displayException(Exception e) {
+		MessageBox messageBox = new MessageBox(shell);
+		messageBox.setText("Error");
+		messageBox.setMessage(e.getMessage() == null ? e.toString() : e.getMessage());
+		e.printStackTrace();
+		
+		messageBox.open();
 	}
 
 	public static void main(String[] args) {

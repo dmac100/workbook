@@ -1,3 +1,5 @@
+package view;
+
 import java.util.function.Function;
 
 import org.eclipse.swt.custom.CTabFolder;
@@ -9,11 +11,6 @@ import editor.ui.Editor;
 import editor.ui.StringEditor;
 import editor.ui.TableEditor;
 import editor.ui.TreeEditor;
-import view.Console;
-import view.ScriptEditor;
-import view.TabbedView;
-import view.TabbedViewLayout;
-import view.WorkSheet;
 
 public class ViewFactory {
 	private final TabbedViewLayout tabbedViewLayout;
@@ -56,7 +53,7 @@ public class ViewFactory {
 	public TabbedView addView(String type, CTabFolder folder, String title) {
 		switch(type) {
 			case "Worksheet": return addWorksheet(folder, title);
-			case "Script": return addScript(folder, title);
+			case "ScriptEditor": return addScript(folder, title);
 			case "Console": return addConsole(folder, title);
 			case "StringEditor": return addStringEditor(folder, title);
 			case "TableEditor": return addTableEditor(folder, title);
@@ -65,11 +62,11 @@ public class ViewFactory {
 		throw new IllegalArgumentException("Unknown type: " + type);
 	}
 	
-	private WorkSheet addWorksheet(CTabFolder folder, String title) {
+	private Worksheet addWorksheet(CTabFolder folder, String title) {
 		return tabbedViewLayout.addTab(folder, title, parent -> {
-			WorkSheet workSheet = new WorkSheet(parent);
-			mainController.addWorkSheet(workSheet);
-			return workSheet;
+			Worksheet worksheet = new Worksheet(parent);
+			mainController.addWorksheet(worksheet);
+			return worksheet;
 		});
 	}
 	

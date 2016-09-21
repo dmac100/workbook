@@ -2,6 +2,8 @@ package editor.ui;
 
 import java.util.function.Function;
 
+import org.jdom2.Element;
+
 import editor.reference.Reference;
 
 public abstract class Editor {
@@ -26,5 +28,19 @@ public abstract class Editor {
 			reference = referenceFunction.apply(expression);
 			readValue();
 		}
+	}
+	
+	public void serialize(Element element) {
+		Element expression = new Element("Expression");
+		expression.setText(this.expression);
+		element.addContent(expression);
+	}
+
+	public void deserialize(Element element) {
+		this.expression = null;
+		this.reference = null;
+		
+		setExpression(element.getChildText("Expression"));
+		readValue();
 	}
 }

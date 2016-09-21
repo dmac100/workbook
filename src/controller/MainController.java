@@ -11,9 +11,9 @@ import editor.ui.Editor;
 import script.ScriptController;
 import script.ScriptFuture;
 import util.ThrottledConsumer;
-import view.WorkSheet;
 import view.Console;
 import view.ScriptEditor;
+import view.Worksheet;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
@@ -31,9 +31,14 @@ public class MainController {
 			);
 		});
 	}
+	
+	public void clear() {
+		consoles.clear();
+		editors.clear();
+	}
 
-	public void addWorkSheet(WorkSheet workSheet) {
-		workSheet.setExecuteFunction(command -> {
+	public void addWorksheet(Worksheet worksheet) {
+		worksheet.setExecuteFunction(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
 			return result;

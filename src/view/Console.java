@@ -6,6 +6,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.jdom2.Element;
 
 public class Console implements TabbedView {
 	private final Composite parent;
@@ -45,5 +46,11 @@ public class Console implements TabbedView {
 
 	public Control getControl() {
 		return text;
+	}
+
+	public void serialize(Element element) {
+	}
+
+	public void deserialize(Element element) {
 	}
 }

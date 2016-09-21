@@ -124,6 +124,10 @@ public class Cell {
 		return command.getText();
 	}
 	
+	public void setCommand(String text) {
+		command.setText(text);
+	}
+	
 	public String getResult() {
 		return result.getText();
 	}
