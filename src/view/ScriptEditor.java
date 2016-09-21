@@ -5,6 +5,8 @@ import java.util.function.Consumer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -28,6 +30,20 @@ public class ScriptEditor implements TabbedView {
 				}
 			}
 		});
+		
+		text.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent event) {
+				if((event.stateMask & SWT.CTRL) > 0) {
+					if(event.keyCode == 'a') {
+						selectAll();
+					}
+				}
+			}
+		});
+	}
+	
+	public void selectAll() {
+		text.setSelection(0, text.getText().length());
 	}
 
 	public Control getControl() {

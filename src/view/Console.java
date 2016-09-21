@@ -3,6 +3,8 @@ package view;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -18,6 +20,20 @@ public class Console implements TabbedView {
 		text = new StyledText(parent, SWT.WRAP | SWT.V_SCROLL);
 		text.setFont(FontList.consolas10);
 		text.setEditable(false);
+		
+		text.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent event) {
+				if((event.stateMask & SWT.CTRL) > 0) {
+					if(event.keyCode == 'a') {
+						selectAll();
+					}
+				}
+			}
+		});
+	}
+	
+	public void selectAll() {
+		text.setSelection(0, text.getText().length());
 	}
 	
 	public void addOutput(String output) {
