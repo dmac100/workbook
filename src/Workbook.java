@@ -1,15 +1,18 @@
+import java.util.function.Consumer;
+
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import controller.MainController;
+import view.InputDialog;
 import view.MenuBuilder;
-import view.TabbedView;
+import view.TabbedViewLayout;
 
 public class Workbook {
 	private final Shell shell;
 	private final MainController mainController;
-	private final TabbedView tabbedView;
+	private final TabbedViewLayout tabbedViewLayout;
 	private final ViewFactory viewFactory;
 	
 	public Workbook(Shell shell) {
@@ -18,11 +21,11 @@ public class Workbook {
 		shell.setLayout(new FillLayout());
 
 		mainController = new MainController();
-		tabbedView = new TabbedView(shell);
+		tabbedViewLayout = new TabbedViewLayout(shell);
 		
 		createMenuBar(shell);
 		
-		this.viewFactory = new ViewFactory(shell, tabbedView, mainController);
+		this.viewFactory = new ViewFactory(tabbedViewLayout, mainController);
 		
 		viewFactory.addWorksheet();
 		viewFactory.addScript();
@@ -38,9 +41,9 @@ public class Workbook {
 			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addWorksheet())
 			.addItem("New Script").addSelectionListener(() -> viewFactory.addScript())
 			.addSeparator()
-			.addItem("New String Editor...").addSelectionListener(() -> viewFactory.addStringEditor())
-			.addItem("New Table Editor...").addSelectionListener(() -> viewFactory.addTableEditor())
-			.addItem("New Tree Editor...").addSelectionListener(() -> viewFactory.addTreeEditor())
+			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addStringEditor(expression)))
+			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTableEditor(expression)))
+			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTreeEditor(expression)))
 			.addSeparator()
 			.addItem("Save").addSelectionListener(() -> save())
 			.addSeparator()
@@ -52,8 +55,15 @@ public class Workbook {
 		menuBuilder.build();
 	}
 	
+	private void getExpression(Consumer<String> consumer) {
+		String expression = InputDialog.open(shell, "Expression", "Expression");
+		if(expression != null && !expression.trim().isEmpty()) {
+			consumer.accept(expression.trim());
+		}
+	}
+	
 	private void save() {
-		String document = tabbedView.serialize();
+		String document = tabbedViewLayout.serialize();
 		System.out.println(document);
 	}
 

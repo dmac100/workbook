@@ -25,9 +25,9 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import editor.ScriptTableUtil;
 import editor.reference.Reference;
-import view.View;
+import view.TabbedView;
 
-public class TreeEditor extends Editor implements View {
+public class TreeEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final ScriptTableUtil scriptTableUtil;
 	

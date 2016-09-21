@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Display;
 import layout.GridLayoutBuilder;
 import script.ScriptFuture;
 
-public class CellList implements View {
+public class WorkSheet implements TabbedView {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	
@@ -29,7 +29,7 @@ public class CellList implements View {
 	
 	private Function<String, ScriptFuture<Object>> executeFunction;
 	
-	public CellList(Composite parent) {
+	public WorkSheet(Composite parent) {
 		Display display = parent.getDisplay();
 		
 		parent.setLayout(new FillLayout());

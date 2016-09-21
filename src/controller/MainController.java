@@ -11,7 +11,7 @@ import editor.ui.Editor;
 import script.ScriptController;
 import script.ScriptFuture;
 import util.ThrottledConsumer;
-import view.CellList;
+import view.WorkSheet;
 import view.Console;
 import view.ScriptEditor;
 
@@ -32,8 +32,8 @@ public class MainController {
 		});
 	}
 
-	public void addCellList(CellList cellList) {
-		cellList.setExecuteFunction(command -> {
+	public void addWorkSheet(WorkSheet workSheet) {
+		workSheet.setExecuteFunction(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
 			return result;

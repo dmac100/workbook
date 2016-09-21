@@ -2,7 +2,6 @@ import java.util.function.Function;
 
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
 
 import controller.MainController;
 import editor.ScriptTableUtil;
@@ -10,112 +9,100 @@ import editor.ui.Editor;
 import editor.ui.StringEditor;
 import editor.ui.TableEditor;
 import editor.ui.TreeEditor;
-import view.CellList;
 import view.Console;
-import view.InputDialog;
 import view.ScriptEditor;
 import view.TabbedView;
-import view.View;
+import view.TabbedViewLayout;
+import view.WorkSheet;
 
 public class ViewFactory {
-	private final Shell shell;
-	private final TabbedView tabbedView;
+	private final TabbedViewLayout tabbedViewLayout;
 	private final MainController mainController;
 	private final ScriptTableUtil scriptTableUtil;
-
-	public ViewFactory(Shell shell, TabbedView tabbedView, MainController mainController) {
-		this.shell = shell;
-		this.tabbedView = tabbedView;
+	
+	public ViewFactory(TabbedViewLayout tabbedViewLayout, MainController mainController) {
+		this.tabbedViewLayout = tabbedViewLayout;
 		this.mainController = mainController;
 		this.scriptTableUtil = new ScriptTableUtil(mainController.getScriptController());
 	}
 	
 	public void addWorksheet() {
-		addWorksheet(tabbedView.getLeftFolder(), "Worksheet");
+		addWorksheet(tabbedViewLayout.getLeftFolder(), "Worksheet");
 	}
 	
 	public void addScript() {
-		addScript(tabbedView.getLeftFolder(), "Script");
+		addScript(tabbedViewLayout.getLeftFolder(), "Script");
 	}
 	
 	public void addConsole() {
-		addConsole(tabbedView.getBottomFolder(), "Console");
-	}
-	
-	public void addStringEditor() {
-		String expression = InputDialog.open(shell, "Expression", "Expression");
-		if(expression != null && !expression.trim().isEmpty()) {
-			addStringEditor(expression.trim());
-		}
-	}
-	
-	public void addTableEditor() {
-		String expression = InputDialog.open(shell, "Expression", "Expression");
-		if(expression != null && !expression.trim().isEmpty()) {
-			addTableEditor(expression.trim());
-		}
-	}
-	
-	public void addTreeEditor() {
-		String expression = InputDialog.open(shell, "Expression", "Expression");
-		if(expression != null && !expression.trim().isEmpty()) {
-			addTreeEditor(expression.trim());
-		}
+		addConsole(tabbedViewLayout.getBottomFolder(), "Console");
 	}
 	
 	public void addStringEditor(String expression) {
-		StringEditor editor = addStringEditor(tabbedView.getRightFolder(), "Editor: " + expression);
+		StringEditor editor = addStringEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
 		editor.setExpression(expression);
 	}
 	
 	public void addTableEditor(String expression) {
-		TableEditor editor = addTableEditor(tabbedView.getRightFolder(), "Editor: " + expression);
+		TableEditor editor = addTableEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
 		editor.setExpression(expression);
 	}
 	
 	public void addTreeEditor(String expression) {
-		TreeEditor editor = addTreeEditor(tabbedView.getRightFolder(), "Editor: " + expression);
+		TreeEditor editor = addTreeEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
 		editor.setExpression(expression);
 	}
 	
-	public void addWorksheet(CTabFolder folder, String title) {
-		tabbedView.addTab(folder, title, parent -> {
-			CellList cellList = new CellList(parent);
-			mainController.addCellList(cellList);
-			return cellList;
+	public TabbedView addView(String type, CTabFolder folder, String title) {
+		switch(type) {
+			case "Worksheet": return addWorksheet(folder, title);
+			case "Script": return addScript(folder, title);
+			case "Console": return addConsole(folder, title);
+			case "StringEditor": return addStringEditor(folder, title);
+			case "TableEditor": return addTableEditor(folder, title);
+			case "TreeEditor": return addTreeEditor(folder, title);
+		}
+		throw new IllegalArgumentException("Unknown type: " + type);
+	}
+	
+	private WorkSheet addWorksheet(CTabFolder folder, String title) {
+		return tabbedViewLayout.addTab(folder, title, parent -> {
+			WorkSheet workSheet = new WorkSheet(parent);
+			mainController.addWorkSheet(workSheet);
+			return workSheet;
 		});
 	}
 	
-	public void addScript(CTabFolder folder, String title) {
-		tabbedView.addTab(folder, title, parent -> {
+	private ScriptEditor addScript(CTabFolder folder, String title) {
+		return tabbedViewLayout.addTab(folder, title, parent -> {
 			ScriptEditor scriptEditor = new ScriptEditor(parent);
 			mainController.addScriptEditor(scriptEditor);
 			return scriptEditor;
 		});
 	}
 	
-	public void addConsole(CTabFolder folder, String title) {
-		tabbedView.addTab(folder, title, parent -> {
+	private Console addConsole(CTabFolder folder, String title) {
+		return tabbedViewLayout.addTab(folder, title, parent -> {
 			Console console = new Console(parent);
 			mainController.addConsole(console);
 			return console;
 		});
 	}
 	
-	public StringEditor addStringEditor(CTabFolder folder, String title) {
+	private StringEditor addStringEditor(CTabFolder folder, String title) {
 		return addEditor(folder, title, parent -> new StringEditor(parent));
 	}
 	
-	public TableEditor addTableEditor(CTabFolder folder, String title) {
+	private TableEditor addTableEditor(CTabFolder folder, String title) {
 		return addEditor(folder, title, parent -> new TableEditor(parent, scriptTableUtil));
 	}
 	
-	public TreeEditor addTreeEditor(CTabFolder folder, String title) {
+	private TreeEditor addTreeEditor(CTabFolder folder, String title) {
 		return addEditor(folder, title, parent -> new TreeEditor(parent, scriptTableUtil));
 	}
 	
-	private <T extends Editor & View> T addEditor(CTabFolder folder, String title, Function<Composite, T> factory) {
-		return tabbedView.addTab(folder, title, parent -> {
+	private <T extends Editor & TabbedView> T addEditor(CTabFolder folder, String title, Function<Composite, T> factory) {
+		return tabbedViewLayout.addTab(folder, title, parent -> {
 			T editor = factory.apply(parent);
 			mainController.addEditor(editor);
 			return editor;

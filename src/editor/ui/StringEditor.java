@@ -7,9 +7,9 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import view.View;
+import view.TabbedView;
 
-public class StringEditor extends Editor implements View {
+public class StringEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final StyledText text;
 	
