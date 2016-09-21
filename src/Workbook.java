@@ -56,6 +56,9 @@ public class Workbook {
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
+		menuBuilder.addMenu("&Console")
+			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
+		
 		menuBuilder.addMenu("&Script")
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt());
 		

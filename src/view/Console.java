@@ -43,6 +43,11 @@ public class Console implements TabbedView {
 		});
 	}
 	
+	
+	public void clear() {
+		text.setText("");
+	}
+	
 	public void addError(String error) {
 		text.getDisplay().asyncExec(() -> {
 			int start = text.getCharCount();

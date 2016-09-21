@@ -82,6 +82,10 @@ public class MainController {
 		consoles.forEach(console -> console.addOutput(output));
 		consoles.forEach(console -> console.addError(error));
 	}
+	
+	public void clearConsole() {
+		consoles.forEach(console -> console.clear());
+	}
 
 	public void addConsole(Console console) {
 		consoles.add(console);
