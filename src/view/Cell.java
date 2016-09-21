@@ -2,7 +2,6 @@ package view;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
@@ -74,6 +73,17 @@ public class Cell {
 					upCallbacks.forEach(Runnable::run);
 				} else if(event.keyCode == SWT.ARROW_DOWN) {
 					downCallbacks.forEach(Runnable::run);
+				}
+			}
+		});
+		
+		result.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent event) {
+				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
+					evaluate(true);
+				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+					runAllCallbacks.forEach(Runnable::run);
+					event.doit = false;
 				}
 			}
 		});

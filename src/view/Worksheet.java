@@ -78,20 +78,18 @@ public class Worksheet implements TabbedView {
 		cell.addUpCallback(new Runnable() {
 			public void run() {
 				int index = cells.indexOf(cell) - 1;
-				if(index >= 0) {
-					cells.get(index).setFocus();
-					scrollTo(cells.get(index).getBounds());
-				}
+				index = Math.max(index, 0);
+				cells.get(index).setFocus();
+				scrollTo(cells.get(index).getBounds());
 			}
 		});
 		
 		cell.addDownCallback(new Runnable() {
 			public void run() {
 				int index = cells.indexOf(cell) + 1;
-				if(index < cells.size()) {
-					cells.get(index).setFocus();
-					scrollTo(cells.get(index).getBounds());
-				}
+				index = Math.min(index, cells.size() - 1);
+				cells.get(index).setFocus();
+				scrollTo(cells.get(index).getBounds());
 			}
 		});
 		
