@@ -14,11 +14,13 @@ import util.ThrottledConsumer;
 import view.Console;
 import view.ScriptEditor;
 import view.Worksheet;
+import view.canvas.CanvasView;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
 	private final List<Console> consoles = new ArrayList<>();
 	private final List<Editor> editors = new ArrayList<>();
+	private final List<CanvasView> canvases = new ArrayList<>();
 	
 	private final Consumer<Object> evalConsumer;
 	private final Consumer<Void> flushConsoleConsumer;
@@ -61,7 +63,10 @@ public class MainController {
 	private void onEval(Object result) {
 		scriptController
 			.setVariable("_", result)
-			.thenRun(() -> editors.forEach(Editor::readValue));
+			.thenRun(() -> {
+				editors.forEach(Editor::readValue);
+				canvases.forEach(CanvasView::refresh);
+			});
 	}
 	
 	private void addOutput(String output) {
@@ -89,6 +94,10 @@ public class MainController {
 
 	public void addConsole(Console console) {
 		consoles.add(console);
+	}
+	
+	public void addCanvasView(CanvasView canvas) {
+		canvases.add(canvas);
 	}
 
 	public void addEditor(Editor editor) {

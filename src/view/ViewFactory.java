@@ -11,6 +11,7 @@ import editor.ui.Editor;
 import editor.ui.StringEditor;
 import editor.ui.TableEditor;
 import editor.ui.TreeEditor;
+import view.canvas.CanvasView;
 
 public class ViewFactory {
 	private final TabbedViewLayout tabbedViewLayout;
@@ -35,6 +36,10 @@ public class ViewFactory {
 		addConsole(tabbedViewLayout.getBottomFolder(), "Console");
 	}
 	
+	public void addCanvasView() {
+		addCanvasView(tabbedViewLayout.getLeftFolder(), "Canvas");
+	}
+	
 	public void addStringEditor(String expression) {
 		StringEditor editor = addStringEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
 		editor.setExpression(expression);
@@ -55,6 +60,7 @@ public class ViewFactory {
 			case "Worksheet": return addWorksheet(folder, title);
 			case "ScriptEditor": return addScript(folder, title);
 			case "Console": return addConsole(folder, title);
+			case "CanvasView": return addCanvasView(folder, title);
 			case "StringEditor": return addStringEditor(folder, title);
 			case "TableEditor": return addTableEditor(folder, title);
 			case "TreeEditor": return addTreeEditor(folder, title);
@@ -83,6 +89,14 @@ public class ViewFactory {
 			Console console = new Console(parent);
 			mainController.addConsole(console);
 			return console;
+		});
+	}
+	
+	private CanvasView addCanvasView(CTabFolder folder, String title) {
+		return tabbedViewLayout.addTab(folder, title, parent -> {
+			CanvasView canvas = new CanvasView(parent);
+			mainController.addCanvasView(canvas);
+			return canvas;
 		});
 	}
 	
