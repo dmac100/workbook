@@ -172,8 +172,13 @@ public class CanvasView implements TabbedView {
 	}
 
 	public void serialize(Element element) {
+		Element content = new Element("Content");
+		content.setText(styledText.getText());
+		element.addContent(content);
 	}
 
 	public void deserialize(Element element) {
+		String content = element.getChildText("Content");
+		styledText.setText(content);
 	}
 }
