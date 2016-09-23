@@ -47,7 +47,7 @@ public class Workbook {
 			.addItem("New Console").addSelectionListener(() -> viewFactory.addConsole())
 			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addWorksheet())
 			.addItem("New Script").addSelectionListener(() -> viewFactory.addScript())
-			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addScript())
+			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addCanvasView())
 			.addSeparator()
 			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addStringEditor(expression)))
 			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTableEditor(expression)))
