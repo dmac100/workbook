@@ -2,6 +2,7 @@ package view.canvas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -21,6 +22,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.jdom2.Element;
 
+import script.NameAndProperties;
 import view.TabbedView;
 
 public class CanvasView implements TabbedView {
@@ -30,6 +32,7 @@ public class CanvasView implements TabbedView {
 	private final ColorCache colorCache;
 	
 	private final List<CanvasItem> canvasItems = new ArrayList<>();
+	private Consumer<String> executeCallback;
 	
 	private Bounds bounds;
 	private String boundsFit = "extend";
@@ -142,7 +145,26 @@ public class CanvasView implements TabbedView {
 		styledText.setSelection(0, styledText.getText().length());
 	}
 	
+	public void setExecuteCallback(Consumer<String> executeCallback) {
+		this.executeCallback = executeCallback;
+	}
+	
 	public void refresh() {
+		canvas.getDisplay().asyncExec(() -> {
+			if(executeCallback != null) {
+				executeCallback.accept(styledText.getText());
+			}
+		});
+	}
+	
+	public void setCanvasItems(List<NameAndProperties> values) {
+		canvas.getDisplay().asyncExec(() -> {
+			canvasItems.clear();
+			for(NameAndProperties value:values) {
+				canvasItems.add(new CanvasItem(value.getName(), value.getProperties()));
+			}
+			canvas.redraw();
+		});
 	}
 
 	public Control getControl() {

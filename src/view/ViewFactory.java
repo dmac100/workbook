@@ -37,7 +37,7 @@ public class ViewFactory {
 	}
 	
 	public void addCanvasView() {
-		addCanvasView(tabbedViewLayout.getLeftFolder(), "Canvas");
+		addCanvasView(tabbedViewLayout.getRightFolder(), "Canvas");
 	}
 	
 	public void addStringEditor(String expression) {

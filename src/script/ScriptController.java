@@ -1,6 +1,8 @@
 package script;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
@@ -56,6 +58,19 @@ public class ScriptController {
 		runnableQueue.add(() -> {
 			try {
 				Object result = script.eval(expression, outputCallback, errorCallback);
+				future.complete(result);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
+	}
+	
+	public ScriptFuture<List<NameAndProperties>> evalWithCallbackFunctions(String expression, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		ScriptFuture<List<NameAndProperties>> future = new ScriptFuture<>(this);
+		runnableQueue.add(() -> {
+			try {
+				List<NameAndProperties> result = script.evalWithCallbackFunctions(expression, callbackFunctionNames, outputCallback, errorCallback);
 				future.complete(result);
 			} catch(Exception e) {
 				future.completeExceptionally(e);

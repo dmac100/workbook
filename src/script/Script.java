@@ -1,7 +1,11 @@
 package script;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.script.Bindings;
@@ -93,8 +97,48 @@ public class Script {
 		return eval(command, nullCallback, nullCallback);
 	}
 	
+	/**
+	 * Evaluates a command, and returns the result.
+	 */
 	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
 		checkThreadAccess();
+		return eval(command, null, null, outputCallback, errorCallback);
+	}
+
+	/**
+	 * Evaluates a command against a list of callback functions and returns the functions that were called. So if callbackFunctionNames contains
+	 * 'rect', and command contains the function call 'rect({x: 1})', then [NameAndProperties('rect', { x => 1 })] will be returned.
+	 */
+	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		checkThreadAccess();
+		List<NameAndProperties> callbackValues = new ArrayList<>();
+		
+		Bindings bindings = engine.createBindings();
+		bindings.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
+		
+		bindings.put("callback", new BiConsumer<String, Map<String, String>>() {
+			public void accept(String name, Map<String, String> properties) {
+				for(String key:new HashSet<>(properties.keySet())) {
+					properties.put(key, String.valueOf(properties.get(key)));
+				}
+				
+				NameAndProperties nameAndProperties = new NameAndProperties(name, properties);
+				callbackValues.add(nameAndProperties);
+			}
+		});
+		
+		StringBuilder prefix = new StringBuilder();
+		for(String name:callbackFunctionNames) {
+			prefix.append(String.format("function %s(values) { callback.accept('%s', new java.util.HashMap(values)); }", name, name));
+			prefix.append("\n");
+		}
+		
+		eval(command, prefix.toString(), bindings, outputCallback, errorCallback);
+		
+		return callbackValues;
+	}
+	
+	private Object eval(String command, String prefix, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
         PrintStream out = System.out;
         PrintStream err = System.err;
         try {
@@ -103,9 +147,10 @@ public class Script {
         	
         	System.setOut(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(outputReader.getOutputStream()), out));
         	System.setErr(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(errorReader.getOutputStream()), err));
-	        
-			Object value = engine.eval("with(new JavaImporter(java.util, java.lang)) { " + command + "}");
-
+        	
+        	String script = String.format("%s; with(new JavaImporter(java.util, java.lang)) { %s; }", prefix, command);
+			Object value = (bindings == null) ? engine.eval(script) : engine.eval(script, bindings);
+			
 			System.out.close();
 			System.err.close();
 			

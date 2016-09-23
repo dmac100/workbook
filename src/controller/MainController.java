@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -8,6 +9,7 @@ import org.eclipse.swt.widgets.Display;
 
 import editor.reference.OgnlReference;
 import editor.ui.Editor;
+import script.NameAndProperties;
 import script.ScriptController;
 import script.ScriptFuture;
 import util.ThrottledConsumer;
@@ -43,6 +45,7 @@ public class MainController {
 	public void clear() {
 		consoles.clear();
 		editors.clear();
+		canvases.clear();
 	}
 
 	public void addWorksheet(Worksheet worksheet) {
@@ -98,6 +101,13 @@ public class MainController {
 	
 	public void addCanvasView(CanvasView canvas) {
 		canvases.add(canvas);
+		canvas.setExecuteCallback(command -> {
+			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
+			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames, this::addOutput, this::addError);
+			result.thenAccept(value -> {
+				canvas.setCanvasItems(value);
+			});
+		});
 	}
 
 	public void addEditor(Editor editor) {
