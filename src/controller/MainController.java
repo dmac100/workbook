@@ -11,6 +11,7 @@ import editor.reference.OgnlReference;
 import editor.ui.Editor;
 import script.NameAndProperties;
 import script.ScriptController;
+import script.ScriptController.ScriptType;
 import script.ScriptFuture;
 import util.ThrottledConsumer;
 import view.Console;
@@ -121,5 +122,9 @@ public class MainController {
 
 	public ScriptController getScriptController() {
 		return scriptController;
+	}
+
+	public void setEngine(ScriptType script) {
+		scriptController.setScriptType(script);
 	}
 }

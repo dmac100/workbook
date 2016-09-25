@@ -8,10 +8,18 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ScriptController {
-	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
-	private final Engine script = new JavascriptEngine();
+	public enum ScriptType {
+		JAVASCRIPT, RUBY
+	}
 	
-	private volatile Thread thread = null;;
+	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
+	
+	private final Engine javascriptEngine = new JavascriptEngine();
+	private final Engine rubyEngine = new RubyEngine();
+	
+	private Engine engine = javascriptEngine;
+	
+	private volatile Thread thread = null;
 	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
@@ -42,6 +50,25 @@ public class ScriptController {
 		}
 	}
 	
+	public ScriptFuture<Void> setScriptType(ScriptType scriptType) {
+		ScriptFuture<Void> future = new ScriptFuture<>(this);
+		runnableQueue.add(() -> {
+			try {
+				if(scriptType == ScriptType.JAVASCRIPT) {
+					engine = javascriptEngine;
+				} else if(scriptType == ScriptType.RUBY) {
+					engine = rubyEngine;
+				} else {
+					throw new IllegalArgumentException("Unknown script type: " + scriptType);
+				}
+				future.complete(null);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
+	}
+	
 	public <T> ScriptFuture<T> exec(Supplier<T> supplier) {
 		ScriptFuture<T> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
@@ -58,7 +85,7 @@ public class ScriptController {
 		ScriptFuture<Object> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
 			try {
-				Object result = script.eval(expression, outputCallback, errorCallback);
+				Object result = engine.eval(expression, outputCallback, errorCallback);
 				future.complete(result);
 			} catch(Exception e) {
 				future.completeExceptionally(e);
@@ -71,7 +98,7 @@ public class ScriptController {
 		ScriptFuture<List<NameAndProperties>> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
 			try {
-				List<NameAndProperties> result = script.evalWithCallbackFunctions(expression, callbackFunctionNames, outputCallback, errorCallback);
+				List<NameAndProperties> result = engine.evalWithCallbackFunctions(expression, callbackFunctionNames, outputCallback, errorCallback);
 				future.complete(result);
 			} catch(Exception e) {
 				future.completeExceptionally(e);
@@ -84,7 +111,7 @@ public class ScriptController {
 		ScriptFuture<Void> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
 			try {
-				script.setVariable(name, value);
+				engine.setVariable(name, value);
 				future.complete(null);
 			} catch(Exception e) {
 				future.completeExceptionally(e);
@@ -95,12 +122,12 @@ public class ScriptController {
 	
 	public void getScript(Consumer<Engine> consumer) {
 		runnableQueue.add(() -> {
-			consumer.accept(script);
+			consumer.accept(engine);
 		});
 	}
 	
 	public Engine getScriptSync() {
-		return script;
+		return engine;
 	}
 
 	public void interrupt() {

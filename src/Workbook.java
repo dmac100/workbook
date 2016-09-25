@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import controller.MainController;
+import script.ScriptController.ScriptType;
 import view.InputDialog;
 import view.MenuBuilder;
 import view.TabbedViewLayout;
@@ -59,6 +60,9 @@ public class Workbook {
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
 		menuBuilder.addMenu("&Console")
+			.addItem("Set Javascript Engine").addSelectionListener(() -> mainController.setEngine(ScriptType.JAVASCRIPT))
+			.addItem("Set Ruby Engine").addSelectionListener(() -> mainController.setEngine(ScriptType.RUBY))
+			.addSeparator()
 			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
 		
 		menuBuilder.addMenu("&Script")
