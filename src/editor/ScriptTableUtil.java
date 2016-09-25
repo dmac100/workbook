@@ -76,7 +76,7 @@ public class ScriptTableUtil {
 		Engine script = scriptController.getScriptSync();
 		
 		if(script.isScriptObject(object)) {
-			Map<String, Object> map = script.getPropertyMap(object);
+			Map<Object, Object> map = script.getPropertyMap(object);
 			map.forEach((k, v) -> {
 				row.put(toKeyValue(k), new MapPropertyReference(scriptController, map, k));
 			});
@@ -101,7 +101,7 @@ public class ScriptTableUtil {
 		Engine script = scriptController.getScriptSync();
 		
 		if(script.isScriptObject(object)) {
-			Map<String, Object> map = script.getPropertyMap(object);
+			Map<Object, Object> map = script.getPropertyMap(object);
 			return new MapPropertyReference(scriptController, map, key);
 		} else if(object instanceof Map) {
 			Map<Object, Object> map = (Map<Object, Object>) object;

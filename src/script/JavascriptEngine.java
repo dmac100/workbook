@@ -71,8 +71,8 @@ public class JavascriptEngine implements Engine {
 		return object instanceof ScriptObjectMirror;
 	}
 
-	public Map<String, Object> getPropertyMap(Object object) {
-		return (Map<String, Object>) object;
+	public Map<Object, Object> getPropertyMap(Object object) {
+		return (Map<Object, Object>) object;
 	}
 	
 	public Object eval(String command) {

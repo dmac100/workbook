@@ -100,7 +100,7 @@ public class RubyEngineTest {
 	public void getPropertyMap_get() throws ScriptException {
 		Object object = script.eval("({'a' => 'b'})");
 		
-		Map<String, Object> map = script.getPropertyMap(object);
+		Map<Object, Object> map = script.getPropertyMap(object);
 		
 		assertEquals("b", map.get("a"));
 	}
@@ -108,7 +108,7 @@ public class RubyEngineTest {
 	@Test
 	public void getPropertyMap_set() throws ScriptException {
 		Object object = script.eval("({'a' => 'b'})");
-		Map<String, Object> map = script.getPropertyMap(object);
+		Map<Object, Object> map = script.getPropertyMap(object);
 		
 		map.put("a", "c");
 		map.put("b", "d");

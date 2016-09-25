@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -17,6 +18,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.jruby.RubyArray;
+import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 
 public class RubyEngine implements Engine {
@@ -58,8 +60,12 @@ public class RubyEngine implements Engine {
 		return (object instanceof RubyObject);
 	}
 
-	public Map<String, Object> getPropertyMap(Object object) {
-		return (Map<String, Object>) object;
+	public Map<Object, Object> getPropertyMap(Object object) {
+		if(object instanceof RubyHash) {
+			return (Map<Object, Object>) object;
+		}
+		
+		return new HashMap<>();
 	}
 	
 	public Object eval(String command) {

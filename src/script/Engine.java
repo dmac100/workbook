@@ -13,7 +13,7 @@ public interface Engine {
 	public Object getVariable(String name);
 	public Map<String, Object> getVariableMap();
 	public boolean isScriptObject(Object object);
-	public Map<String, Object> getPropertyMap(Object object);
+	public Map<Object, Object> getPropertyMap(Object object);
 	public Object eval(String command);
 	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback);
 	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback);
