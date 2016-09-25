@@ -1,5 +1,7 @@
 package view;
 
+import java.util.function.Consumer;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,6 +21,10 @@ public class MenuBuilder {
 		this.menubar = new Menu(shell, SWT.BAR);
 	}
 	
+	private MenuBuilder(Menu menu) {
+		this.menu = menu;
+	}
+	
 	public MenuBuilder addMenu(String name) {
 		MenuItem item = new MenuItem(menubar, SWT.MENU);
 		this.menu = new Menu(item);
@@ -33,6 +39,18 @@ public class MenuBuilder {
 		
 		this.item = new MenuItem(menu, SWT.NONE);
 		item.setText(name);
+		
+		return this;
+	}
+	
+	public MenuBuilder addSubmenu(String name, Consumer<MenuBuilder> consumer) {
+		this.item = new MenuItem(menu, SWT.CASCADE);
+		item.setText(name);
+		
+		Menu submenu = new Menu(item);
+		item.setMenu(submenu);
+		
+		consumer.accept(new MenuBuilder(submenu));
 		
 		return this;
 	}
@@ -78,10 +96,12 @@ public class MenuBuilder {
 	}
 	
 	public void build() {
-		Menu oldMenu = shell.getMenuBar();
-		shell.setMenuBar(menubar);
-		if(oldMenu != null) {
-			oldMenu.dispose();
+		if(shell != null) {
+			Menu oldMenu = shell.getMenuBar();
+			shell.setMenuBar(menubar);
+			if(oldMenu != null) {
+				oldMenu.dispose();
+			}
 		}
 	}
 }

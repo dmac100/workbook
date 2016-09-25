@@ -60,9 +60,10 @@ public class Workbook {
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
 		
 		menuBuilder.addMenu("&Console")
-			.addItem("Set Javascript Engine").addSelectionListener(() -> mainController.setEngine(ScriptType.JAVASCRIPT))
-			.addItem("Set Ruby Engine").addSelectionListener(() -> mainController.setEngine(ScriptType.RUBY))
-			.addSeparator()
+			.addSubmenu("Engine", submenu -> submenu
+				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine(ScriptType.JAVASCRIPT))
+				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine(ScriptType.RUBY))
+			)
 			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
 		
 		menuBuilder.addMenu("&Script")
