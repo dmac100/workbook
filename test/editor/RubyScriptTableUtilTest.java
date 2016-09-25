@@ -17,9 +17,10 @@ import org.junit.Test;
 
 import editor.reference.Reference;
 import script.ScriptController;
+import script.ScriptController.ScriptType;
 import script.ScriptFuture;
 
-public class ScriptTableUtilTest {
+public class RubyScriptTableUtilTest {
 	private static class JavaObject {
 		private Object a;
 		private Object b;
@@ -47,6 +48,7 @@ public class ScriptTableUtilTest {
 	@Before
 	public void before() {
 		scriptController.startQueueThread();
+		scriptController.setScriptType(ScriptType.RUBY);
 		scriptTableUtil = new ScriptTableUtil(scriptController);
 	}
 
@@ -63,8 +65,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_singleJsObject() throws Exception {
-		Map<String, List<String>> table = getTable(jsEval("({a: 1})"));
+	public void getTable_singleRubyObject() throws Exception {
+		Map<String, List<String>> table = getTable(eval("({a: 1})"));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1")
@@ -74,8 +76,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_jsListSingleJsObject() throws Exception {
-		Map<String, List<String>> table = getTable(jsEval("[{a: 1}]"));
+	public void getTable_rubyListSingleRubyObject() throws Exception {
+		Map<String, List<String>> table = getTable(eval("[{a: 1}]"));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1")
@@ -85,8 +87,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_jsListMultipleJsObject() throws Exception {
-		Map<String, List<String>> table = getTable(jsEval("[{a: 1}, {b: 2}, {a: 3, b: 4}]"));
+	public void getTable_rubyListMultipleRubyObject() throws Exception {
+		Map<String, List<String>> table = getTable(eval("[{a: 1}, {b: 2}, {a: 3, b: 4}]"));
 		
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1", "null", "3"),
@@ -97,8 +99,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_singleJsNull() throws Exception {
-		Map<String, List<String>> table = getTable(jsEval("null"));
+	public void getTable_singleRubyNull() throws Exception {
+		Map<String, List<String>> table = getTable(eval("nil"));
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -106,8 +108,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_jsListJsNull() throws Exception {
-		Map<String, List<String>> table = getTable(jsEval("[null]"));
+	public void getTable_rubyListRubyNull() throws Exception {
+		Map<String, List<String>> table = getTable(eval("[nil]"));
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -115,8 +117,8 @@ public class ScriptTableUtilTest {
 	}
 	
 	@Test
-	public void getTable_jsListEmpty() throws Exception {
-		Map<String, List<String>> table = getTable(jsEval("[]"));
+	public void getTable_rubyListEmpty() throws Exception {
+		Map<String, List<String>> table = getTable(eval("[]"));
 		
 		Map<String, List<String>> expected = Map();
 		
@@ -180,14 +182,14 @@ public class ScriptTableUtilTest {
 		assertEquals(expected, table);
 	}
 	
-	private Object jsEval(String expression) throws InterruptedException, ExecutionException {
+	private Object eval(String expression) throws InterruptedException, ExecutionException {
 		return scriptController.eval(expression, x -> {}, x -> {}).get();
 	}
 	
 	private static Map<String, List<String>> resolveReferences(Map<String, List<Reference>> map) {
 		Map<String, List<String>> resolvedMap = new HashMap<>();
 		map.forEach((k, v) -> {
-			List<String> resolvedList = v.stream().map(ScriptTableUtilTest::resolveReference).collect(toList());
+			List<String> resolvedList = v.stream().map(RubyScriptTableUtilTest::resolveReference).collect(toList());
 			resolvedMap.put(k, resolvedList);
 		});
 		return resolvedMap;
