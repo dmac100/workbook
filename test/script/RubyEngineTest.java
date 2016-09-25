@@ -13,8 +13,8 @@ import javax.script.ScriptException;
 
 import org.junit.Test;
 
-public class RubyTest {
-	private final RubyScript script = new RubyScript();
+public class RubyEngineTest {
+	private final RubyEngine script = new RubyEngine();
 	
 	@Test
 	public void eval() {

@@ -1,14 +1,14 @@
 package editor.reference;
 
-import script.Script;
+import script.Engine;
 import script.ScriptController;
 import script.ScriptFuture;
 
 public abstract class AbstractScriptReference implements Reference {
 	private final ScriptController scriptController;
 
-	protected abstract void setSync(Script script, Object value) throws Exception;
-	protected abstract Object getSync(Script script) throws Exception;
+	protected abstract void setSync(Engine script, Object value) throws Exception;
+	protected abstract Object getSync(Engine script) throws Exception;
 	
 	public AbstractScriptReference(ScriptController scriptController) {
 		this.scriptController = scriptController;

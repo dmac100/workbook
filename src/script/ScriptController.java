@@ -2,7 +2,6 @@ package script;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
@@ -10,14 +9,16 @@ import java.util.function.Supplier;
 
 public class ScriptController {
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
-	private final Script script = new Script();
+	private final Engine script = new JavascriptEngine();
+	
+	private volatile Thread thread = null;;
 	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
 	 */
 	public void startQueueThread() {
 		Thread thread = new Thread(this::runQueue);
-		script.thread = thread;
+		this.thread = thread;
 		thread.setDaemon(true);
 		thread.setName("Script Thread");
 		thread.start();
@@ -92,18 +93,17 @@ public class ScriptController {
 		return future;
 	}
 	
-	public void getScript(Consumer<Script> consumer) {
+	public void getScript(Consumer<Engine> consumer) {
 		runnableQueue.add(() -> {
 			consumer.accept(script);
 		});
 	}
 	
-	public Script getScriptSync() {
+	public Engine getScriptSync() {
 		return script;
 	}
 
 	public void interrupt() {
-		Thread thread = script.thread;
 		if(thread != null && thread.isAlive()) {
 			thread.interrupt();
 		}

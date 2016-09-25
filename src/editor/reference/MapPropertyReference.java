@@ -3,7 +3,7 @@ package editor.reference;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import script.Script;
+import script.Engine;
 import script.ScriptController;
 
 public class MapPropertyReference extends AbstractScriptReference {
@@ -18,7 +18,7 @@ public class MapPropertyReference extends AbstractScriptReference {
 	}
 	
 	@Override
-	protected void setSync(Script script, Object value) throws Exception {
+	protected void setSync(Engine script, Object value) throws Exception {
 		if(!(value instanceof String)) {
 			object.put(property, value);
 			return;
@@ -94,7 +94,7 @@ public class MapPropertyReference extends AbstractScriptReference {
 	}
 
 	@Override
-	protected Object getSync(Script script) throws Exception {
+	protected Object getSync(Engine script) throws Exception {
 		return object.get(property);
 	}
 }

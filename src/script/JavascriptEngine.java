@@ -16,12 +16,10 @@ import javax.script.ScriptException;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
-public class Script {
+public class JavascriptEngine implements Engine {
 	private final ScriptEngine engine;
 	
-	volatile Thread thread = Thread.currentThread();
-	
-	public Script() {
+	public JavascriptEngine() {
 		NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
 		engine = factory.getScriptEngine(new String[] { "--class-cache-size = 0" });
 		if(engine == null) {
@@ -31,23 +29,13 @@ public class Script {
 		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
 	}
 	
-	private void checkThreadAccess() {
-		if(thread != Thread.currentThread()) {
-			throw new RuntimeException("Invalid thread access: " + thread + " - " + Thread.currentThread().getName());
-		}
-	}
-	
 	public boolean isIterable(Object value) throws ScriptException {
-		checkThreadAccess();
-		
 		Bindings bindings = engine.createBindings();
 		bindings.put("arg", value);
 		return (Boolean) engine.eval("Object.prototype.toString.call(arg) === '[object Array]'", bindings);
 	}
 
 	public void iterateObject(Object array, Consumer<Object> consumer) {
-		checkThreadAccess();
-		
 		Map<?, ?> map = (Map<?, ?>) array;
 		Long length = getNumeric(map.get("length"));
 		if(length != null) {
@@ -68,17 +56,14 @@ public class Script {
 	}
 	
 	public void setVariable(String name, Object value) {
-		checkThreadAccess();
 		engine.put(name, value);
 	}
 	
 	public Object getVariable(String name) {
-		checkThreadAccess();
 		return engine.get(name);
 	}
 	
 	public Map<String, Object> getVariableMap() {
-		checkThreadAccess();
 		return engine.getBindings(ScriptContext.ENGINE_SCOPE);
 	}
 
@@ -87,12 +72,10 @@ public class Script {
 	}
 
 	public Map<String, Object> getPropertyMap(Object object) {
-		checkThreadAccess();
 		return (Map<String, Object>) object;
 	}
 	
 	public Object eval(String command) {
-		checkThreadAccess();
 		Consumer<String> nullCallback = x -> {};
 		return eval(command, nullCallback, nullCallback);
 	}
@@ -101,7 +84,6 @@ public class Script {
 	 * Evaluates a command, and returns the result.
 	 */
 	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		checkThreadAccess();
 		return eval(command, null, null, outputCallback, errorCallback);
 	}
 
@@ -110,7 +92,6 @@ public class Script {
 	 * 'rect', and command contains the function call 'rect({x: 1})', then [NameAndProperties('rect', { x => 1 })] will be returned.
 	 */
 	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		checkThreadAccess();
 		List<NameAndProperties> callbackValues = new ArrayList<>();
 		
 		Bindings bindings = engine.createBindings();

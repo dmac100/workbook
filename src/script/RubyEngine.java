@@ -19,12 +19,10 @@ import javax.script.ScriptException;
 import org.jruby.RubyArray;
 import org.jruby.RubyObject;
 
-public class RubyScript {
+public class RubyEngine implements Engine {
 	private ScriptEngine engine;
 	
-	volatile Thread thread = Thread.currentThread();
-	
-	public RubyScript() {
+	public RubyEngine() {
 		System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
 		
 		engine = new ScriptEngineManager().getEngineByName("jruby");
@@ -33,21 +31,11 @@ public class RubyScript {
 		}
 	}
 	
-	private void checkThreadAccess() {
-		if(thread != Thread.currentThread()) {
-			throw new RuntimeException("Invalid thread access: " + thread + " - " + Thread.currentThread().getName());
-		}
-	}
-	
 	public boolean isIterable(Object value) throws ScriptException {
-		checkThreadAccess();
-		
 		return (value instanceof RubyArray);
 	}
 
 	public void iterateObject(Object array, Consumer<Object> consumer) {
-		checkThreadAccess();
-		
 		RubyArray rubyArray = (RubyArray) array;
 		for(int i = 0; i < rubyArray.getLength(); i++) {
 			consumer.accept(rubyArray.get(i));
@@ -55,17 +43,14 @@ public class RubyScript {
 	}
 	
 	public void setVariable(String name, Object value) {
-		checkThreadAccess();
 		engine.put(name, value);
 	}
 	
 	public Object getVariable(String name) {
-		checkThreadAccess();
 		return engine.get(name);
 	}
 	
 	public Map<String, Object> getVariableMap() {
-		checkThreadAccess();
 		return engine.getBindings(ScriptContext.ENGINE_SCOPE);
 	}
 
@@ -74,12 +59,10 @@ public class RubyScript {
 	}
 
 	public Map<String, Object> getPropertyMap(Object object) {
-		checkThreadAccess();
 		return (Map<String, Object>) object;
 	}
 	
 	public Object eval(String command) {
-		checkThreadAccess();
 		Consumer<String> nullCallback = x -> {};
 		return eval(command, nullCallback, nullCallback);
 	}
@@ -88,7 +71,6 @@ public class RubyScript {
 	 * Evaluates a command, and returns the result.
 	 */
 	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		checkThreadAccess();
 		return eval(command, "", null, outputCallback, errorCallback);
 	}
 
@@ -97,7 +79,6 @@ public class RubyScript {
 	 * 'rect', and command contains the function call 'rect({x: 1})', then [NameAndProperties('rect', { x => 1 })] will be returned.
 	 */
 	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		checkThreadAccess();
 		List<NameAndProperties> callbackValues = new ArrayList<>();
 		
 		Bindings bindings = engine.createBindings();

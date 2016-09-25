@@ -6,7 +6,7 @@ import ognl.DefaultTypeConverter;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
-import script.Script;
+import script.Engine;
 import script.ScriptController;
 
 public class OgnlReference extends AbstractScriptReference {
@@ -27,12 +27,12 @@ public class OgnlReference extends AbstractScriptReference {
 	}
 
 	@Override
-	protected void setSync(Script script, Object value) throws Exception {
+	protected void setSync(Engine script, Object value) throws Exception {
 		Ognl.setValue(expression, context, script.getVariableMap(), value);
 	}
 
 	@Override
-	protected Object getSync(Script script) throws Exception {
+	protected Object getSync(Engine script) throws Exception {
 		return Ognl.getValue(expression, context, script.getVariableMap());
 	}
 }

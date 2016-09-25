@@ -2,7 +2,7 @@ package editor.reference;
 
 import java.lang.reflect.Method;
 
-import script.Script;
+import script.Engine;
 import script.ScriptController;
 
 public class JavaPropertyReference extends AbstractScriptReference {
@@ -19,7 +19,7 @@ public class JavaPropertyReference extends AbstractScriptReference {
 	}
 	
 	@Override
-	protected void setSync(Script script, Object value) throws Exception {
+	protected void setSync(Engine script, Object value) throws Exception {
 		if(setMethod != null) {
 			Object convertedValue = value;
 			if(value instanceof String) {
@@ -30,7 +30,7 @@ public class JavaPropertyReference extends AbstractScriptReference {
 	}
 
 	@Override
-	protected Object getSync(Script script) throws Exception {
+	protected Object getSync(Engine script) throws Exception {
 		if(getMethod == null) {
 			return null;
 		} else {

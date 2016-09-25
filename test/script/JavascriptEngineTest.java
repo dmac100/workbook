@@ -14,8 +14,8 @@ import javax.script.ScriptException;
 
 import org.junit.Test;
 
-public class ScriptTest {
-	private final Script script = new Script();
+public class JavascriptEngineTest {
+	private final JavascriptEngine script = new JavascriptEngine();
 	
 	@Test
 	public void eval() {

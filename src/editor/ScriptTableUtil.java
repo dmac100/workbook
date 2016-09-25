@@ -14,7 +14,7 @@ import javax.script.ScriptException;
 import editor.reference.JavaPropertyReference;
 import editor.reference.MapPropertyReference;
 import editor.reference.Reference;
-import script.Script;
+import script.Engine;
 import script.ScriptController;
 
 public class ScriptTableUtil {
@@ -35,7 +35,7 @@ public class ScriptTableUtil {
 		List<Map<String, Reference>> rows = new ArrayList<>();
 		List<Object> objects = new ArrayList<>();
 		
-		Script script = scriptController.getScriptSync();
+		Engine script = scriptController.getScriptSync();
 		
 		// Add row for object of each element if it's iterable.
 		if(script.isIterable(object)) {
@@ -73,7 +73,7 @@ public class ScriptTableUtil {
 	public Map<String, Reference> getTableRow(Object object) {
 		Map<String, Reference> row = new TreeMap<>();
 		
-		Script script = scriptController.getScriptSync();
+		Engine script = scriptController.getScriptSync();
 		
 		if(script.isScriptObject(object)) {
 			Map<String, Object> map = script.getPropertyMap(object);
@@ -98,7 +98,7 @@ public class ScriptTableUtil {
 	 * Returns a reference to modify an non-existing property of an object.
 	 */
 	private Reference getNewPropertyReference(Object object, String key) {
-		Script script = scriptController.getScriptSync();
+		Engine script = scriptController.getScriptSync();
 		
 		if(script.isScriptObject(object)) {
 			Map<String, Object> map = script.getPropertyMap(object);

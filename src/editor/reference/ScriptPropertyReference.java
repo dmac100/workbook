@@ -1,6 +1,6 @@
 package editor.reference;
 
-import script.Script;
+import script.Engine;
 import script.ScriptController;
 
 public class ScriptPropertyReference extends AbstractScriptReference {
@@ -15,12 +15,12 @@ public class ScriptPropertyReference extends AbstractScriptReference {
 	}
 	
 	@Override
-	protected void setSync(Script script, Object value) throws Exception {
+	protected void setSync(Engine script, Object value) throws Exception {
 		script.getPropertyMap(object).put(property, value);
 	}
 
 	@Override
-	protected Object getSync(Script script) throws Exception {
+	protected Object getSync(Engine script) throws Exception {
 		return script.getPropertyMap(object).get(property);
 	}
 }
