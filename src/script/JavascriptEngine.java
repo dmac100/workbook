@@ -18,8 +18,10 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class JavascriptEngine implements Engine {
 	private final ScriptEngine engine;
+	private final Map<String, Object> globals;
 	
-	public JavascriptEngine() {
+	public JavascriptEngine(Map<String, Object> globals) {
+		this.globals = globals;
 		NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
 		engine = factory.getScriptEngine(new String[] { "--class-cache-size = 0" });
 		if(engine == null) {
@@ -129,8 +131,12 @@ public class JavascriptEngine implements Engine {
         	System.setOut(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(outputReader.getOutputStream()), out));
         	System.setErr(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(errorReader.getOutputStream()), err));
         	
+        	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
+        	
         	String script = String.format("%s; with(new JavaImporter(java.util, java.lang)) { %s; }", prefix, command);
 			Object value = (bindings == null) ? engine.eval(script) : engine.eval(script, bindings);
+			
+			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 			
 			System.out.close();
 			System.err.close();

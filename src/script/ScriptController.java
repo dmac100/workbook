@@ -1,7 +1,9 @@
 package script;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
@@ -14,8 +16,9 @@ public class ScriptController {
 	
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 	
-	private final Engine javascriptEngine = new JavascriptEngine();
-	private final Engine rubyEngine = new RubyEngine();
+	private final Map<String, Object> globals = new HashMap<>();
+	private final Engine javascriptEngine = new JavascriptEngine(globals);
+	private final Engine rubyEngine = new RubyEngine(globals);
 	
 	private Engine engine = javascriptEngine;
 	

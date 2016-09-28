@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import javax.script.ScriptException;
 import org.junit.Test;
 
 public class RubyEngineTest {
-	private final RubyEngine script = new RubyEngine();
+	private final RubyEngine script = new RubyEngine(new HashMap<>());
 	
 	@Test
 	public void eval() {

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -22,10 +21,13 @@ import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 
 public class RubyEngine implements Engine {
-	private ScriptEngine engine;
+	private final ScriptEngine engine;
+	private final Map<String, Object> globals;
 	
-	public RubyEngine() {
+	public RubyEngine(Map<String, Object> globals) {
 		System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
+		
+		this.globals = globals;
 		
 		engine = new ScriptEngineManager().getEngineByName("jruby");
 		if(engine == null) {
@@ -130,8 +132,12 @@ public class RubyEngine implements Engine {
         	engine.getContext().setWriter(outputWriter);
         	engine.getContext().setErrorWriter(errorWriter);
         	
+        	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
+        	
         	String script = String.format("require 'java'; %s; %s;", prefix, command);
 			Object value = (bindings == null) ? engine.eval(script) : engine.eval(script, bindings);
+			
+			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 			
 			outputWriter.close();
 			errorWriter.close();
