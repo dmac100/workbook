@@ -123,10 +123,16 @@ public class Workbook {
 	private String serialize() {
 		Document document = new Document();
 		
-		Element tabsElement = new Element("Tabs");
-		document.addContent(tabsElement);
+		Element workbookElement = new Element("Workbook");
+		document.addContent(workbookElement);
 		
+		Element tabsElement = new Element("Tabs");
+		workbookElement.addContent(tabsElement);
 		tabbedViewLayout.serialize(tabsElement);
+		
+		Element controllerElement = new Element("Controller");
+		workbookElement.addContent(controllerElement);
+		mainController.serialize(controllerElement);
 		
 		return new XMLOutputter(Format.getPrettyFormat()).outputString(document);
 	}
@@ -134,9 +140,13 @@ public class Workbook {
 	private void deserialize(String documentText) throws JDOMException, IOException {
 		Document document = new SAXBuilder().build(new StringReader(documentText));
 		
-		Element tabsElement = document.getRootElement();
+		Element workbookElement = document.getRootElement().getChild("Workbook");
 		
+		Element tabsElement = document.getRootElement().getChild("Tabs");
 		tabbedViewLayout.deserialize(viewFactory, tabsElement);
+		
+		Element controllerElement = document.getRootElement().getChild("Controller");
+		mainController.deserialize(controllerElement);
 	}
 
 	private String selectSaveLocation() {

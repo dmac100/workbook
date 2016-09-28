@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.widgets.Display;
+import org.jdom2.Element;
 
 import editor.reference.OgnlReference;
 import editor.ui.Editor;
@@ -16,6 +17,7 @@ import script.ScriptFuture;
 import util.ThrottledConsumer;
 import view.Console;
 import view.ScriptEditor;
+import view.ViewFactory;
 import view.Worksheet;
 import view.canvas.CanvasView;
 
@@ -126,5 +128,16 @@ public class MainController {
 
 	public void setEngine(ScriptType script) {
 		scriptController.setScriptType(script);
+	}
+
+	public void serialize(Element element) {
+		Element scriptTypeElement = new Element("ScriptType");
+		scriptTypeElement.setText(scriptController.getScriptType().toString());
+		element.addContent(scriptTypeElement);
+	}
+
+	public void deserialize(Element element) {
+		String scriptType = element.getChild("ScriptType").getText();
+		scriptController.setScriptType(ScriptType.valueOf(scriptType));
 	}
 }

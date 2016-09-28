@@ -20,9 +20,11 @@ public class ScriptController {
 	private final Engine javascriptEngine = new JavascriptEngine(globals);
 	private final Engine rubyEngine = new RubyEngine(globals);
 	
-	private Engine engine = javascriptEngine;
+	private Engine engine;
+	private ScriptType scriptType = ScriptType.JAVASCRIPT;
 	
 	private volatile Thread thread = null;
+
 	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
@@ -33,6 +35,8 @@ public class ScriptController {
 		thread.setDaemon(true);
 		thread.setName("Script Thread");
 		thread.start();
+		
+		setScriptType(scriptType);
 
 		// Restart thread on exception.
 		thread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -53,7 +57,13 @@ public class ScriptController {
 		}
 	}
 	
+	public ScriptType getScriptType() {
+		return scriptType;
+	}
+	
 	public ScriptFuture<Void> setScriptType(ScriptType scriptType) {
+		this.scriptType = scriptType;
+		
 		ScriptFuture<Void> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
 			try {
