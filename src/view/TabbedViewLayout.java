@@ -436,18 +436,12 @@ public class TabbedViewLayout {
 	}
 	
 	/**
-	 * Serializes the state of the view to a String, and returns it.
+	 * Serializes the state of the view and adds it to element.
 	 */
-	public String serialize() {
-		Document document = new Document();
-		Element element = new Element("Tabs");
-		document.addContent(element);
-		
+	public void serialize(Element element) {
 		for(Control control:parent.getChildren()) {
 			serialize(element, control);
 		}
-		
-		return new XMLOutputter(Format.getPrettyFormat()).outputString(document);
 	}
 	
 	private void serialize(Element parent, Control control) {
@@ -489,16 +483,14 @@ public class TabbedViewLayout {
 	}
 
 	/**
-	 * Deserializes the state of the view from the given String.
+	 * Deserializes the state of the view from the given element.
 	 */
-	public void deserialize(ViewFactory viewFactory, String documentText) throws JDOMException, IOException {
-		Document document = new SAXBuilder().build(new StringReader(documentText));
-		
+	public void deserialize(ViewFactory viewFactory, Element parentElement) {
 		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
 		folders.add(folder);
 		setupTabFolder(folder);
 		
-		deserialize(viewFactory, document.getRootElement().getChildren().get(0), folder);
+		deserialize(viewFactory, parentElement.getChildren().get(0), folder);
 	}
 
 	private void deserialize(ViewFactory viewFactory, Element element, CTabFolder folder) {

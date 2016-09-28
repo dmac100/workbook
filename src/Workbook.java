@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
@@ -8,6 +10,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 import controller.MainController;
 import script.ScriptController.ScriptType;
@@ -80,7 +88,7 @@ public class Workbook {
 	}
 	
 	private void save() {
-		String document = tabbedViewLayout.serialize();
+		String document = serialize();
 		String location = selectSaveLocation();
 		if(location != null) {
 			try {
@@ -105,13 +113,32 @@ public class Workbook {
 				String document = FileUtils.readFileToString(new File(location), "UTF-8");
 				mainController.clear();
 				tabbedViewLayout.clear();
-				tabbedViewLayout.deserialize(viewFactory, document);
+				deserialize(document);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
+	private String serialize() {
+		Document document = new Document();
+		
+		Element tabsElement = new Element("Tabs");
+		document.addContent(tabsElement);
+		
+		tabbedViewLayout.serialize(tabsElement);
+		
+		return new XMLOutputter(Format.getPrettyFormat()).outputString(document);
+	}
+	
+	private void deserialize(String documentText) throws JDOMException, IOException {
+		Document document = new SAXBuilder().build(new StringReader(documentText));
+		
+		Element tabsElement = document.getRootElement();
+		
+		tabbedViewLayout.deserialize(viewFactory, tabsElement);
+	}
+
 	private String selectSaveLocation() {
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText("Save");
