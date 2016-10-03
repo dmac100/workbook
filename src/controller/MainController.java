@@ -15,16 +15,16 @@ import script.ScriptController;
 import script.ScriptController.ScriptType;
 import script.ScriptFuture;
 import util.ThrottledConsumer;
-import view.Console;
-import view.ScriptEditor;
-import view.Worksheet;
-import view.canvas.CanvasView;
+import view.ConsoleTabbedView;
+import view.ScriptTabbedView;
+import view.WorksheetTabbedView;
+import view.canvas.CanvasTabbedView;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
-	private final List<Console> consoles = new ArrayList<>();
+	private final List<ConsoleTabbedView> consoles = new ArrayList<>();
 	private final List<Editor> editors = new ArrayList<>();
-	private final List<CanvasView> canvases = new ArrayList<>();
+	private final List<CanvasTabbedView> canvases = new ArrayList<>();
 	
 	private final Consumer<Object> evalConsumer;
 	private final Consumer<Void> flushConsoleConsumer;
@@ -50,7 +50,7 @@ public class MainController {
 		canvases.clear();
 	}
 
-	public Worksheet addWorksheet(Worksheet worksheet) {
+	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet) {
 		worksheet.setExecuteFunction(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
@@ -59,7 +59,7 @@ public class MainController {
 		return worksheet;
 	}
 	
-	public ScriptEditor addScriptEditor(ScriptEditor scriptEditor) {
+	public ScriptTabbedView addScriptEditor(ScriptTabbedView scriptEditor) {
 		scriptEditor.setExecuteCallback(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
@@ -72,7 +72,7 @@ public class MainController {
 			.setVariable("_", result)
 			.thenRun(() -> {
 				editors.forEach(Editor::readValue);
-				canvases.forEach(CanvasView::refresh);
+				canvases.forEach(CanvasTabbedView::refresh);
 			});
 	}
 	
@@ -99,12 +99,12 @@ public class MainController {
 		consoles.forEach(console -> console.clear());
 	}
 
-	public Console addConsole(Console console) {
+	public ConsoleTabbedView addConsole(ConsoleTabbedView console) {
 		consoles.add(console);
 		return console;
 	}
 	
-	public CanvasView addCanvasView(CanvasView canvas) {
+	public CanvasTabbedView addCanvasView(CanvasTabbedView canvas) {
 		canvases.add(canvas);
 		canvas.setExecuteCallback(command -> {
 			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");

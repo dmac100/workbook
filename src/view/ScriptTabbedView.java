@@ -12,12 +12,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.jdom2.Element;
 
-public class ScriptEditor implements TabbedView {
+public class ScriptTabbedView implements TabbedView {
 	private final StyledText text;
 	
 	private Consumer<String> executeCallback;
 
-	public ScriptEditor(Composite parent) {
+	public ScriptTabbedView(Composite parent) {
 		this.text = new StyledText(parent, SWT.V_SCROLL);
 		
 		text.addVerifyKeyListener(new VerifyKeyListener() {

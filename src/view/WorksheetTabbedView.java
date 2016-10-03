@@ -22,7 +22,7 @@ import org.jdom2.Element;
 import layout.GridLayoutBuilder;
 import script.ScriptFuture;
 
-public class Worksheet implements TabbedView {
+public class WorksheetTabbedView implements TabbedView {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	
@@ -30,7 +30,7 @@ public class Worksheet implements TabbedView {
 	
 	private Function<String, ScriptFuture<Object>> executeFunction;
 	
-	public Worksheet(Composite parent) {
+	public WorksheetTabbedView(Composite parent) {
 		Display display = parent.getDisplay();
 		
 		parent.setLayout(new FillLayout());

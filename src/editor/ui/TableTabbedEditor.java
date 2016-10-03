@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.script.ScriptException;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -26,19 +27,19 @@ import editor.reference.Reference;
 import script.ScriptController;
 import view.TabbedView;
 
-public class TableEditor extends Editor implements TabbedView {
+public class TableTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final ScriptTableUtil scriptTableUtil;
 	
 	private final Table table;
-	private final org.eclipse.swt.custom.TableEditor tableEditor;
+	private final TableEditor tableEditor;
 
-	public TableEditor(Composite parent, ScriptController scriptController) {
+	public TableTabbedEditor(Composite parent, ScriptController scriptController) {
 		this.parent = parent;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		
 		this.table = new Table(parent, SWT.NONE);
-		this.tableEditor = new org.eclipse.swt.custom.TableEditor(table);
+		this.tableEditor = new TableEditor(table);
 		tableEditor.horizontalAlignment = SWT.LEFT;
 		tableEditor.grabHorizontal = true;
 		

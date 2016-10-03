@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -28,20 +29,20 @@ import editor.reference.Reference;
 import script.ScriptController;
 import view.TabbedView;
 
-public class TreeEditor extends Editor implements TabbedView {
+public class TreeTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final ScriptTableUtil scriptTableUtil;
 	
 	private final Tree tree;
-	private final org.eclipse.swt.custom.TreeEditor treeEditor;
+	private final TreeEditor treeEditor;
 	private final List<List<String>> expandedItems = new ArrayList<>();
 	
-	public TreeEditor(Composite parent, ScriptController scriptController) {
+	public TreeTabbedEditor(Composite parent, ScriptController scriptController) {
 		this.parent = parent;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		
 		this.tree = new Tree(parent, SWT.NONE);
-		this.treeEditor = new org.eclipse.swt.custom.TreeEditor(tree);
+		this.treeEditor = new TreeEditor(tree);
 		treeEditor.horizontalAlignment = SWT.LEFT;
 		treeEditor.grabHorizontal = true;
 		

@@ -479,7 +479,7 @@ public class TabbedViewLayout {
 	/**
 	 * Deserializes the state of the view from the given element.
 	 */
-	public void deserialize(ViewFactory viewFactory, Element parentElement) {
+	public void deserialize(TabbedViewFactory viewFactory, Element parentElement) {
 		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
 		folders.add(folder);
 		setupTabFolder(folder);
@@ -487,7 +487,7 @@ public class TabbedViewLayout {
 		deserialize(viewFactory, parentElement.getChildren().get(0), folder);
 	}
 
-	private void deserialize(ViewFactory viewFactory, Element element, CTabFolder folder) {
+	private void deserialize(TabbedViewFactory viewFactory, Element element, CTabFolder folder) {
 		if(element.getName().equals("Split")) {
 			int weight1 = Integer.parseInt(element.getAttributeValue("weight1"));
 			int weight2 = Integer.parseInt(element.getAttributeValue("weight2"));

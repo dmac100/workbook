@@ -25,7 +25,7 @@ import org.jdom2.Element;
 import script.NameAndProperties;
 import view.TabbedView;
 
-public class CanvasView implements TabbedView {
+public class CanvasTabbedView implements TabbedView {
 	private final TabFolder folder;
 	private final StyledText styledText;
 	private final Canvas canvas;
@@ -37,7 +37,7 @@ public class CanvasView implements TabbedView {
 	private Bounds bounds;
 	private String boundsFit = "extend";
 	
-	public CanvasView(Composite parent) {
+	public CanvasTabbedView(Composite parent) {
 		folder = new TabFolder(parent, SWT.BOTTOM);
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);

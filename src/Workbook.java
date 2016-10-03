@@ -18,17 +18,25 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import controller.MainController;
+import editor.ui.StringTabbedEditor;
+import editor.ui.TableTabbedEditor;
+import editor.ui.TreeTabbedEditor;
 import script.ScriptController.ScriptType;
+import view.ConsoleTabbedView;
 import view.InputDialog;
 import view.MenuBuilder;
+import view.ScriptTabbedView;
 import view.TabbedViewLayout;
-import view.ViewFactory;
+import view.TabbedViewFactory;
+import view.WorksheetTabbedView;
+import view.TabbedViewLayout.FolderPosition;
+import view.canvas.CanvasTabbedView;
 
 public class Workbook {
 	private final Shell shell;
 	private final MainController mainController;
 	private final TabbedViewLayout tabbedViewLayout;
-	private final ViewFactory viewFactory;
+	private final TabbedViewFactory viewFactory;
 	
 	public Workbook(Shell shell) {
 		this.shell = shell;
@@ -40,27 +48,35 @@ public class Workbook {
 		
 		createMenuBar(shell);
 		
-		this.viewFactory = new ViewFactory(tabbedViewLayout, mainController);
+		this.viewFactory = new TabbedViewFactory(tabbedViewLayout, mainController);
 		
-		viewFactory.addView("Worksheet");
-		viewFactory.addView("Script");
-		viewFactory.addView("Console");
-		viewFactory.addView("TreeEditor", "x");
-		viewFactory.addView("Canvas");
+		viewFactory.register(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new WorksheetTabbedView(parent)));
+		viewFactory.register(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> controller.addScriptEditor(new ScriptTabbedView(parent)));
+		viewFactory.register(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> controller.addConsole(new ConsoleTabbedView(parent)));
+		viewFactory.register(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> controller.addCanvasView(new CanvasTabbedView(parent)));
+		viewFactory.register(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new StringTabbedEditor(parent)));
+		viewFactory.register(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TableTabbedEditor(parent, mainController.getScriptController())));
+		viewFactory.register(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TreeTabbedEditor(parent, mainController.getScriptController())));
+		
+		viewFactory.addView(WorksheetTabbedView.class);
+		viewFactory.addView(ScriptTabbedView.class);
+		viewFactory.addView(ConsoleTabbedView.class);
+		viewFactory.addView(TreeTabbedEditor.class, "x");
+		viewFactory.addView(CanvasTabbedView.class);
 	}
 	
 	private void createMenuBar(final Shell shell) {
 		MenuBuilder menuBuilder = new MenuBuilder(shell);
 		
 		menuBuilder.addMenu("&File")
-			.addItem("New Console").addSelectionListener(() -> viewFactory.addView("Console"))
-			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addView("Worksheet"))
-			.addItem("New Script").addSelectionListener(() -> viewFactory.addView("Script"))
-			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addView("Canvas"))
+			.addItem("New Console").addSelectionListener(() -> viewFactory.addView(ConsoleTabbedView.class))
+			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addView(WorksheetTabbedView.class))
+			.addItem("New Script").addSelectionListener(() -> viewFactory.addView(ScriptTabbedView.class))
+			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addView(CanvasTabbedView.class))
 			.addSeparator()
-			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView("StringEditor", expression)))
-			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView("TableEditor", expression)))
-			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView("TreeEditor", expression)))
+			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(StringTabbedEditor.class, expression)))
+			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TableTabbedEditor.class, expression)))
+			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TreeTabbedEditor.class, expression)))
 			.addSeparator()
 			.addItem("Open...").addSelectionListener(() -> open())
 			.addItem("Save...").addSelectionListener(() -> save())

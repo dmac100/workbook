@@ -10,11 +10,11 @@ import org.jdom2.Element;
 
 import view.TabbedView;
 
-public class StringEditor extends Editor implements TabbedView {
+public class StringTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final StyledText text;
 	
-	public StringEditor(Composite parent) {
+	public StringTabbedEditor(Composite parent) {
 		this.parent = parent;
 		
 		text = new StyledText(parent, SWT.V_SCROLL);
