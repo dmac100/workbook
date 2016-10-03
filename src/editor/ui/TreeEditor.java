@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import editor.ScriptTableUtil;
 import editor.reference.Reference;
+import script.ScriptController;
 import view.TabbedView;
 
 public class TreeEditor extends Editor implements TabbedView {
@@ -35,9 +36,9 @@ public class TreeEditor extends Editor implements TabbedView {
 	private final org.eclipse.swt.custom.TreeEditor treeEditor;
 	private final List<List<String>> expandedItems = new ArrayList<>();
 	
-	public TreeEditor(Composite parent, ScriptTableUtil scriptTableUtil) {
+	public TreeEditor(Composite parent, ScriptController scriptController) {
 		this.parent = parent;
-		this.scriptTableUtil = scriptTableUtil;
+		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		
 		this.tree = new Tree(parent, SWT.NONE);
 		this.treeEditor = new org.eclipse.swt.custom.TreeEditor(tree);

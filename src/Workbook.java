@@ -42,25 +42,25 @@ public class Workbook {
 		
 		this.viewFactory = new ViewFactory(tabbedViewLayout, mainController);
 		
-		viewFactory.addWorksheet();
-		viewFactory.addScript();
-		viewFactory.addConsole();
-		viewFactory.addTreeEditor("x");
-		viewFactory.addCanvasView();
+		viewFactory.addView("Worksheet");
+		viewFactory.addView("Script");
+		viewFactory.addView("Console");
+		viewFactory.addView("TreeEditor", "x");
+		viewFactory.addView("Canvas");
 	}
 	
 	private void createMenuBar(final Shell shell) {
 		MenuBuilder menuBuilder = new MenuBuilder(shell);
 		
 		menuBuilder.addMenu("&File")
-			.addItem("New Console").addSelectionListener(() -> viewFactory.addConsole())
-			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addWorksheet())
-			.addItem("New Script").addSelectionListener(() -> viewFactory.addScript())
-			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addCanvasView())
+			.addItem("New Console").addSelectionListener(() -> viewFactory.addView("Console"))
+			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addView("Worksheet"))
+			.addItem("New Script").addSelectionListener(() -> viewFactory.addView("Script"))
+			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addView("Canvas"))
 			.addSeparator()
-			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addStringEditor(expression)))
-			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTableEditor(expression)))
-			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addTreeEditor(expression)))
+			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView("StringEditor", expression)))
+			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView("TableEditor", expression)))
+			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView("TreeEditor", expression)))
 			.addSeparator()
 			.addItem("Open...").addSelectionListener(() -> open())
 			.addItem("Save...").addSelectionListener(() -> save())

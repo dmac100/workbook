@@ -17,7 +17,6 @@ import script.ScriptFuture;
 import util.ThrottledConsumer;
 import view.Console;
 import view.ScriptEditor;
-import view.ViewFactory;
 import view.Worksheet;
 import view.canvas.CanvasView;
 
@@ -51,19 +50,21 @@ public class MainController {
 		canvases.clear();
 	}
 
-	public void addWorksheet(Worksheet worksheet) {
+	public Worksheet addWorksheet(Worksheet worksheet) {
 		worksheet.setExecuteFunction(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
 			return result;
 		});
+		return worksheet;
 	}
 	
-	public void addScriptEditor(ScriptEditor scriptEditor) {
+	public ScriptEditor addScriptEditor(ScriptEditor scriptEditor) {
 		scriptEditor.setExecuteCallback(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
 			result.thenAccept(evalConsumer);
 		});
+		return scriptEditor;
 	}
 	
 	private void onEval(Object result) {
@@ -98,11 +99,12 @@ public class MainController {
 		consoles.forEach(console -> console.clear());
 	}
 
-	public void addConsole(Console console) {
+	public Console addConsole(Console console) {
 		consoles.add(console);
+		return console;
 	}
 	
-	public void addCanvasView(CanvasView canvas) {
+	public CanvasView addCanvasView(CanvasView canvas) {
 		canvases.add(canvas);
 		canvas.setExecuteCallback(command -> {
 			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
@@ -111,11 +113,13 @@ public class MainController {
 				canvas.setCanvasItems(value);
 			});
 		});
+		return canvas;
 	}
 
-	public void addEditor(Editor editor) {
+	public <T extends Editor> T addEditor(T editor) {
 		editor.setReferenceFunction(expression -> new OgnlReference(scriptController, expression));
 		editors.add(editor);
+		return editor;
 	}
 	
 	public void interrupt() {

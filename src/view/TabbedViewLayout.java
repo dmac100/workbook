@@ -1,7 +1,5 @@
 package view;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -23,14 +21,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tracker;
-import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 
 public class TabbedViewLayout {
+	public enum FolderPosition {
+		LEFT, RIGHT, BOTTOM
+	}
+	
 	private final Composite parent;
 	
 	private Runnable dragCallback = null;
@@ -56,18 +53,6 @@ public class TabbedViewLayout {
 		rightFolder = split(leftFolder, 1, 0, 60);
 	}
 	
-	public CTabFolder getLeftFolder() {
-		return leftFolder;
-	}
-	
-	public CTabFolder getRightFolder() {
-		return rightFolder;
-	}
-	
-	public CTabFolder getBottomFolder() {
-		return bottomFolder;
-	}
-	
 	public void clear() {
 		for(Control child:parent.getChildren()) {
 			child.dispose();
@@ -87,6 +72,15 @@ public class TabbedViewLayout {
 		CTabItem tabItem = createTabItem(folder, view.getControl(), title, view);
 		folder.setSelection(folder.getItemCount() - 1);
 		return view;
+	}
+	
+	public CTabFolder getFolder(FolderPosition position) {
+		switch(position) {
+			case LEFT: return leftFolder;
+			case RIGHT: return rightFolder;
+			case BOTTOM: return bottomFolder;
+		}
+		throw new IllegalArgumentException("Unknown position: " + position);
 	}
 
 	/**

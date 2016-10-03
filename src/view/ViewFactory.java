@@ -1,122 +1,83 @@
 package view;
 
-import java.util.function.Function;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
 
 import controller.MainController;
-import editor.ScriptTableUtil;
 import editor.ui.Editor;
 import editor.ui.StringEditor;
 import editor.ui.TableEditor;
 import editor.ui.TreeEditor;
+import view.TabbedViewLayout.FolderPosition;
 import view.canvas.CanvasView;
 
 public class ViewFactory {
+	public static class ViewInfo {
+		private final String defaultTitle;
+		private final FolderPosition defaultPosition;
+		private final BiFunction<MainController, Composite, TabbedView> factory;
+		
+		public ViewInfo(String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+			this.defaultTitle = defaultTitle;
+			this.defaultPosition = defaultPosition;
+			this.factory = factory;
+		}
+	}
+	
+	private final Map<String, ViewInfo> viewInfos = new HashMap<>();
+	
 	private final TabbedViewLayout tabbedViewLayout;
 	private final MainController mainController;
-	private final ScriptTableUtil scriptTableUtil;
 	
 	public ViewFactory(TabbedViewLayout tabbedViewLayout, MainController mainController) {
 		this.tabbedViewLayout = tabbedViewLayout;
 		this.mainController = mainController;
-		this.scriptTableUtil = new ScriptTableUtil(mainController.getScriptController());
+		
+		viewInfos.put("Worksheet", new ViewInfo("Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new Worksheet(parent))));
+		viewInfos.put("Script", new ViewInfo("Script", FolderPosition.LEFT, (controller, parent) -> controller.addScriptEditor(new ScriptEditor(parent))));
+		viewInfos.put("Console", new ViewInfo("Console", FolderPosition.BOTTOM, (controller, parent) -> controller.addConsole(new Console(parent))));
+		viewInfos.put("Canvas", new ViewInfo("Canvas", FolderPosition.RIGHT, (controller, parent) -> controller.addCanvasView(new CanvasView(parent))));
+		
+		viewInfos.put("StringEditor", new ViewInfo("StringEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new StringEditor(parent))));
+		viewInfos.put("TableEditor", new ViewInfo("TableEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TableEditor(parent, mainController.getScriptController()))));
+		viewInfos.put("TreeEditor", new ViewInfo("TreeEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TreeEditor(parent, mainController.getScriptController()))));
 	}
 	
-	public void addWorksheet() {
-		addWorksheet(tabbedViewLayout.getLeftFolder(), "Worksheet");
+	public TabbedView addView(String type) {
+		return addView(type, null);
 	}
 	
-	public void addScript() {
-		addScript(tabbedViewLayout.getLeftFolder(), "Script");
-	}
-	
-	public void addConsole() {
-		addConsole(tabbedViewLayout.getBottomFolder(), "Console");
-	}
-	
-	public void addCanvasView() {
-		addCanvasView(tabbedViewLayout.getRightFolder(), "Canvas");
-	}
-	
-	public void addStringEditor(String expression) {
-		StringEditor editor = addStringEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
-		editor.setExpression(expression);
-	}
-	
-	public void addTableEditor(String expression) {
-		TableEditor editor = addTableEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
-		editor.setExpression(expression);
-	}
-	
-	public void addTreeEditor(String expression) {
-		TreeEditor editor = addTreeEditor(tabbedViewLayout.getRightFolder(), "Editor: " + expression);
-		editor.setExpression(expression);
+	public TabbedView addView(String type, String expression) {
+		ViewInfo viewInfo = viewInfos.get(type);
+		CTabFolder folder = tabbedViewLayout.getFolder(viewInfo.defaultPosition);
+		String title = viewInfo.defaultTitle + ((expression == null) ? "" : ": " + expression);
+		return tabbedViewLayout.addTab(folder, title, parent -> {
+			TabbedView view = viewInfo.factory.apply(mainController, parent);
+			if(view instanceof Editor) {
+				((Editor) view).setExpression(expression);
+			}
+			return view;
+		});
 	}
 	
 	public TabbedView addView(String type, CTabFolder folder, String title) {
 		switch(type) {
-			case "Worksheet": return addWorksheet(folder, title);
-			case "ScriptEditor": return addScript(folder, title);
-			case "Console": return addConsole(folder, title);
-			case "CanvasView": return addCanvasView(folder, title);
-			case "StringEditor": return addStringEditor(folder, title);
-			case "TableEditor": return addTableEditor(folder, title);
-			case "TreeEditor": return addTreeEditor(folder, title);
+			case "Worksheet": return addView(viewInfos.get("Worksheet"), folder, title);
+			case "ScriptEditor": return addView(viewInfos.get("Script"), folder, title);
+			case "Console": return addView(viewInfos.get("Console"), folder, title);
+			case "CanvasView": return addView(viewInfos.get("Canvas"), folder, title);
+			case "StringEditor": return addView(viewInfos.get("StringEditor"), folder, title);
+			case "TableEditor": return addView(viewInfos.get("TableEditor"), folder, title);
+			case "TreeEditor": return addView(viewInfos.get("StringEditor"), folder, title);
 		}
 		throw new IllegalArgumentException("Unknown type: " + type);
 	}
 	
-	private Worksheet addWorksheet(CTabFolder folder, String title) {
-		return tabbedViewLayout.addTab(folder, title, parent -> {
-			Worksheet worksheet = new Worksheet(parent);
-			mainController.addWorksheet(worksheet);
-			return worksheet;
-		});
-	}
-	
-	private ScriptEditor addScript(CTabFolder folder, String title) {
-		return tabbedViewLayout.addTab(folder, title, parent -> {
-			ScriptEditor scriptEditor = new ScriptEditor(parent);
-			mainController.addScriptEditor(scriptEditor);
-			return scriptEditor;
-		});
-	}
-	
-	private Console addConsole(CTabFolder folder, String title) {
-		return tabbedViewLayout.addTab(folder, title, parent -> {
-			Console console = new Console(parent);
-			mainController.addConsole(console);
-			return console;
-		});
-	}
-	
-	private CanvasView addCanvasView(CTabFolder folder, String title) {
-		return tabbedViewLayout.addTab(folder, title, parent -> {
-			CanvasView canvas = new CanvasView(parent);
-			mainController.addCanvasView(canvas);
-			return canvas;
-		});
-	}
-	
-	private StringEditor addStringEditor(CTabFolder folder, String title) {
-		return addEditor(folder, title, parent -> new StringEditor(parent));
-	}
-	
-	private TableEditor addTableEditor(CTabFolder folder, String title) {
-		return addEditor(folder, title, parent -> new TableEditor(parent, scriptTableUtil));
-	}
-	
-	private TreeEditor addTreeEditor(CTabFolder folder, String title) {
-		return addEditor(folder, title, parent -> new TreeEditor(parent, scriptTableUtil));
-	}
-	
-	private <T extends Editor & TabbedView> T addEditor(CTabFolder folder, String title, Function<Composite, T> factory) {
-		return tabbedViewLayout.addTab(folder, title, parent -> {
-			T editor = factory.apply(parent);
-			mainController.addEditor(editor);
-			return editor;
-		});
+	public TabbedView addView(ViewInfo viewInfo, CTabFolder folder, String title) {
+		return tabbedViewLayout.addTab(folder, title, parent -> viewInfo.factory.apply(mainController, parent));
 	}
 }

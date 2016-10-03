@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Text;
 
 import editor.ScriptTableUtil;
 import editor.reference.Reference;
+import script.ScriptController;
 import view.TabbedView;
 
 public class TableEditor extends Editor implements TabbedView {
@@ -32,9 +33,9 @@ public class TableEditor extends Editor implements TabbedView {
 	private final Table table;
 	private final org.eclipse.swt.custom.TableEditor tableEditor;
 
-	public TableEditor(Composite parent, ScriptTableUtil scriptTableUtil) {
+	public TableEditor(Composite parent, ScriptController scriptController) {
 		this.parent = parent;
-		this.scriptTableUtil = scriptTableUtil;
+		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		
 		this.table = new Table(parent, SWT.NONE);
 		this.tableEditor = new org.eclipse.swt.custom.TableEditor(table);
