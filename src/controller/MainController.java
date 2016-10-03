@@ -133,6 +133,10 @@ public class MainController {
 	public void setEngine(ScriptType script) {
 		scriptController.setScriptType(script);
 	}
+	
+	public void addVariable(String name, Object value) {
+		scriptController.setVariable(name, value);
+	}
 
 	public void serialize(Element element) {
 		Element scriptTypeElement = new Element("ScriptType");

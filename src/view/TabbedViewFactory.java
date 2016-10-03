@@ -41,7 +41,7 @@ public class TabbedViewFactory {
 	/**
 	 * Registers a new view type with a factory.
 	 */
-	public void register(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
 		viewInfos.put(type.getSimpleName(), new ViewInfo(defaultTitle, defaultPosition, factory));
 	}
 
