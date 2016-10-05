@@ -1,5 +1,7 @@
 package workbook.view.result;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,29 +55,31 @@ public class TableRenderer implements ResultRenderer {
 			Table table = new Table(parent, SWT.BORDER);
 			table.setHeaderVisible(true);
 			
+			List<TableItem> rows = new ArrayList<>();
+			
+			Map<String, Integer> columnIndexes = new HashMap<>();
+			
 			columns.forEach((name, values) -> {
-				if(table.getItemCount() == 0) {
-					TableColumn nameColumn = new TableColumn(table, SWT.NONE);
-					nameColumn.setText("Name");
-					nameColumn.setWidth(100);
-					
-					for(int i = 0; i < values.size(); i++) {
-						TableColumn valueColumn = new TableColumn(table, SWT.NONE);
-						valueColumn.setText("Value");
-						valueColumn.setWidth(100);
-					}
-				}
+				TableColumn nameColumn = new TableColumn(table, SWT.NONE);
+				nameColumn.setText(name);
+				nameColumn.setWidth(100);
 				
-				TableItem tableItem = new TableItem(table, SWT.NONE);
-				tableItem.setText(0, name);
-				tableItem.setData(values);
-				for(int i = 0; i < values.size(); i++) {
-					int index = i;
-					Reference reference = values.get(index);
-					readItemValue(tableItem, index + 1, reference);
-				}
+				columnIndexes.put(name, columnIndexes.size());
 			});
 			
+			columns.forEach((name, values) -> {
+				for(int i = 0; i < values.size(); i++) {
+					if(rows.size() <= i) {
+						rows.add(new TableItem(table, SWT.NONE));
+					}
+					
+					TableItem item = rows.get(rows.size() - 1);
+					
+					Reference reference = values.get(i);
+					readItemValue(item, columnIndexes.get(name), reference);
+				}
+			});
+				
 			callback.run();
 		});
 	}
