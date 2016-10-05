@@ -31,10 +31,14 @@ public class JavascriptEngine implements Engine {
 		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
 	}
 	
-	public boolean isIterable(Object value) throws ScriptException {
-		Bindings bindings = engine.createBindings();
-		bindings.put("arg", value);
-		return (Boolean) engine.eval("Object.prototype.toString.call(arg) === '[object Array]'", bindings);
+	public boolean isIterable(Object value) {
+		try {
+			Bindings bindings = engine.createBindings();
+			bindings.put("arg", value);
+			return (Boolean) engine.eval("Object.prototype.toString.call(arg) === '[object Array]'", bindings);
+		} catch(ScriptException e) {
+			throw new RuntimeException("Error checking iterable", e);
+		}
 	}
 
 	public void iterateObject(Object array, Consumer<Object> consumer) {

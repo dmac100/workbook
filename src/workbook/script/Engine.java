@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.script.ScriptException;
-
 public interface Engine {
-	public boolean isIterable(Object value) throws ScriptException;
+	public boolean isIterable(Object value);
 	public void iterateObject(Object array, Consumer<Object> consumer);
 	public void setVariable(String name, Object value);
 	public Object getVariable(String name);

@@ -3,8 +3,6 @@ package workbook.editor.ui;
 import java.util.List;
 import java.util.Map;
 
-import javax.script.ScriptException;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.FocusAdapter;
@@ -116,22 +114,18 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
 				if(value != null) {
-					try {
-						Map<String, List<Reference>> rows = scriptTableUtil.getTable(value);
-						table.getDisplay().asyncExec(() -> {
-							if(!table.isDisposed()) {
-								setTableRows(rows);
-							}
-						});
-					} catch (ScriptException e) {
-						e.printStackTrace();
-					}
+					Map<String, List<Reference>> rows = scriptTableUtil.getTable(value);
+					table.getDisplay().asyncExec(() -> {
+						if(!table.isDisposed()) {
+							setTableData(rows);
+						}
+					});
 				}
 			});
 		}
 	}
 	
-	private void setTableRows(Map<String, List<Reference>> rows) {
+	private void setTableData(Map<String, List<Reference>> columns) {
 		for(TableItem tableItem:table.getItems()) {
 			tableItem.dispose();
 		}
@@ -142,7 +136,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		
 		table.setHeaderVisible(true);
 		
-		rows.forEach((name, values) -> {
+		columns.forEach((name, values) -> {
 			if(table.getItemCount() == 0) {
 				TableColumn nameColumn = new TableColumn(table, SWT.NONE);
 				nameColumn.setText("Name");

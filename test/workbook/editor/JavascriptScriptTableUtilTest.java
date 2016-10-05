@@ -15,7 +15,6 @@ import javax.script.ScriptException;
 import org.junit.Before;
 import org.junit.Test;
 
-import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
@@ -53,11 +52,7 @@ public class JavascriptScriptTableUtilTest {
 
 	private Map<String, List<String>> getTable(Object object) throws ScriptException, InterruptedException, ExecutionException {
 		ScriptFuture<Map<String, List<Reference>>> table = scriptController.exec(() -> {
-			try {
-				return scriptTableUtil.getTable(object);
-			} catch(ScriptException e) {
-				throw new RuntimeException(e);
-			}
+			return scriptTableUtil.getTable(object);
 		});
 		
 		return resolveReferences(table.get());

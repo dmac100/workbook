@@ -14,7 +14,6 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import org.jruby.RubyArray;
 import org.jruby.RubyHash;
@@ -35,7 +34,7 @@ public class RubyEngine implements Engine {
 		}
 	}
 	
-	public boolean isIterable(Object value) throws ScriptException {
+	public boolean isIterable(Object value) {
 		return (value instanceof RubyArray);
 	}
 

@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-import javax.script.ScriptException;
-
 import workbook.editor.reference.JavaPropertyReference;
 import workbook.editor.reference.MapPropertyReference;
 import workbook.editor.reference.Reference;
@@ -27,11 +25,20 @@ public class ScriptTableUtil {
 	private String toKeyValue(Object value) {
 		return String.valueOf(value);
 	}
+	
+	/**
+	 * Returns whether an object is iterable, either in Java, or as a script object.
+	 */
+	public boolean isIterable(Object object) {
+		Engine script = scriptController.getScriptSync();
+		
+		return (object instanceof Iterable || script.isIterable(object));
+	}
 
 	/**
 	 * Returns a table containing the properties of a single object or list of objects.
 	 */
-	public Map<String, List<Reference>> getTable(Object object) throws ScriptException {
+	public Map<String, List<Reference>> getTable(Object object) {
 		List<Map<String, Reference>> rows = new ArrayList<>();
 		List<Object> objects = new ArrayList<>();
 		

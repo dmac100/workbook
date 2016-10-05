@@ -18,7 +18,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import workbook.layout.GridDataBuilder;
+import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
+import workbook.view.result.Result;
 
 public class Cell {
 	private final Composite parent;
@@ -34,14 +36,14 @@ public class Cell {
 	private final Result result;
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	
-	public Cell(Composite parent) {
+	public Cell(Composite parent, ScriptController scriptController) {
 		this.parent = parent;
 		
 		Display display = parent.getDisplay();
 		
 		prompt = addLabel(parent, ">>>");
 		command = new Text(parent, SWT.NONE);
-		result = new Result(parent);
+		result = new Result(parent, scriptController);
 		
 		command.setFont(FontList.consolas10);
 		
@@ -113,13 +115,13 @@ public class Cell {
 			parent.pack();
 			
 			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
-				result.setValue(resultObject);
-				
-				Display.getDefault().asyncExec(() -> {
-					if(fireCallbacks) {
-						runCallbacks.forEach(Runnable::run);
-					}
-					parent.pack();
+				result.setValue(resultObject, () -> {
+					Display.getDefault().asyncExec(() -> {
+						if(fireCallbacks) {
+							runCallbacks.forEach(Runnable::run);
+						}
+						parent.pack();
+					});
 				});
 			});
 		}

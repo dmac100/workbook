@@ -2,7 +2,6 @@ package workbook.view;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
@@ -20,17 +19,20 @@ import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
 import workbook.layout.GridLayoutBuilder;
+import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 
 public class WorksheetTabbedView implements TabbedView {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
+	private final ScriptController scriptController;
 	
 	private final List<Cell> cells = new ArrayList<>();
 	
 	private Function<String, ScriptFuture<Object>> executeFunction;
 	
-	public WorksheetTabbedView(Composite parent) {
+	public WorksheetTabbedView(Composite parent, ScriptController scriptController) {
+		this.scriptController = scriptController;
 		Display display = parent.getDisplay();
 		
 		parent.setLayout(new FillLayout());
@@ -71,7 +73,7 @@ public class WorksheetTabbedView implements TabbedView {
 	}
 	
 	private Cell addPrompt() {
-		final Cell cell = new Cell(cellsComposite);
+		final Cell cell = new Cell(cellsComposite, scriptController);
 		
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
