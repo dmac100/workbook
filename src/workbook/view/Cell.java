@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -22,9 +21,9 @@ import workbook.layout.GridDataBuilder;
 import workbook.script.ScriptFuture;
 
 public class Cell {
+	private final Composite parent;
 	private final Label prompt;
 	private final Text command;
-	private final StyledText result;
 	
 	private final List<Runnable> upCallbacks = new ArrayList<>();
 	private final List<Runnable> downCallbacks = new ArrayList<>();
@@ -32,17 +31,19 @@ public class Cell {
 	private final List<Runnable> runCallbacks = new ArrayList<>();
 	private final List<Runnable> runAllCallbacks = new ArrayList<>();
 	
+	private final Result result;
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	
 	public Cell(Composite parent) {
+		this.parent = parent;
+		
 		Display display = parent.getDisplay();
 		
 		prompt = addLabel(parent, ">>>");
 		command = new Text(parent, SWT.NONE);
-		result = new StyledText(parent, SWT.NONE);
+		result = new Result(parent);
 		
 		command.setFont(FontList.consolas10);
-		result.setFont(FontList.consolas10);
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
@@ -77,7 +78,7 @@ public class Cell {
 			}
 		});
 		
-		result.addKeyListener(new KeyAdapter() {
+		result.asComposite().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
 					evaluate(true);
@@ -88,7 +89,7 @@ public class Cell {
 			}
 		});
 		
-		result.addKeyListener(new KeyAdapter() {
+		result.asComposite().addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent event) {
 				if(event.keyCode == SWT.ARROW_UP) {
 					upCallbacks.forEach(Runnable::run);
@@ -99,32 +100,26 @@ public class Cell {
 		});
 		
 		command.setLayoutData(new GridDataBuilder().fillHorizontal().build());
-		result.setLayoutData(new GridDataBuilder().fillHorizontal().horizontalSpan(2).build());
-		
-		result.setEditable(false);
+		result.asComposite().setLayoutData(new GridDataBuilder().fillHorizontal().horizontalSpan(2).build());
 		
 		prompt.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-		command.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-		result.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-		
 		prompt.setForeground(display.getSystemColor(SWT.COLOR_DARK_CYAN));
 	}
 	
 	public void evaluate(boolean fireCallbacks) {
 		if(!command.getText().trim().isEmpty()) {
-			result.setText("...");
+			result.setLoading();
 			
-			if(fireCallbacks) {
-				runCallbacks.forEach(Runnable::run);
-			}
+			parent.pack();
 			
 			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
-				String resultText = String.valueOf(resultObject);
+				result.setValue(resultObject);
 				
 				Display.getDefault().asyncExec(() -> {
-					if(!result.isDisposed()) {
-						result.setText(String.valueOf(resultText));
+					if(fireCallbacks) {
+						runCallbacks.forEach(Runnable::run);
 					}
+					parent.pack();
 				});
 			});
 		}
@@ -136,10 +131,6 @@ public class Cell {
 	
 	public void setCommand(String text) {
 		command.setText(text);
-	}
-	
-	public String getResult() {
-		return result.getText();
 	}
 	
 	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
@@ -168,7 +159,7 @@ public class Cell {
 	
 	public Rectangle getBounds() {
 		Rectangle promptBounds = prompt.getBounds();
-		Rectangle resultBounds = result.getBounds();
+		Rectangle resultBounds = result.asComposite().getBounds();
 		Rectangle commandBounds = prompt.getBounds();
 		
 		int x = min(promptBounds.x, resultBounds.x, commandBounds.x);
@@ -210,7 +201,7 @@ public class Cell {
 	
 	public void dispose() {
 		command.dispose();
-		result.dispose();
+		result.asComposite().dispose();
 		prompt.dispose();
 	}
 	
