@@ -1,4 +1,5 @@
 package workbook;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -42,6 +43,8 @@ public class MainView {
 	private final TabbedViewLayout tabbedViewLayout;
 	private final TabbedViewFactory viewFactory;
 	
+	private String currentFileLocation = null;
+	
 	public MainView(Shell shell, MainController mainController) {
 		this.shell = shell;
 		
@@ -75,6 +78,15 @@ public class MainView {
 		MenuBuilder menuBuilder = new MenuBuilder(shell);
 		
 		menuBuilder.addMenu("&File")
+			.addItem("Open...\tCtrl+O").addSelectionListener(() -> open()).setAccelerator(SWT.CONTROL | 'o')
+			.addSeparator()
+			.addItem("Save\tCtrl+S").addSelectionListener(() -> save()).setAccelerator(SWT.CONTROL | 's')
+			.addItem("Save As...\tCtrl+Shift+S").addSelectionListener(() -> saveAs()).setAccelerator(SWT.CONTROL | SWT.SHIFT | 's')
+			.addSeparator()
+			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose()).setAccelerator(SWT.CONTROL | 'q');
+		
+		
+		menuBuilder.addMenu("&Editors")
 			.addItem("New Console").addSelectionListener(() -> viewFactory.addView(ConsoleTabbedView.class))
 			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addView(WorksheetTabbedView.class))
 			.addItem("New Script").addSelectionListener(() -> viewFactory.addView(ScriptTabbedView.class))
@@ -83,12 +95,7 @@ public class MainView {
 			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(StringTabbedEditor.class, expression)))
 			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TableTabbedEditor.class, expression)))
 			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TreeTabbedEditor.class, expression)))
-			.addItem("New Hex Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(HexTabbedEditor.class, expression)))
-			.addSeparator()
-			.addItem("Open...").addSelectionListener(() -> open())
-			.addItem("Save...").addSelectionListener(() -> save())
-			.addSeparator()
-			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose());
+			.addItem("New Hex Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(HexTabbedEditor.class, expression)));
 		
 		menuBuilder.addMenu("&Console")
 			.addSubmenu("Engine", submenu -> submenu
@@ -111,14 +118,28 @@ public class MainView {
 	}
 	
 	private void save() {
-		String document = serialize();
+		if(currentFileLocation == null) {
+			saveAs();
+		} else {
+			save(currentFileLocation);
+		}
+	}
+	
+	private void saveAs() {
 		String location = selectSaveLocation();
 		if(location != null) {
-			try {
-				FileUtils.writeStringToFile(new File(location), document, "UTF-8");
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
+			currentFileLocation = location;
+			save(location);
+		}
+	}
+	
+	private void save(String location) {
+		String document = serialize();
+		
+		try {
+			FileUtils.writeStringToFile(new File(location), document, "UTF-8");
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -126,12 +147,10 @@ public class MainView {
 		open(selectOpenLocation());
 	}
 	
-	private void save(String location) {
-		save(selectOpenLocation());
-	}
-	
 	private void open(String location) {
 		if(location != null) {
+			currentFileLocation = location;
+			
 			try {
 				String document = FileUtils.readFileToString(new File(location), "UTF-8");
 				mainController.clear();
