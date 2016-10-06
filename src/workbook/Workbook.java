@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.jdom2.JDOMException;
 
 import workbook.controller.MainController;
+import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
@@ -41,12 +42,15 @@ public class Workbook {
 		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new StringTabbedEditor(parent)));
 		mainView.registerView(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TableTabbedEditor(parent, mainController.getScriptController())));
 		mainView.registerView(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TreeTabbedEditor(parent, mainController.getScriptController())));
+		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new HexTabbedEditor(parent)));
 		
 		mainView.addView(WorksheetTabbedView.class);
 		//mainView.addView(ScriptTabbedView.class);
 		mainView.addView(ConsoleTabbedView.class);
 		//mainView.addView(TreeTabbedEditor.class, "x");
 		//mainView.addView(CanvasTabbedView.class);
+		//mainView.addView(StringTabbedEditor.class, "x");
+		//mainView.addView(HexTabbedEditor.class, "x");
 		
 		mainView.removeEmptyFolders();
 	}

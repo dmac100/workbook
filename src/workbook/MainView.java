@@ -20,6 +20,7 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import workbook.controller.MainController;
+import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
@@ -31,8 +32,8 @@ import workbook.view.ScriptTabbedView;
 import workbook.view.TabbedView;
 import workbook.view.TabbedViewFactory;
 import workbook.view.TabbedViewLayout;
-import workbook.view.WorksheetTabbedView;
 import workbook.view.TabbedViewLayout.FolderPosition;
+import workbook.view.WorksheetTabbedView;
 import workbook.view.canvas.CanvasTabbedView;
 
 public class MainView {
@@ -82,6 +83,7 @@ public class MainView {
 			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(StringTabbedEditor.class, expression)))
 			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TableTabbedEditor.class, expression)))
 			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TreeTabbedEditor.class, expression)))
+			.addItem("New Hex Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(HexTabbedEditor.class, expression)))
 			.addSeparator()
 			.addItem("Open...").addSelectionListener(() -> open())
 			.addItem("Save...").addSelectionListener(() -> save())
