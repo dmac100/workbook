@@ -1,5 +1,7 @@
 package workbook.editor.ui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +55,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		for(int y = table.getTopIndex(); y < table.getItemCount(); y++) {
 			boolean visible = false;
 			TableItem item = table.getItem(y);
-			for(int x = 1; x < table.getColumnCount(); x++) {
+			for(int x = 0; x < table.getColumnCount(); x++) {
 				Rectangle bounds = item.getBounds(x);
 				if(bounds.contains(new Point(event.x, event.y))) {
 					editValue(item, x);
@@ -136,28 +138,42 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		
 		table.setHeaderVisible(true);
 		
+		List<TableItem> rows = new ArrayList<>();
+		
+		Map<String, Integer> columnIndexes = new HashMap<>();
+		
+		// Add columns.
 		columns.forEach((name, values) -> {
-			if(table.getItemCount() == 0) {
-				TableColumn nameColumn = new TableColumn(table, SWT.NONE);
-				nameColumn.setText("Name");
-				nameColumn.setWidth(100);
-				
-				for(int i = 0; i < values.size(); i++) {
-					TableColumn valueColumn = new TableColumn(table, SWT.NONE);
-					valueColumn.setText("Value");
-					valueColumn.setWidth(100);
-				}
-			}
+			TableColumn nameColumn = new TableColumn(table, SWT.NONE);
+			nameColumn.setText(name);
+			nameColumn.setWidth(100);
 			
-			TableItem tableItem = new TableItem(table, SWT.NONE);
-			tableItem.setText(0, name);
-			tableItem.setData(values);
-			for(int i = 0; i < values.size(); i++) {
-				int index = i;
-				Reference reference = values.get(index);
-				readItemValue(tableItem, index + 1, reference);
-			}
+			columnIndexes.put(name, columnIndexes.size());
 		});
+		
+		// Add table items with values.
+		columns.forEach((name, values) -> {
+			for(int i = 0; i < values.size(); i++) {
+				if(rows.size() <= i) {
+					rows.add(new TableItem(table, SWT.NONE));
+				}
+				
+				TableItem item = rows.get(rows.size() - 1);
+				
+				Reference reference = values.get(i);
+				readItemValue(item, columnIndexes.get(name), reference);
+			}
+
+		});
+		
+		// Set references data for each row.
+		for(int i = 0; i < rows.size(); i++) {
+			List<Reference> references = new ArrayList<>();
+			for(List<Reference> values:columns.values()) {
+				references.add(values.get(i));
+			}
+			rows.get(i).setData(references);
+		}
 	}
 	
 	public void readItemValue(TableItem tableItem, int index, Reference reference) {
@@ -177,8 +193,8 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		tableItem.setText(index, "");
 		
 		List<Reference> references = (List<Reference>) tableItem.getData();
-		if(references != null && index - 1 < references.size()) {
-			Reference reference = references.get(index - 1);
+		if(references != null && index < references.size()) {
+			Reference reference = references.get(index);
 			if(reference != null) {
 				reference.set(value).thenRunAlways(() -> {
 					readItemValue(tableItem, index, reference);

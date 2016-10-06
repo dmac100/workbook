@@ -59,6 +59,7 @@ public class TableRenderer implements ResultRenderer {
 			
 			Map<String, Integer> columnIndexes = new HashMap<>();
 			
+			// Add columns.
 			columns.forEach((name, values) -> {
 				TableColumn nameColumn = new TableColumn(table, SWT.NONE);
 				nameColumn.setText(name);
@@ -67,6 +68,7 @@ public class TableRenderer implements ResultRenderer {
 				columnIndexes.put(name, columnIndexes.size());
 			});
 			
+			// Add table items with values.
 			columns.forEach((name, values) -> {
 				for(int i = 0; i < values.size(); i++) {
 					if(rows.size() <= i) {
@@ -78,7 +80,17 @@ public class TableRenderer implements ResultRenderer {
 					Reference reference = values.get(i);
 					readItemValue(item, columnIndexes.get(name), reference);
 				}
+
 			});
+			
+			// Set references data for each row.
+			for(int i = 0; i < rows.size(); i++) {
+				List<Reference> references = new ArrayList<>();
+				for(List<Reference> values:columns.values()) {
+					references.add(values.get(i));
+				}
+				rows.get(i).setData(references);
+			}
 				
 			callback.run();
 		});
