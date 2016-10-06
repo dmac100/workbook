@@ -12,8 +12,8 @@ import workbook.editor.reference.GlobalVariableReference;
 import workbook.editor.ui.Editor;
 import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
-import workbook.script.ScriptFuture;
 import workbook.script.ScriptController.ScriptType;
+import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
 import workbook.view.ConsoleTabbedView;
 import workbook.view.ScriptTabbedView;
@@ -100,11 +100,13 @@ public class MainController {
 	}
 
 	public ConsoleTabbedView addConsole(ConsoleTabbedView console) {
+		console.getControl().addDisposeListener(event -> consoles.remove(console));
 		consoles.add(console);
 		return console;
 	}
 	
 	public CanvasTabbedView addCanvasView(CanvasTabbedView canvas) {
+		canvas.getControl().addDisposeListener(event -> canvases.remove(canvas));
 		canvases.add(canvas);
 		canvas.setExecuteCallback(command -> {
 			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
@@ -118,6 +120,7 @@ public class MainController {
 
 	public <T extends Editor> T addEditor(T editor) {
 		editor.setReferenceFunction(expression -> new GlobalVariableReference(scriptController, expression));
+		editor.getControl().addDisposeListener(event -> editors.remove(editor));
 		editors.add(editor);
 		return editor;
 	}

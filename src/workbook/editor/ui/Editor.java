@@ -2,6 +2,7 @@ package workbook.editor.ui;
 
 import java.util.function.Function;
 
+import org.eclipse.swt.widgets.Control;
 import org.jdom2.Element;
 
 import workbook.editor.reference.Reference;
@@ -12,6 +13,7 @@ public abstract class Editor {
 	protected Reference reference;
 	
 	public abstract void readValue();
+	public abstract Control getControl();
 	
 	public void setExpression(String expression) {
 		this.expression = expression;
