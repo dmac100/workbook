@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -24,10 +21,11 @@ import org.jdom2.Element;
 
 import workbook.script.NameAndProperties;
 import workbook.view.TabbedView;
+import workbook.view.text.EditorText;
 
 public class CanvasTabbedView implements TabbedView {
 	private final TabFolder folder;
-	private final StyledText styledText;
+	private final EditorText editorText;
 	private final Canvas canvas;
 	private final ColorCache colorCache;
 	
@@ -42,8 +40,8 @@ public class CanvasTabbedView implements TabbedView {
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);
 		designTab.setText("Design");
-		this.styledText = new StyledText(folder, SWT.V_SCROLL);
-		designTab.setControl(styledText);
+		this.editorText = new EditorText(folder);
+		designTab.setControl(editorText.getControl());
 		
 		TabItem viewTab = new TabItem(folder, SWT.NONE);
 		viewTab.setText("View");
@@ -52,21 +50,11 @@ public class CanvasTabbedView implements TabbedView {
 		
 		colorCache = new ColorCache(canvas.getDisplay());
 		
-		styledText.addVerifyKeyListener(new VerifyKeyListener() {
+		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
 			public void verifyKey(VerifyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					refresh();
 					event.doit = false;
-				}
-			}
-		});
-		
-		styledText.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent event) {
-				if((event.stateMask & SWT.CTRL) > 0) {
-					if(event.keyCode == 'a') {
-						selectAll();
-					}
 				}
 			}
 		});
@@ -141,10 +129,6 @@ public class CanvasTabbedView implements TabbedView {
 		gc.drawRoundRectangle(canvasMargin / 2, canvasMargin / 2, canvasWidth - canvasMargin, canvasHeight - canvasMargin, 3, 3);
 	}
 	
-	public void selectAll() {
-		styledText.setSelection(0, styledText.getText().length());
-	}
-	
 	public void setExecuteCallback(Consumer<String> executeCallback) {
 		this.executeCallback = executeCallback;
 	}
@@ -152,7 +136,7 @@ public class CanvasTabbedView implements TabbedView {
 	public void refresh() {
 		canvas.getDisplay().asyncExec(() -> {
 			if(executeCallback != null) {
-				executeCallback.accept(styledText.getText());
+				executeCallback.accept(editorText.getText());
 			}
 		});
 	}
@@ -173,12 +157,12 @@ public class CanvasTabbedView implements TabbedView {
 
 	public void serialize(Element element) {
 		Element content = new Element("Content");
-		content.setText(styledText.getText());
+		content.setText(editorText.getText());
 		element.addContent(content);
 	}
 
 	public void deserialize(Element element) {
 		String content = element.getChildText("Content");
-		styledText.setText(content);
+		editorText.setText(content);
 	}
 }
