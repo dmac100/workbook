@@ -5,7 +5,7 @@ import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 
 public abstract class AbstractScriptReference implements Reference {
-	private final ScriptController scriptController;
+	protected final ScriptController scriptController;
 
 	protected abstract void setSync(Engine script, Object value) throws Exception;
 	protected abstract Object getSync(Engine script) throws Exception;

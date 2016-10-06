@@ -47,16 +47,13 @@ public class RubyEngine implements Engine {
 	
 	public void setVariable(String name, Object value) {
 		engine.put(name, value);
+		globals.put(name, value);
 	}
 	
 	public Object getVariable(String name) {
 		return engine.get(name);
 	}
 	
-	public Map<String, Object> getVariableMap() {
-		return engine.getBindings(ScriptContext.ENGINE_SCOPE);
-	}
-
 	public boolean isScriptObject(Object object) {
 		return (object instanceof RubyObject);
 	}

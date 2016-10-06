@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
-import workbook.editor.reference.OgnlReference;
+import workbook.editor.reference.GlobalVariableReference;
 import workbook.editor.ui.Editor;
 import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
@@ -117,7 +117,7 @@ public class MainController {
 	}
 
 	public <T extends Editor> T addEditor(T editor) {
-		editor.setReferenceFunction(expression -> new OgnlReference(scriptController, expression));
+		editor.setReferenceFunction(expression -> new GlobalVariableReference(scriptController, expression));
 		editors.add(editor);
 		return editor;
 	}

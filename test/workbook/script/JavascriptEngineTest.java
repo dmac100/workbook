@@ -93,15 +93,6 @@ public class JavascriptEngineTest {
 	}
 	
 	@Test
-	public void getVariableMap() throws ScriptException {
-		script.setVariable("a", "b");
-		
-		Map<String, Object> map = script.getVariableMap();
-		
-		assertEquals("b", map.get("a"));
-	}
-	
-	@Test
 	public void getPropertyMap_get() throws ScriptException {
 		Object object = script.eval("({a: 'b'})");
 		

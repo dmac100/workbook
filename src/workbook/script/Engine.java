@@ -9,7 +9,6 @@ public interface Engine {
 	public void iterateObject(Object array, Consumer<Object> consumer);
 	public void setVariable(String name, Object value);
 	public Object getVariable(String name);
-	public Map<String, Object> getVariableMap();
 	public boolean isScriptObject(Object object);
 	public Map<Object, Object> getPropertyMap(Object object);
 	public Object eval(String command);
