@@ -66,6 +66,10 @@ public class MainView {
 		return viewFactory.addView(type, expression);
 	}
 	
+	public void removeEmptyFolders() {
+		tabbedViewLayout.removeEmptyFolders();
+	}
+	
 	private void createMenuBar(final Shell shell) {
 		MenuBuilder menuBuilder = new MenuBuilder(shell);
 		

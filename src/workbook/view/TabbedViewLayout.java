@@ -1,5 +1,6 @@
 package workbook.view;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -51,6 +52,10 @@ public class TabbedViewLayout {
 		
 		bottomFolder = split(leftFolder, 0, 1, 60);
 		rightFolder = split(leftFolder, 1, 0, 60);
+	}
+	
+	public void removeEmptyFolders() {
+		new ArrayList<>(folders).forEach(this::removeIfEmpty);
 	}
 	
 	public void clear() {

@@ -15,8 +15,8 @@ import workbook.editor.ui.TreeTabbedEditor;
 import workbook.view.ConsoleTabbedView;
 import workbook.view.ScriptTabbedView;
 import workbook.view.TabbedView;
-import workbook.view.WorksheetTabbedView;
 import workbook.view.TabbedViewLayout.FolderPosition;
+import workbook.view.WorksheetTabbedView;
 import workbook.view.canvas.CanvasTabbedView;
 
 public class Workbook {
@@ -34,7 +34,7 @@ public class Workbook {
 		
 		mainView = new MainView(shell, mainController);
 		
-		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new WorksheetTabbedView(parent)));
+		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new WorksheetTabbedView(parent, mainController.getScriptController())));
 		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> controller.addScriptEditor(new ScriptTabbedView(parent)));
 		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> controller.addConsole(new ConsoleTabbedView(parent)));
 		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> controller.addCanvasView(new CanvasTabbedView(parent)));
@@ -43,10 +43,12 @@ public class Workbook {
 		mainView.registerView(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TreeTabbedEditor(parent, mainController.getScriptController())));
 		
 		mainView.addView(WorksheetTabbedView.class);
-		mainView.addView(ScriptTabbedView.class);
+		//mainView.addView(ScriptTabbedView.class);
 		mainView.addView(ConsoleTabbedView.class);
-		mainView.addView(TreeTabbedEditor.class, "x");
-		mainView.addView(CanvasTabbedView.class);
+		//mainView.addView(TreeTabbedEditor.class, "x");
+		//mainView.addView(CanvasTabbedView.class);
+		
+		mainView.removeEmptyFolders();
 	}
 	
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
