@@ -9,6 +9,8 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Rectangle;
@@ -35,6 +37,7 @@ public class Cell {
 	
 	private final Result result;
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
+	private Function<String, String> completionFunction = null;
 	
 	public Cell(Composite parent, ScriptController scriptController) {
 		this.parent = parent;
@@ -76,6 +79,19 @@ public class Cell {
 					upCallbacks.forEach(Runnable::run);
 				} else if(event.keyCode == SWT.ARROW_DOWN) {
 					downCallbacks.forEach(Runnable::run);
+				} else if(event.keyCode != SWT.TAB) {
+					completionFunction.apply(null);
+				}
+			}
+		});
+		
+		command.addTraverseListener(new TraverseListener() {
+			public void keyTraversed(TraverseEvent event) {
+				if(event.keyCode == SWT.TAB && event.stateMask == 0) {
+					String completedText = completionFunction.apply(command.getText());
+					command.setText(completedText);
+					command.setSelection(command.getText().length());
+					event.doit = false;
 				}
 			}
 		});
@@ -137,6 +153,10 @@ public class Cell {
 	
 	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
 		this.executeFunction = executeFunction;
+	}
+	
+	public void setCompletionFunction(Function<String, String> completionFunction) {
+		this.completionFunction = completionFunction;
 	}
 	
 	public void addUpCallback(Runnable callback) {

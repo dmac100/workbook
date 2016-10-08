@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
-public class CompletionTest {
+public class StyledTextCompletionTest {
 	public static class FakeStyledText {
 		StringBuilder text;
 		int caretOffset;
@@ -79,14 +79,14 @@ public class CompletionTest {
 	public void completeEmpty() {
 		StyledText styledText = fakeStyledText("|");
 		
-		new Completion(styledText).complete();
+		new StyledTextCompletion(styledText).complete();
 	}
 	
 	@Test
 	public void completeAtHome() {
 		StyledText styledText = fakeStyledText("|a");
 		
-		new Completion(styledText).complete();
+		new StyledTextCompletion(styledText).complete();
 		
 		assertTextAndCaret(styledText, "|a");
 	}
@@ -95,7 +95,7 @@ public class CompletionTest {
 	public void completeAtEnd() {
 		StyledText styledText = fakeStyledText("a|");
 		
-		new Completion(styledText).complete();
+		new StyledTextCompletion(styledText).complete();
 		
 		assertTextAndCaret(styledText, "a|");
 	}
@@ -104,7 +104,7 @@ public class CompletionTest {
 	public void completePreviousWord() {
 		StyledText styledText = fakeStyledText("aaa abb a|");
 		
-		new Completion(styledText).complete();
+		new StyledTextCompletion(styledText).complete();
 		
 		assertTextAndCaret(styledText, "aaa abb abb|");
 	}
@@ -113,7 +113,7 @@ public class CompletionTest {
 	public void noWordToComplete() {
 		StyledText styledText = fakeStyledText("aaa |");
 		
-		new Completion(styledText).complete();
+		new StyledTextCompletion(styledText).complete();
 		
 		assertTextAndCaret(styledText, "aaa |");
 	}
@@ -122,7 +122,7 @@ public class CompletionTest {
 	public void noCompletionsFound() {
 		StyledText styledText = fakeStyledText("bbb| aaa");
 		
-		new Completion(styledText).complete();
+		new StyledTextCompletion(styledText).complete();
 		
 		assertTextAndCaret(styledText, "bbb| aaa");
 	}
@@ -131,7 +131,7 @@ public class CompletionTest {
 	public void completionsWrap() {
 		StyledText styledText = fakeStyledText("aa| aab aaa");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		
 		completion.complete();
 		assertTextAndCaret(styledText, "aaa| aab aaa");
@@ -144,7 +144,7 @@ public class CompletionTest {
 	public void wrapBackToOriginal() {
 		StyledText styledText = fakeStyledText("a| ab");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		
 		completion.complete();
 		assertTextAndCaret(styledText, "ab| ab");
@@ -157,7 +157,7 @@ public class CompletionTest {
 	public void removeDuplicates() {
 		StyledText styledText = fakeStyledText("aaa aab aaa aaa aa|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		
 		completion.complete();
 		assertTextAndCaret(styledText, "aaa aab aaa aaa aaa|");
@@ -170,7 +170,7 @@ public class CompletionTest {
 	public void completeNextCompletion() {
 		StyledText styledText = fakeStyledText("aaa abb a|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		
 		completion.complete();
 		assertTextAndCaret(styledText, "aaa abb abb|");
@@ -183,7 +183,7 @@ public class CompletionTest {
 	public void resetAfterCursorMove() {
 		StyledText styledText = fakeStyledText("ac ab a|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		completion.complete();
 		
 		styledText.setCaretOffset(0);
@@ -196,7 +196,7 @@ public class CompletionTest {
 	public void resetAfterTextChange() {
 		StyledText styledText = fakeStyledText("ac ab a|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		completion.complete();
 		
 		styledText.setText("aaa");
@@ -209,7 +209,7 @@ public class CompletionTest {
 	public void resetAfterClear() {
 		StyledText styledText = fakeStyledText("ac ab a|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		completion.complete();
 		
 		completion.dismissCompletions();
@@ -220,19 +220,19 @@ public class CompletionTest {
 	
 	@Test
 	public void canCompleteEmpty() {
-		Completion completion = new Completion(fakeStyledText("|"));
+		StyledTextCompletion completion = new StyledTextCompletion(fakeStyledText("|"));
 		assertFalse(completion.canComplete());
 	}
 	
 	@Test
 	public void canCompleteYes() {
-		Completion completion = new Completion(fakeStyledText("aa|"));
+		StyledTextCompletion completion = new StyledTextCompletion(fakeStyledText("aa|"));
 		assertTrue(completion.canComplete());
 	}
 	
 	@Test
 	public void canCompleteNo() {
-		Completion completion = new Completion(fakeStyledText("aa |"));
+		StyledTextCompletion completion = new StyledTextCompletion(fakeStyledText("aa |"));
 		assertFalse(completion.canComplete());
 	}
 	
@@ -240,7 +240,7 @@ public class CompletionTest {
 	public void completeToUppercase() {
 		StyledText styledText = fakeStyledText("Aa a|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		completion.complete();
 		
 		assertTextAndCaret(styledText, "Aa Aa|");
@@ -250,7 +250,7 @@ public class CompletionTest {
 	public void completeToLowercase() {
 		StyledText styledText = fakeStyledText("aa A|");
 		
-		Completion completion = new Completion(styledText);
+		StyledTextCompletion completion = new StyledTextCompletion(styledText);
 		completion.complete();
 		
 		assertTextAndCaret(styledText, "aa aa|");

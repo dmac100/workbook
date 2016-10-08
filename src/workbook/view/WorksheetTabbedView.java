@@ -1,5 +1,7 @@
 package workbook.view;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -26,6 +28,8 @@ public class WorksheetTabbedView implements TabbedView {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	private final ScriptController scriptController;
+	
+	private final Completion completion = new Completion();
 	
 	private final List<Cell> cells = new ArrayList<>();
 	
@@ -76,6 +80,17 @@ public class WorksheetTabbedView implements TabbedView {
 		final Cell cell = new Cell(cellsComposite, scriptController);
 		
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
+		
+		cell.setCompletionFunction(text -> {
+			if(text == null) {
+				completion.dismiss();
+				return null;
+			} else {
+				completion.setHistory(cells.stream().map(Cell::getCommand).collect(toList()));
+				String completedText = completion.getCompletion(text);
+				return completedText;
+			}
+		});
 		
 		cell.addUpCallback(new Runnable() {
 			public void run() {

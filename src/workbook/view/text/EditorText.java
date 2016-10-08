@@ -39,7 +39,7 @@ import workbook.view.canvas.ColorCache;
 public class EditorText {
 	private final StyledText styledText;
 	private final ColorCache colorCache;
-	private final Completion completion;
+	private final StyledTextCompletion completion;
 	private final EditFunctions editFunctions;
 	
 	private final Theme theme = new ThemeSublime();
@@ -53,7 +53,7 @@ public class EditorText {
 		styledText.setTabs(4);
 		
 		editFunctions = new EditFunctions(styledText);
-		completion = new Completion(styledText);
+		completion = new StyledTextCompletion(styledText);
 		
 		styledText.setFont(FontList.consolas10);
 
