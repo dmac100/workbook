@@ -22,9 +22,9 @@ import workbook.view.canvas.CanvasTabbedView;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
+	
+	private final List<Runnable> evalCallbacks = new ArrayList<>();
 	private final List<ConsoleTabbedView> consoles = new ArrayList<>();
-	private final List<Editor> editors = new ArrayList<>();
-	private final List<CanvasTabbedView> canvases = new ArrayList<>();
 	
 	private final Consumer<Object> evalConsumer;
 	private final Consumer<Void> flushConsoleConsumer;
@@ -45,9 +45,8 @@ public class MainController {
 	}
 	
 	public void clear() {
+		evalCallbacks.clear();
 		consoles.clear();
-		editors.clear();
-		canvases.clear();
 	}
 
 	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet) {
@@ -70,10 +69,7 @@ public class MainController {
 	private void onEval(Object result) {
 		scriptController
 			.setVariable("_", result)
-			.thenRun(() -> {
-				editors.forEach(Editor::readValue);
-				canvases.forEach(CanvasTabbedView::refresh);
-			});
+			.thenRun(() -> evalCallbacks.forEach(Runnable::run));
 	}
 	
 	private void addOutput(String output) {
@@ -106,8 +102,8 @@ public class MainController {
 	}
 	
 	public CanvasTabbedView addCanvasView(CanvasTabbedView canvas) {
-		canvas.getControl().addDisposeListener(event -> canvases.remove(canvas));
-		canvases.add(canvas);
+		canvas.getControl().addDisposeListener(event -> evalCallbacks.remove(canvas));
+		evalCallbacks.add(canvas::refresh);
 		canvas.setExecuteCallback(command -> {
 			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
 			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames, this::addOutput, this::addError);
@@ -120,8 +116,8 @@ public class MainController {
 
 	public <T extends Editor> T addEditor(T editor) {
 		editor.setReferenceFunction(expression -> new GlobalVariableReference(scriptController, expression));
-		editor.getControl().addDisposeListener(event -> editors.remove(editor));
-		editors.add(editor);
+		editor.getControl().addDisposeListener(event -> evalCallbacks.remove(editor));
+		evalCallbacks.add(editor::readValue);
 		return editor;
 	}
 	
