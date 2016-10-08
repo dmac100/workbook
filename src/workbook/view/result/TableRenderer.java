@@ -75,7 +75,7 @@ public class TableRenderer implements ResultRenderer {
 						rows.add(new TableItem(table, SWT.NONE));
 					}
 					
-					TableItem item = rows.get(rows.size() - 1);
+					TableItem item = rows.get(i);
 					
 					Reference reference = values.get(i);
 					readItemValue(item, columnIndexes.get(name), reference);
