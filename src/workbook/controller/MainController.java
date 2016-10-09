@@ -12,7 +12,6 @@ import workbook.editor.reference.GlobalVariableReference;
 import workbook.editor.ui.Editor;
 import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
-import workbook.script.ScriptController.ScriptType;
 import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
 import workbook.view.ConsoleTabbedView;
@@ -129,8 +128,8 @@ public class MainController {
 		return scriptController;
 	}
 
-	public void setEngine(ScriptType script) {
-		scriptController.setScriptType(script);
+	public void setEngine(String scriptType) {
+		scriptController.setScriptType(scriptType);
 	}
 	
 	public void addVariable(String name, Object value) {
@@ -145,6 +144,6 @@ public class MainController {
 
 	public void deserialize(Element element) {
 		String scriptType = element.getChild("ScriptType").getText();
-		scriptController.setScriptType(ScriptType.valueOf(scriptType));
+		scriptController.setScriptType(scriptType);
 	}
 }

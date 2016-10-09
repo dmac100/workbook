@@ -16,8 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import workbook.editor.reference.Reference;
+import workbook.script.GroovyEngine;
 import workbook.script.ScriptController;
-import workbook.script.ScriptController.ScriptType;
 import workbook.script.ScriptFuture;
 
 public class GroovyScriptTableUtilTest {
@@ -48,7 +48,8 @@ public class GroovyScriptTableUtilTest {
 	@Before
 	public void before() {
 		scriptController.startQueueThread();
-		scriptController.setScriptType(ScriptType.GROOVY);
+		scriptController.addEngine("Groovy", new GroovyEngine());
+		scriptController.setScriptType("Groovy");
 		scriptTableUtil = new ScriptTableUtil(scriptController);
 	}
 

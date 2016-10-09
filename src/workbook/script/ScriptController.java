@@ -2,6 +2,7 @@ package workbook.script;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -10,22 +11,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ScriptController {
-	public enum ScriptType {
-		JAVASCRIPT, RUBY, GROOVY
-	}
-	
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 	
 	private final Map<String, Object> globals = new HashMap<>();
-	private final Engine javascriptEngine = new JavascriptEngine(globals);
-	private final Engine rubyEngine = new RubyEngine(globals);
-	private final Engine groovyEngine = new GroovyEngine(globals);
-	
+	private final Map<String, Engine> engines = new LinkedHashMap<>();
+
+	private String scriptType;
 	private Engine engine;
-	private ScriptType scriptType = ScriptType.JAVASCRIPT;
 	
 	private volatile Thread thread = null;
-
 	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
@@ -36,8 +30,6 @@ public class ScriptController {
 		thread.setDaemon(true);
 		thread.setName("Script Thread");
 		thread.start();
-		
-		setScriptType(scriptType);
 
 		// Restart thread on exception.
 		thread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -58,23 +50,32 @@ public class ScriptController {
 		}
 	}
 	
-	public ScriptType getScriptType() {
+	public String getScriptType() {
 		return scriptType;
 	}
 	
-	public ScriptFuture<Void> setScriptType(ScriptType scriptType) {
+	public ScriptFuture<Void> addEngine(String scriptType, Engine engine) {
+		ScriptFuture<Void> future = new ScriptFuture<>(this);
+		runnableQueue.add(() -> {
+			try {
+				engine.setGlobals(globals);
+				engines.put(scriptType, engine);
+				future.complete(null);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
+	}
+	
+	public ScriptFuture<Void> setScriptType(String scriptType) {
 		this.scriptType = scriptType;
 		
 		ScriptFuture<Void> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
 			try {
-				if(scriptType == ScriptType.JAVASCRIPT) {
-					engine = javascriptEngine;
-				} else if(scriptType == ScriptType.RUBY) {
-					engine = rubyEngine;
-				} else if(scriptType == ScriptType.GROOVY) {
-					engine = groovyEngine;
-				} else {
+				engine = engines.get(scriptType);
+				if(engine == null) {
 					throw new IllegalArgumentException("Unknown script type: " + scriptType);
 				}
 				future.complete(null);

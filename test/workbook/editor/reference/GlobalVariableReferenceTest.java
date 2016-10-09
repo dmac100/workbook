@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import workbook.script.JavascriptEngine;
 import workbook.script.ScriptController;
 
 public class GlobalVariableReferenceTest {
@@ -11,6 +12,8 @@ public class GlobalVariableReferenceTest {
 	public void test() throws Exception {
 		ScriptController scriptController = new ScriptController();
 		scriptController.startQueueThread();
+		scriptController.addEngine("Javascript", new JavascriptEngine());
+		scriptController.setScriptType("Javascript");
 		scriptController.eval("x = 2", x -> {}, x -> {}).get();
 		
 		GlobalVariableReference reference = new GlobalVariableReference(scriptController, "x");

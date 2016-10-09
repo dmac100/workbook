@@ -25,7 +25,9 @@ import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
-import workbook.script.ScriptController.ScriptType;
+import workbook.script.GroovyEngine;
+import workbook.script.JavascriptEngine;
+import workbook.script.RubyEngine;
 import workbook.view.ConsoleTabbedView;
 import workbook.view.InputDialog;
 import workbook.view.MenuBuilder;
@@ -56,6 +58,11 @@ public class MainView {
 		createMenuBar(shell);
 		
 		this.viewFactory = new TabbedViewFactory(tabbedViewLayout, mainController);
+		
+		mainController.getScriptController().addEngine("Javascript", new JavascriptEngine());
+		mainController.getScriptController().addEngine("Ruby", new RubyEngine());
+		mainController.getScriptController().addEngine("Groovy", new GroovyEngine());
+		mainController.getScriptController().setScriptType("Javascript");
 	}
 	
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
@@ -99,9 +106,9 @@ public class MainView {
 		
 		menuBuilder.addMenu("&Console")
 			.addSubmenu("Engine", submenu -> submenu
-				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine(ScriptType.JAVASCRIPT))
-				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine(ScriptType.RUBY))
-				.addItem("Groovy").addSelectionListener(() -> mainController.setEngine(ScriptType.GROOVY))
+				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine("Javascript"))
+				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine("Ruby"))
+				.addItem("Groovy").addSelectionListener(() -> mainController.setEngine("Groovy"))
 			)
 			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
 		

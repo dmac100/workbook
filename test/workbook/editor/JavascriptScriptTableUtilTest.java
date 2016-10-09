@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import workbook.editor.reference.Reference;
+import workbook.script.JavascriptEngine;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 
@@ -47,6 +48,8 @@ public class JavascriptScriptTableUtilTest {
 	@Before
 	public void before() {
 		scriptController.startQueueThread();
+		scriptController.addEngine("Javascript", new JavascriptEngine());
+		scriptController.setScriptType("Javascript");
 		scriptTableUtil = new ScriptTableUtil(scriptController);
 	}
 

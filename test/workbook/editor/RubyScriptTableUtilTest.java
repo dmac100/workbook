@@ -17,9 +17,10 @@ import org.junit.Test;
 
 import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
+import workbook.script.GroovyEngine;
+import workbook.script.RubyEngine;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
-import workbook.script.ScriptController.ScriptType;
 
 public class RubyScriptTableUtilTest {
 	private static class JavaObject {
@@ -49,7 +50,8 @@ public class RubyScriptTableUtilTest {
 	@Before
 	public void before() {
 		scriptController.startQueueThread();
-		scriptController.setScriptType(ScriptType.RUBY);
+		scriptController.addEngine("Ruby", new RubyEngine());
+		scriptController.setScriptType("Ruby");
 		scriptTableUtil = new ScriptTableUtil(scriptController);
 	}
 

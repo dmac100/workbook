@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public interface Engine {
+	public void setGlobals(Map<String, Object> globals);
 	public boolean isIterable(Object value);
 	public void iterateObject(Object array, Consumer<Object> consumer);
 	public void setVariable(String name, Object value);

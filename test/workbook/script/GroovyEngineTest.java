@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,7 @@ import javax.script.ScriptException;
 import org.junit.Test;
 
 public class GroovyEngineTest {
-	private final GroovyEngine script = new GroovyEngine(new HashMap<>());
+	private final GroovyEngine script = new GroovyEngine();
 	
 	@Test
 	public void eval() {

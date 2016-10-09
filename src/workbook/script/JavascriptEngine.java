@@ -2,6 +2,7 @@ package workbook.script;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +19,9 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class JavascriptEngine implements Engine {
 	private final ScriptEngine engine;
-	private final Map<String, Object> globals;
+	private Map<String, Object> globals = new HashMap<>();
 	
-	public JavascriptEngine(Map<String, Object> globals) {
-		this.globals = globals;
+	public JavascriptEngine() {
 		NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
 		engine = factory.getScriptEngine(new String[] { "--class-cache-size = 0" });
 		if(engine == null) {
@@ -29,6 +29,10 @@ public class JavascriptEngine implements Engine {
 		}
 		
 		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
+	}
+	
+	public void setGlobals(Map<String, Object> globals) {
+		this.globals = globals;
 	}
 	
 	public boolean isIterable(Object value) {

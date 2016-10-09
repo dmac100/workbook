@@ -21,17 +21,19 @@ import org.jruby.RubyObject;
 
 public class RubyEngine implements Engine {
 	private final ScriptEngine engine;
-	private final Map<String, Object> globals;
+	private Map<String, Object> globals = new HashMap<>();
 	
-	public RubyEngine(Map<String, Object> globals) {
+	public RubyEngine() {
 		System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
-		
-		this.globals = globals;
 		
 		engine = new ScriptEngineManager().getEngineByName("jruby");
 		if(engine == null) {
 			throw new RuntimeException("Can't create JRuby engine");
 		}
+	}
+	
+	public void setGlobals(Map<String, Object> globals) {
+		this.globals = globals;
 	}
 	
 	public boolean isIterable(Object value) {

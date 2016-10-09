@@ -18,7 +18,7 @@ import workbook.script.NameAndProperties;
 import workbook.script.RubyEngine;
 
 public class RubyEngineTest {
-	private final RubyEngine script = new RubyEngine(new HashMap<>());
+	private final RubyEngine script = new RubyEngine();
 	
 	@Test
 	public void eval() {

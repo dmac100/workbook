@@ -17,15 +17,17 @@ import javax.script.ScriptEngineManager;
 
 public class GroovyEngine implements Engine {
 	private final ScriptEngine engine;
-	private final Map<String, Object> globals;
+	private Map<String, Object> globals = new HashMap<>();
 	
-	public GroovyEngine(Map<String, Object> globals) {
-		this.globals = globals;
-		
+	public GroovyEngine() {
 		engine = new ScriptEngineManager().getEngineByName("groovy");
 		if(engine == null) {
 			throw new RuntimeException("Can't create Groovy engine");
 		}
+	}
+	
+	public void setGlobals(Map<String, Object> globals) {
+		this.globals = globals;
 	}
 	
 	public boolean isIterable(Object value) {

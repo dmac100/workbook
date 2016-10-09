@@ -19,7 +19,7 @@ import workbook.script.JavascriptEngine;
 import workbook.script.NameAndProperties;
 
 public class JavascriptEngineTest {
-	private final JavascriptEngine script = new JavascriptEngine(new HashMap<>());
+	private final JavascriptEngine script = new JavascriptEngine();
 	
 	@Test
 	public void eval() {
