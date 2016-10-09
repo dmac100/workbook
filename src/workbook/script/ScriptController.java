@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class ScriptController {
 	public enum ScriptType {
-		JAVASCRIPT, RUBY
+		JAVASCRIPT, RUBY, GROOVY
 	}
 	
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
@@ -19,6 +19,7 @@ public class ScriptController {
 	private final Map<String, Object> globals = new HashMap<>();
 	private final Engine javascriptEngine = new JavascriptEngine(globals);
 	private final Engine rubyEngine = new RubyEngine(globals);
+	private final Engine groovyEngine = new GroovyEngine(globals);
 	
 	private Engine engine;
 	private ScriptType scriptType = ScriptType.JAVASCRIPT;
@@ -71,6 +72,8 @@ public class ScriptController {
 					engine = javascriptEngine;
 				} else if(scriptType == ScriptType.RUBY) {
 					engine = rubyEngine;
+				} else if(scriptType == ScriptType.GROOVY) {
+					engine = groovyEngine;
 				} else {
 					throw new IllegalArgumentException("Unknown script type: " + scriptType);
 				}

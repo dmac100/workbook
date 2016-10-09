@@ -101,6 +101,7 @@ public class MainView {
 			.addSubmenu("Engine", submenu -> submenu
 				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine(ScriptType.JAVASCRIPT))
 				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine(ScriptType.RUBY))
+				.addItem("Groovy").addSelectionListener(() -> mainController.setEngine(ScriptType.GROOVY))
 			)
 			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
 		
