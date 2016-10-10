@@ -62,7 +62,7 @@ public class MainView {
 		mainController.getScriptController().addEngine("Javascript", new JavascriptEngine());
 		mainController.getScriptController().addEngine("Ruby", new RubyEngine());
 		mainController.getScriptController().addEngine("Groovy", new GroovyEngine());
-		mainController.getScriptController().setScriptType("Javascript");
+		mainController.getScriptController().setScriptType("Groovy");
 	}
 	
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
