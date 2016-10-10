@@ -2,6 +2,7 @@ package workbook.script;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,9 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+
+import org.codehaus.groovy.util.ManagedConcurrentValueMap;
+import org.codehaus.groovy.util.ReferenceBundle;
 
 public class GroovyEngine implements Engine {
 	private final ScriptEngine engine;
@@ -120,9 +124,14 @@ public class GroovyEngine implements Engine {
         	
         	PrintWriter outputWriter = new PrintWriter(outputReader.getOutputStream());
         	PrintWriter errorWriter = new PrintWriter(errorReader.getOutputStream());
-
+     
         	engine.getContext().setWriter(outputWriter);
         	engine.getContext().setErrorWriter(errorWriter);
+        	
+        	// Clear cache to work around invalid cached classes.
+        	Field field = engine.getClass().getDeclaredField("classMap");
+			field.setAccessible(true);
+			field.set(engine, new ManagedConcurrentValueMap<String, Class>(ReferenceBundle.getSoftBundle()));
         	
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
