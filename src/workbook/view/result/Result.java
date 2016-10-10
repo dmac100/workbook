@@ -12,20 +12,16 @@ import workbook.view.FontList;
 public class Result {
 	private final ScriptController scriptController;
 	private final Composite composite;
-	private final TableRenderer renderer;
+	private final ResultRenderer resultRenderer;
 
-	public Result(Composite parent, ScriptController scriptController) {
+	public Result(Composite parent, ScriptController scriptController, ResultRenderer resultRenderer) {
 		composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new FillLayout());
 		
-		StringRenderer stringRenderer = new StringRenderer(null, scriptController);
-		TableRenderer tableRenderer = new TableRenderer(stringRenderer, scriptController);
-		
-		this.renderer = tableRenderer;
-		
+		this.resultRenderer = resultRenderer;
 		this.scriptController = scriptController;
 	}
-
+	
 	public void setLoading() {
 		removeChildren();
 		
@@ -40,7 +36,7 @@ public class Result {
 			if(!composite.isDisposed()) {
 				removeChildren();
 				
-				renderer.addView(composite, value, callback);
+				resultRenderer.addView(composite, value, callback);
 				
 				composite.pack();
 			}

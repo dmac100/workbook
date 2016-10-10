@@ -19,6 +19,9 @@ import workbook.view.TabbedView;
 import workbook.view.TabbedViewLayout.FolderPosition;
 import workbook.view.WorksheetTabbedView;
 import workbook.view.canvas.CanvasTabbedView;
+import workbook.view.result.ResultRenderer;
+import workbook.view.result.StringRenderer;
+import workbook.view.result.TableRenderer;
 
 public class Workbook {
 	private final MainController mainController;
@@ -35,7 +38,9 @@ public class Workbook {
 		
 		mainView = new MainView(shell, mainController);
 		
-		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new WorksheetTabbedView(parent, mainController.getScriptController())));
+		ResultRenderer resultRenderer = createResultRenders();
+		
+		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new WorksheetTabbedView(parent, mainController.getScriptController(), resultRenderer)));
 		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> controller.addScriptEditor(new ScriptTabbedView(parent)));
 		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> controller.addConsole(new ConsoleTabbedView(parent)));
 		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> controller.addCanvasView(new CanvasTabbedView(parent)));
@@ -55,6 +60,15 @@ public class Workbook {
 		mainView.removeEmptyFolders();
 	}
 	
+	private ResultRenderer createResultRenders() {
+		ResultRenderer resultRenderer = null;
+		
+		resultRenderer = new StringRenderer(resultRenderer, mainController.getScriptController());
+		resultRenderer = new TableRenderer(resultRenderer, mainController.getScriptController());
+		
+		return resultRenderer;
+	}
+
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
 		mainView.registerView(type, defaultTitle, defaultPosition, factory);
 	}

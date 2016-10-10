@@ -23,11 +23,14 @@ import workbook.layout.GridDataBuilder;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.view.result.Result;
+import workbook.view.result.ResultRenderer;
 
 public class Cell {
 	private final Composite parent;
 	private final Label prompt;
 	private final Text command;
+	
+	private final ResultRenderer resultRenderer;
 	
 	private final List<Runnable> upCallbacks = new ArrayList<>();
 	private final List<Runnable> downCallbacks = new ArrayList<>();
@@ -39,14 +42,15 @@ public class Cell {
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	private Function<String, String> completionFunction = null;
 	
-	public Cell(Composite parent, ScriptController scriptController) {
+	public Cell(Composite parent, ScriptController scriptController, ResultRenderer resultRenderer) {
 		this.parent = parent;
+		this.resultRenderer = resultRenderer;
 		
 		Display display = parent.getDisplay();
 		
 		prompt = addLabel(parent, ">>>");
 		command = new Text(parent, SWT.NONE);
-		result = new Result(parent, scriptController);
+		result = new Result(parent, scriptController, resultRenderer);
 		
 		command.setFont(FontList.consolas10);
 		
