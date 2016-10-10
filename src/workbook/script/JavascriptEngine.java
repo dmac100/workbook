@@ -16,6 +16,8 @@ import javax.script.ScriptException;
 
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import syntaxhighlighter.brush.Brush;
+import syntaxhighlighter.brush.BrushJScript;
 
 public class JavascriptEngine implements Engine {
 	private final ScriptEngine engine;
@@ -29,6 +31,10 @@ public class JavascriptEngine implements Engine {
 		}
 		
 		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
+	}
+	
+	public Brush getBrush() {
+		return new BrushJScript();
 	}
 	
 	public void setGlobals(Map<String, Object> globals) {

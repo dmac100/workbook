@@ -8,8 +8,11 @@ import java.util.function.Consumer;
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.editor.reference.GlobalVariableReference;
 import workbook.editor.ui.Editor;
+import workbook.event.ScriptTypeChange;
 import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
@@ -21,6 +24,7 @@ import workbook.view.canvas.CanvasTabbedView;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
+	private final EventBus eventBus;
 	
 	private final List<Runnable> evalCallbacks = new ArrayList<>();
 	private final List<ConsoleTabbedView> consoles = new ArrayList<>();
@@ -30,8 +34,11 @@ public class MainController {
 	
 	private final StringBuilder outputBuffer = new StringBuilder();
 	private final StringBuilder errorBuffer = new StringBuilder();
+
 	
-	public MainController() {
+	public MainController(EventBus eventBus) {
+		this.eventBus = eventBus;
+		
 		scriptController.startQueueThread();
 		
 		evalConsumer = new ThrottledConsumer<>(100, true, result -> {
@@ -129,7 +136,12 @@ public class MainController {
 	}
 
 	public void setEngine(String scriptType) {
-		scriptController.setScriptType(scriptType);
+		scriptController.setScriptType(scriptType)
+			.thenRun(() -> {
+				scriptController.getScript(engine -> {
+					eventBus.post(new ScriptTypeChange(scriptType, engine.getBrush()));
+				});
+			});
 	}
 	
 	public void addVariable(String name, Object value) {

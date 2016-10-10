@@ -10,11 +10,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.EventBus;
+
 public class ConsoleTabbedView implements TabbedView {
 	private final Composite parent;
 	private final StyledText text;
 	
-	public ConsoleTabbedView(Composite parent) {
+	public ConsoleTabbedView(Composite parent, EventBus eventBus) {
 		this.parent = parent;
 		
 		text = new StyledText(parent, SWT.WRAP | SWT.V_SCROLL);

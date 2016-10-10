@@ -6,6 +6,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
@@ -13,7 +15,7 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final EditorText editorText;
 	
-	public StringTabbedEditor(Composite parent) {
+	public StringTabbedEditor(Composite parent, EventBus eventBus) {
 		this.parent = parent;
 		
 		this.editorText = new EditorText(parent);

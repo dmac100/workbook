@@ -19,6 +19,10 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+import workbook.event.ScriptTypeChange;
 import workbook.script.NameAndProperties;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
@@ -35,7 +39,7 @@ public class CanvasTabbedView implements TabbedView {
 	private Bounds bounds;
 	private String boundsFit = "extend";
 	
-	public CanvasTabbedView(Composite parent) {
+	public CanvasTabbedView(Composite parent, EventBus eventBus) {
 		folder = new TabFolder(parent, SWT.BOTTOM);
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);
@@ -66,6 +70,14 @@ public class CanvasTabbedView implements TabbedView {
 		});
 		
 		folder.setSelection(1);
+		
+		eventBus.register(this);
+		getControl().addDisposeListener(event -> eventBus.unregister(this));
+	}
+	
+	@Subscribe
+	public void onScriptTypeChange(ScriptTypeChange event) {
+		Display.getDefault().asyncExec(() -> editorText.setBrush(event.getBrush()));
 	}
 	
 	private void paint(Display display, GC gc) {

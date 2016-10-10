@@ -24,6 +24,8 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
 import workbook.script.ScriptController;
@@ -37,7 +39,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 	private final TreeEditor treeEditor;
 	private final List<List<String>> expandedItems = new ArrayList<>();
 	
-	public TreeTabbedEditor(Composite parent, ScriptController scriptController) {
+	public TreeTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
 		this.parent = parent;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		

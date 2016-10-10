@@ -19,6 +19,9 @@ import org.jruby.RubyArray;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 
+import syntaxhighlighter.brush.Brush;
+import syntaxhighlighter.brush.BrushRuby;
+
 public class RubyEngine implements Engine {
 	private final ScriptEngine engine;
 	private Map<String, Object> globals = new HashMap<>();
@@ -30,6 +33,10 @@ public class RubyEngine implements Engine {
 		if(engine == null) {
 			throw new RuntimeException("Can't create JRuby engine");
 		}
+	}
+	
+	public Brush getBrush() {
+		return new BrushRuby();
 	}
 	
 	public void setGlobals(Map<String, Object> globals) {

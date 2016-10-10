@@ -19,6 +19,9 @@ import javax.script.ScriptEngineManager;
 import org.codehaus.groovy.util.ManagedConcurrentValueMap;
 import org.codehaus.groovy.util.ReferenceBundle;
 
+import syntaxhighlighter.brush.Brush;
+import syntaxhighlighter.brush.BrushGroovy;
+
 public class GroovyEngine implements Engine {
 	private final ScriptEngine engine;
 	private Map<String, Object> globals = new HashMap<>();
@@ -28,6 +31,10 @@ public class GroovyEngine implements Engine {
 		if(engine == null) {
 			throw new RuntimeException("Can't create Groovy engine");
 		}
+	}
+	
+	public Brush getBrush() {
+		return new BrushGroovy();
 	}
 	
 	public void setGlobals(Map<String, Object> globals) {

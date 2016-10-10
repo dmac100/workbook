@@ -22,6 +22,8 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
 import workbook.script.ScriptController;
@@ -34,7 +36,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 	private final Table table;
 	private final TableEditor tableEditor;
 
-	public TableTabbedEditor(Composite parent, ScriptController scriptController) {
+	public TableTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
 		this.parent = parent;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		

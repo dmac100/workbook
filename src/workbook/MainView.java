@@ -20,6 +20,8 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.controller.MainController;
 import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
@@ -42,13 +44,15 @@ import workbook.view.canvas.CanvasTabbedView;
 public class MainView {
 	private final Shell shell;
 	private final MainController mainController;
+	private final EventBus eventBus;
 	private final TabbedViewLayout tabbedViewLayout;
 	private final TabbedViewFactory viewFactory;
 	
 	private String currentFileLocation = null;
 	
-	public MainView(Shell shell, MainController mainController) {
+	public MainView(Shell shell, MainController mainController, EventBus eventBus) {
 		this.shell = shell;
+		this.eventBus = eventBus;
 		
 		shell.setLayout(new FillLayout());
 

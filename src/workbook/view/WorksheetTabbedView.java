@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.layout.GridLayoutBuilder;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
@@ -36,7 +38,7 @@ public class WorksheetTabbedView implements TabbedView {
 	private final Completion completion = new Completion();
 	private final List<Cell> cells = new ArrayList<>();
 	
-	public WorksheetTabbedView(Composite parent, ScriptController scriptController, ResultRenderer resultRenderer) {
+	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
 		this.scriptController = scriptController;
 		this.resultRenderer = resultRenderer;
 		

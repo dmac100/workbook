@@ -7,8 +7,13 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+import workbook.event.ScriptTypeChange;
 import workbook.view.text.EditorText;
 
 public class ScriptTabbedView implements TabbedView {
@@ -16,10 +21,8 @@ public class ScriptTabbedView implements TabbedView {
 	
 	private Consumer<String> executeCallback;
 
-	public ScriptTabbedView(Composite parent) {
+	public ScriptTabbedView(Composite parent, EventBus eventBus) {
 		this.editorText = new EditorText(parent);
-		
-		//this.text = new StyledText(parent, SWT.V_SCROLL);
 		
 		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
 			public void verifyKey(VerifyEvent event) {
@@ -31,6 +34,14 @@ public class ScriptTabbedView implements TabbedView {
 				}
 			}
 		});
+		
+		eventBus.register(this);
+		getControl().addDisposeListener(event -> eventBus.unregister(this));
+	}
+	
+	@Subscribe
+	public void onScriptTypeChange(ScriptTypeChange event) {
+		Display.getDefault().asyncExec(() -> editorText.setBrush(event.getBrush()));
 	}
 	
 	public Control getControl() {

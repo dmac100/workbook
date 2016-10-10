@@ -32,7 +32,6 @@ import syntaxhighlight.Style;
 import syntaxhighlight.Theme;
 import syntaxhighlighter.SyntaxHighlighterParser;
 import syntaxhighlighter.brush.Brush;
-import syntaxhighlighter.brush.BrushJScript;
 import workbook.view.FontList;
 import workbook.view.canvas.ColorCache;
 
@@ -42,6 +41,7 @@ public class EditorText {
 	private final StyledTextCompletion completion;
 	private final EditFunctions editFunctions;
 	
+	private Brush brush = null;
 	private final Theme theme = new ThemeSublime();
 	private StyleRange[] syntaxHighlightingRanges = new StyleRange[0];
 	
@@ -417,8 +417,9 @@ public class EditorText {
 	 * Updates the syntax highlighting styles.
 	 */
 	private void updateSyntaxHighlightingRanges() {
+		if(brush == null) return;
+		
 		// Set syntax highlighting.
-		Brush brush = new BrushJScript();
 		SyntaxHighlighterParser parser = new SyntaxHighlighterParser(brush);
 		List<ParseResult> results = filterResults(parser.parse(null, styledText.getText()));
 		
@@ -543,6 +544,13 @@ public class EditorText {
 
 	public void convertTabsToSpaces() {
 		styledText.setText(styledText.getText().replaceAll("\t", "    "));
+	}
+	
+	public void setBrush(Brush brush) {
+		this.brush = brush;
+		updateSyntaxHighlightingRanges();
+		refreshStyle();
+		refreshLineStyles();
 	}
 
 	public StyledText getStyledText() {

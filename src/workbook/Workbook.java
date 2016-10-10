@@ -8,6 +8,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.jdom2.JDOMException;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.controller.MainController;
 import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
@@ -25,29 +27,22 @@ import workbook.view.result.TableRenderer;
 
 public class Workbook {
 	private final MainController mainController;
+	private final EventBus eventBus;
 	private final MainView mainView;
 	
 	private final Display display;
 	private final Shell shell;
 	
 	public Workbook() {
-		mainController = new MainController();
+		eventBus = new EventBus();
+		mainController = new MainController(eventBus);
 		
 		display = new Display();
 		shell = new Shell(display);
 		
-		mainView = new MainView(shell, mainController);
+		mainView = new MainView(shell, mainController, eventBus);
 		
-		ResultRenderer resultRenderer = createResultRenders();
-		
-		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> controller.addWorksheet(new WorksheetTabbedView(parent, mainController.getScriptController(), resultRenderer)));
-		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> controller.addScriptEditor(new ScriptTabbedView(parent)));
-		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> controller.addConsole(new ConsoleTabbedView(parent)));
-		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> controller.addCanvasView(new CanvasTabbedView(parent)));
-		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new StringTabbedEditor(parent)));
-		mainView.registerView(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TableTabbedEditor(parent, mainController.getScriptController())));
-		mainView.registerView(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new TreeTabbedEditor(parent, mainController.getScriptController())));
-		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> controller.addEditor(new HexTabbedEditor(parent)));
+		registerViews();
 		
 		mainView.addView(WorksheetTabbedView.class);
 		//mainView.addView(ScriptTabbedView.class);
@@ -60,6 +55,42 @@ public class Workbook {
 		mainView.removeEmptyFolders();
 	}
 	
+	private void registerViews() {
+		ResultRenderer resultRenderer = createResultRenders();
+		
+		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> {
+			return controller.addWorksheet(new WorksheetTabbedView(parent, eventBus, mainController.getScriptController(), resultRenderer));
+		});
+		
+		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> {
+			return controller.addScriptEditor(new ScriptTabbedView(parent, eventBus));
+		});
+		
+		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> {
+			return controller.addConsole(new ConsoleTabbedView(parent, eventBus));
+		});
+		
+		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addCanvasView(new CanvasTabbedView(parent, eventBus));
+		});
+		
+		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addEditor(new StringTabbedEditor(parent, eventBus));
+		});
+		
+		mainView.registerView(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addEditor(new TableTabbedEditor(parent, eventBus, mainController.getScriptController()));
+		});
+		
+		mainView.registerView(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addEditor(new TreeTabbedEditor(parent, eventBus, mainController.getScriptController()));
+		});
+		
+		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addEditor(new HexTabbedEditor(parent, eventBus));
+		});
+	}
+
 	private ResultRenderer createResultRenders() {
 		ResultRenderer resultRenderer = null;
 		

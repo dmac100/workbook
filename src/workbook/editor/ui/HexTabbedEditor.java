@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.google.common.eventbus.EventBus;
+
 import workbook.view.FontList;
 import workbook.view.TabbedView;
 
@@ -206,7 +208,7 @@ public class HexTabbedEditor extends Editor implements TabbedView {
 	private final Text littleEndianHex;
 	private final Text bigEndianHex;
 
-	public HexTabbedEditor(Composite parent) {
+	public HexTabbedEditor(Composite parent, EventBus eventBus) {
 		this.parent = parent;
 		
 		parent.setLayout(new FillLayout());
