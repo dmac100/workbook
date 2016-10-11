@@ -13,16 +13,19 @@ import org.jdom2.Element;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import workbook.event.ScriptTypeChange;
+import workbook.event.ScriptTypeChangeEvent;
+import workbook.model.Model;
 import workbook.view.text.EditorText;
 
 public class ScriptTabbedView implements TabbedView {
 	private final EditorText editorText;
+	private final Model model;
 	
 	private Consumer<String> executeCallback;
 
-	public ScriptTabbedView(Composite parent, EventBus eventBus) {
+	public ScriptTabbedView(Composite parent, EventBus eventBus, Model model) {
 		this.editorText = new EditorText(parent);
+		this.model = model;
 		
 		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
 			public void verifyKey(VerifyEvent event) {
@@ -35,13 +38,19 @@ public class ScriptTabbedView implements TabbedView {
 			}
 		});
 		
+		refreshBrush();
+		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	@Subscribe
-	public void onScriptTypeChange(ScriptTypeChange event) {
-		Display.getDefault().asyncExec(() -> editorText.setBrush(event.getBrush()));
+	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
+		refreshBrush();
+	}
+	
+	private void refreshBrush() {
+		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
 	}
 	
 	public Control getControl() {

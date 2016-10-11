@@ -22,7 +22,8 @@ import org.jdom2.Element;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import workbook.event.ScriptTypeChange;
+import workbook.event.ScriptTypeChangeEvent;
+import workbook.model.Model;
 import workbook.script.NameAndProperties;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
@@ -32,6 +33,7 @@ public class CanvasTabbedView implements TabbedView {
 	private final EditorText editorText;
 	private final Canvas canvas;
 	private final ColorCache colorCache;
+	private final Model model;
 	
 	private final List<CanvasItem> canvasItems = new ArrayList<>();
 	private Consumer<String> executeCallback;
@@ -39,8 +41,9 @@ public class CanvasTabbedView implements TabbedView {
 	private Bounds bounds;
 	private String boundsFit = "extend";
 	
-	public CanvasTabbedView(Composite parent, EventBus eventBus) {
+	public CanvasTabbedView(Composite parent, EventBus eventBus, Model model) {
 		folder = new TabFolder(parent, SWT.BOTTOM);
+		this.model = model;
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);
 		designTab.setText("Design");
@@ -71,13 +74,19 @@ public class CanvasTabbedView implements TabbedView {
 		
 		folder.setSelection(1);
 		
+		refreshBrush();
+		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	@Subscribe
-	public void onScriptTypeChange(ScriptTypeChange event) {
-		Display.getDefault().asyncExec(() -> editorText.setBrush(event.getBrush()));
+	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
+		refreshBrush();
+	}
+	
+	private void refreshBrush() {
+		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
 	}
 	
 	private void paint(Display display, GC gc) {

@@ -15,6 +15,7 @@ import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
+import workbook.model.Model;
 import workbook.view.ConsoleTabbedView;
 import workbook.view.ScriptTabbedView;
 import workbook.view.TabbedView;
@@ -28,6 +29,7 @@ import workbook.view.result.TableRenderer;
 public class Workbook {
 	private final MainController mainController;
 	private final EventBus eventBus;
+	private final Model model;
 	private final MainView mainView;
 	
 	private final Display display;
@@ -35,7 +37,8 @@ public class Workbook {
 	
 	public Workbook() {
 		eventBus = new EventBus();
-		mainController = new MainController(eventBus);
+		model = new Model();
+		mainController = new MainController(eventBus, model);
 		
 		display = new Display();
 		shell = new Shell(display);
@@ -63,7 +66,7 @@ public class Workbook {
 		});
 		
 		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> {
-			return controller.addScriptEditor(new ScriptTabbedView(parent, eventBus));
+			return controller.addScriptEditor(new ScriptTabbedView(parent, eventBus, model));
 		});
 		
 		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> {
@@ -71,7 +74,7 @@ public class Workbook {
 		});
 		
 		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addCanvasView(new CanvasTabbedView(parent, eventBus));
+			return controller.addCanvasView(new CanvasTabbedView(parent, eventBus, model));
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {

@@ -12,7 +12,9 @@ import com.google.common.eventbus.EventBus;
 
 import workbook.editor.reference.GlobalVariableReference;
 import workbook.editor.ui.Editor;
-import workbook.event.ScriptTypeChange;
+import workbook.event.ScriptTypeChangeEvent;
+import workbook.model.Model;
+import workbook.script.Engine;
 import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
@@ -25,6 +27,7 @@ import workbook.view.canvas.CanvasTabbedView;
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
 	private final EventBus eventBus;
+	private final Model model;
 	
 	private final List<Runnable> evalCallbacks = new ArrayList<>();
 	private final List<ConsoleTabbedView> consoles = new ArrayList<>();
@@ -36,8 +39,9 @@ public class MainController {
 	private final StringBuilder errorBuffer = new StringBuilder();
 
 	
-	public MainController(EventBus eventBus) {
+	public MainController(EventBus eventBus, Model model) {
 		this.eventBus = eventBus;
+		this.model = model;
 		
 		scriptController.startQueueThread();
 		
@@ -134,12 +138,18 @@ public class MainController {
 	public ScriptController getScriptController() {
 		return scriptController;
 	}
+	
+	public void registerEngine(String scriptType, Engine engine) {
+		scriptController.addEngine(scriptType, engine);
+	}
 
 	public void setEngine(String scriptType) {
 		scriptController.setScriptType(scriptType)
 			.thenRun(() -> {
 				scriptController.getScript(engine -> {
-					eventBus.post(new ScriptTypeChange(scriptType, engine.getBrush()));
+					model.setScriptType(scriptType);
+					model.setBrush(engine.getBrush());
+					eventBus.post(new ScriptTypeChangeEvent());
 				});
 			});
 	}
