@@ -129,8 +129,12 @@ public class Workbook {
 		shell.open();
 
 		while(!shell.isDisposed()) {
-			if(!display.readAndDispatch()) {
-				display.sleep();
+			try {
+				if(!display.readAndDispatch()) {
+					display.sleep();
+				}
+			} catch(Throwable e) {
+				e.printStackTrace();
 			}
 		}
 
