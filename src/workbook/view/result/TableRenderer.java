@@ -16,6 +16,7 @@ import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
+import workbook.util.TypeUtil;
 
 public class TableRenderer implements ResultRenderer {
 	private final ResultRenderer next;
@@ -33,12 +34,14 @@ public class TableRenderer implements ResultRenderer {
 			Engine script = scriptController.getScriptSync();
 			
 			if(value != null) {
-				Map<String, List<Reference>> columns = scriptTableUtil.getTable(value);
-				
-				if(scriptTableUtil.isIterable(value)) {
-					if(!columns.isEmpty()) {
-						addTable(parent, value, callback);
-						return null;
+				if(TypeUtil.isListOf(value, item -> item instanceof Map)) {
+					Map<String, List<Reference>> columns = scriptTableUtil.getTable(value);
+					
+					if(scriptTableUtil.isIterable(value)) {
+						if(!columns.isEmpty()) {
+							addTable(parent, value, callback);
+							return null;
+						}
 					}
 				}
 			}
