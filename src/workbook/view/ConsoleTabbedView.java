@@ -55,6 +55,7 @@ public class ConsoleTabbedView implements TabbedView {
 			int start = text.getCharCount();
 			
 			text.append(error);
+			text.setTopIndex(text.getLineCount() - 1);
 			
 			StyleRange styleRange = new StyleRange();
 			styleRange.start = start;
