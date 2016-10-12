@@ -12,6 +12,7 @@ import com.google.common.eventbus.EventBus;
 
 import workbook.controller.MainController;
 import workbook.editor.ui.HexTabbedEditor;
+import workbook.editor.ui.PolygonTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
@@ -91,6 +92,10 @@ public class Workbook {
 		
 		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> {
 			return controller.addEditor(new HexTabbedEditor(parent, eventBus));
+		});
+		
+		mainView.registerView(PolygonTabbedEditor.class, "PolygonEditor", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addEditor(new PolygonTabbedEditor(parent, eventBus));
 		});
 	}
 
