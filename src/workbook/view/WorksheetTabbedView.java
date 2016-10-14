@@ -12,8 +12,6 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -25,6 +23,7 @@ import com.google.common.eventbus.EventBus;
 import workbook.layout.GridLayoutBuilder;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
+import workbook.util.ScrollUtil;
 import workbook.view.result.ResultRenderer;
 
 public class WorksheetTabbedView implements TabbedView {
@@ -82,7 +81,7 @@ public class WorksheetTabbedView implements TabbedView {
 	}
 	
 	private Cell addPrompt() {
-		final Cell cell = new Cell(cellsComposite, scriptController, resultRenderer);
+		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, scriptController, resultRenderer);
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
 		cell.setCompletionFunction(text -> {
@@ -101,7 +100,7 @@ public class WorksheetTabbedView implements TabbedView {
 				int index = cells.indexOf(cell) - 1;
 				index = Math.max(index, 0);
 				cells.get(index).setFocus();
-				scrollTo(cells.get(index).getBounds());
+				ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 			}
 		});
 		
@@ -110,7 +109,7 @@ public class WorksheetTabbedView implements TabbedView {
 				int index = cells.indexOf(cell) + 1;
 				index = Math.min(index, cells.size() - 1);
 				cells.get(index).setFocus();
-				scrollTo(cells.get(index).getBounds());
+				ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 			}
 		});
 		
@@ -123,7 +122,7 @@ public class WorksheetTabbedView implements TabbedView {
 					cells.get(index).setFocus();
 					cell.dispose();
 					pack();
-					scrollTo(cells.get(index).getBounds());
+					ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 				}
 			}
 		});
@@ -135,7 +134,7 @@ public class WorksheetTabbedView implements TabbedView {
 				} else {
 					int index = cells.indexOf(cell) + 1;
 					cells.get(index).setFocus();
-					scrollTo(cells.get(index).getBounds());
+					ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 				}
 			}
 		});
@@ -152,7 +151,7 @@ public class WorksheetTabbedView implements TabbedView {
 		cell.setFocus();
 		pack();
 		
-		scrollTo(cell.getBounds());
+		ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cell.getBounds());
 		
 		return cell;
 	}
@@ -161,30 +160,12 @@ public class WorksheetTabbedView implements TabbedView {
 		if(!cells.isEmpty()) {
 			int index = cells.size() - 1;
 			cells.get(index).setFocus();
-			scrollTo(cells.get(index).getBounds());
+			ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 		}
 	}
 	
 	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
 		this.executeFunction = executeFunction;
-	}
-	
-	private void scrollTo(Rectangle bounds) {
-		Rectangle area = scrolledCellsComposite.getClientArea();
-		Point origin = scrolledCellsComposite.getOrigin();
-		if(origin.x > bounds.x) {
-			origin.x = Math.max(0, bounds.x);
-		}
-		if(origin.y > bounds.y) {
-			origin.y = Math.max(0, bounds.y);
-		}
-		if(origin.x + area.width < bounds.x + bounds.width) {
-			origin.x = Math.max(0, bounds.x + bounds.width - area.width);
-		}
-		if(origin.y + area.height < bounds.y + bounds.height) {
-			origin.y = Math.max(0, bounds.y + bounds.height - area.height);
-		}
-		scrolledCellsComposite.setOrigin(origin);
 	}
 	
 	public void pack() {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.Text;
 import workbook.layout.GridDataBuilder;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
+import workbook.util.ScrollUtil;
 import workbook.view.result.Result;
 import workbook.view.result.ResultRenderer;
 
@@ -42,7 +44,7 @@ public class Cell {
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	private Function<String, String> completionFunction = null;
 	
-	public Cell(Composite parent, ScriptController scriptController, ResultRenderer resultRenderer) {
+	public Cell(Composite parent, ScrolledComposite scrolledComposite, ScriptController scriptController, ResultRenderer resultRenderer) {
 		this.parent = parent;
 		this.resultRenderer = resultRenderer;
 		
@@ -118,6 +120,13 @@ public class Cell {
 				} else if(event.keyCode == SWT.ARROW_DOWN) {
 					downCallbacks.forEach(Runnable::run);
 				}
+			}
+		});
+		
+		command.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent event) {
+				int x = command.getCaretLocation().x + command.getBounds().x + getBounds().x;
+				ScrollUtil.scrollHorizontallyTo(scrolledComposite, new Rectangle(x - 50, 0, 100, 0));
 			}
 		});
 		
