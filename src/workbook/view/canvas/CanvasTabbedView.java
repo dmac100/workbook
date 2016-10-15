@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -141,19 +142,20 @@ public class CanvasTabbedView implements TabbedView {
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);
 		designTab.setText("Design");
-		this.editorText = new EditorText(folder);
-		designTab.setControl(editorText.getControl());
 		
 		ColorCache colorCache = new ColorCache(Display.getDefault());
 		
+		SashForm designSashForm = new SashForm(folder, SWT.NONE);
+		this.editorText = new EditorText(designSashForm);
+		designTab.setControl(designSashForm);
+		CanvasView designTabCanvasView = new CanvasView(designSashForm, colorCache);
+		canvasViews.add(designTabCanvasView);
+		
 		TabItem viewTab = new TabItem(folder, SWT.NONE);
 		viewTab.setText("View");
-		
-		CanvasView canvasView = new CanvasView(folder, colorCache);
-		
-		canvasViews.add(canvasView);
-		
-		viewTab.setControl(canvasView.getControl());
+		CanvasView viewTabCanvasView = new CanvasView(folder, colorCache);
+		canvasViews.add(viewTabCanvasView);
+		viewTab.setControl(viewTabCanvasView.getControl());
 		
 		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
 			public void verifyKey(VerifyEvent event) {
@@ -170,6 +172,8 @@ public class CanvasTabbedView implements TabbedView {
 		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
+		
+		editorText.getControl().addDisposeListener(event -> colorCache.dispose());
 	}
 	
 	@Subscribe
