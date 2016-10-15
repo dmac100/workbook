@@ -30,75 +30,24 @@ import workbook.script.NameAndProperties;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
-public class CanvasTabbedView implements TabbedView {
-	private final TabFolder folder;
-	private final EditorText editorText;
+class CanvasView {
 	private final Canvas canvas;
 	private final ColorCache colorCache;
-	private final Model model;
-	
-	private final List<CanvasItem> canvasItems = new ArrayList<>();
-	private Consumer<String> executeCallback;
 	
 	private Bounds bounds;
 	private String boundsFit = "extend";
 	
-	public CanvasTabbedView(Composite parent, EventBus eventBus, Model model) {
-		folder = new TabFolder(parent, SWT.BOTTOM);
-		this.model = model;
-		
-		TabItem designTab = new TabItem(folder, SWT.NONE);
-		designTab.setText("Design");
-		this.editorText = new EditorText(folder);
-		designTab.setControl(editorText.getControl());
-		
-		TabItem viewTab = new TabItem(folder, SWT.NONE);
-		viewTab.setText("View");
-		this.canvas = new Canvas(folder, SWT.DOUBLE_BUFFERED);
-		viewTab.setControl(canvas);
-		
-		colorCache = new ColorCache(canvas.getDisplay());
-		
-		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
-			public void verifyKey(VerifyEvent event) {
-				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
-					refresh();
-					event.doit = false;
-				}
-			}
-		});
+	private final List<CanvasItem> canvasItems = new ArrayList<>();
+	
+	public CanvasView(Composite parent, ColorCache colorCache) {
+		this.colorCache = colorCache;
+		this.canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED);
 		
 		canvas.addPaintListener(new PaintListener() {
 			public void paintControl(PaintEvent event) {
 				paint(event.display, event.gc);
 			}
 		});
-		
-		folder.setSelection(1);
-		
-		refreshBrush();
-		
-		eventBus.register(this);
-		getControl().addDisposeListener(event -> eventBus.unregister(this));
-	}
-	
-	@Subscribe
-	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
-		refreshBrush();
-	}
-	
-	@Subscribe
-	public void onMinorRefresh(MinorRefreshEvent event) {
-		refresh();
-	}
-	
-	@Subscribe
-	public void onMajorRefresh(MajorRefreshEvent event) {
-		refresh();
-	}
-	
-	private void refreshBrush() {
-		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
 	}
 	
 	private void paint(Display display, GC gc) {
@@ -161,19 +110,7 @@ public class CanvasTabbedView implements TabbedView {
 		gc.setForeground(colorCache.getColor(150, 150, 150));
 		gc.drawRoundRectangle(canvasMargin / 2, canvasMargin / 2, canvasWidth - canvasMargin, canvasHeight - canvasMargin, 3, 3);
 	}
-	
-	public void setExecuteCallback(Consumer<String> executeCallback) {
-		this.executeCallback = executeCallback;
-	}
-	
-	public void refresh() {
-		canvas.getDisplay().asyncExec(() -> {
-			if(executeCallback != null) {
-				executeCallback.accept(editorText.getText());
-			}
-		});
-	}
-	
+
 	public void setCanvasItems(List<NameAndProperties> values) {
 		canvas.getDisplay().asyncExec(() -> {
 			canvasItems.clear();
@@ -182,6 +119,92 @@ public class CanvasTabbedView implements TabbedView {
 			}
 			canvas.redraw();
 		});
+	}
+	
+	public Control getControl() {
+		return canvas;
+	}
+}
+
+public class CanvasTabbedView implements TabbedView {
+	private final TabFolder folder;
+	private final EditorText editorText;
+	private final Model model;
+	
+	private Consumer<String> executeCallback;
+	
+	private final List<CanvasView> canvasViews = new ArrayList<>();
+	
+	public CanvasTabbedView(Composite parent, EventBus eventBus, Model model) {
+		folder = new TabFolder(parent, SWT.BOTTOM);
+		this.model = model;
+		
+		TabItem designTab = new TabItem(folder, SWT.NONE);
+		designTab.setText("Design");
+		this.editorText = new EditorText(folder);
+		designTab.setControl(editorText.getControl());
+		
+		ColorCache colorCache = new ColorCache(Display.getDefault());
+		
+		TabItem viewTab = new TabItem(folder, SWT.NONE);
+		viewTab.setText("View");
+		
+		CanvasView canvasView = new CanvasView(folder, colorCache);
+		
+		canvasViews.add(canvasView);
+		
+		viewTab.setControl(canvasView.getControl());
+		
+		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
+			public void verifyKey(VerifyEvent event) {
+				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+					refresh();
+					event.doit = false;
+				}
+			}
+		});
+		
+		folder.setSelection(1);
+		
+		refreshBrush();
+		
+		eventBus.register(this);
+		getControl().addDisposeListener(event -> eventBus.unregister(this));
+	}
+	
+	@Subscribe
+	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
+		refreshBrush();
+	}
+	
+	@Subscribe
+	public void onMinorRefresh(MinorRefreshEvent event) {
+		refresh();
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		refresh();
+	}
+	
+	private void refreshBrush() {
+		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
+	}
+	
+	public void setExecuteCallback(Consumer<String> executeCallback) {
+		this.executeCallback = executeCallback;
+	}
+	
+	public void refresh() {
+		Display.getDefault().asyncExec(() -> {
+			if(executeCallback != null) {
+				executeCallback.accept(editorText.getText());
+			}
+		});
+	}
+	
+	public void setCanvasItems(List<NameAndProperties> values) {
+		canvasViews.forEach(canvasView -> canvasView.setCanvasItems(values));
 	}
 
 	public Control getControl() {
