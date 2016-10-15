@@ -28,6 +28,7 @@ import workbook.editor.ui.PolygonTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
+import workbook.event.MajorRefreshEvent;
 import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
@@ -119,6 +120,7 @@ public class MainView {
 			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
 		
 		menuBuilder.addMenu("&Script")
+			.addItem("Refresh All\tCtrl+Shift+Enter").addSelectionListener(() -> eventBus.post(new MajorRefreshEvent())).setAccelerator(SWT.CONTROL | SWT.SHIFT | '\r')
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt());
 		
 		menuBuilder.build();
