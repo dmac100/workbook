@@ -2,6 +2,7 @@ package workbook.view.result;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -15,7 +16,12 @@ public class Result {
 	private final ResultRenderer resultRenderer;
 
 	public Result(Composite parent, ScriptController scriptController, ResultRenderer resultRenderer) {
-		composite = new Composite(parent, SWT.NONE);
+		composite = new Composite(parent, SWT.NONE) {
+			public Point computeSize(int wHint, int hHint, boolean changed) {
+				Point size = super.computeSize(wHint, hHint, changed);
+				return new Point(size.x, Math.min(size.y, 400));
+			}
+		};
 		composite.setLayout(new FillLayout());
 		
 		this.resultRenderer = resultRenderer;

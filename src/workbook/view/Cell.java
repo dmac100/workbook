@@ -131,7 +131,7 @@ public class Cell {
 		});
 		
 		command.setLayoutData(new GridDataBuilder().fillHorizontal().build());
-		result.asComposite().setLayoutData(new GridDataBuilder().fillHorizontal().horizontalSpan(2).build());
+		result.asComposite().setLayoutData(new GridDataBuilder().horizontalSpan(2).build());
 		
 		prompt.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 		prompt.setForeground(display.getSystemColor(SWT.COLOR_DARK_CYAN));
