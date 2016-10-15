@@ -22,6 +22,8 @@ import org.jdom2.Element;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import workbook.event.MajorRefreshEvent;
+import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.script.NameAndProperties;
@@ -83,6 +85,16 @@ public class CanvasTabbedView implements TabbedView {
 	@Subscribe
 	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
 		refreshBrush();
+	}
+	
+	@Subscribe
+	public void onMinorRefresh(MinorRefreshEvent event) {
+		refresh();
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		refresh();
 	}
 	
 	private void refreshBrush() {

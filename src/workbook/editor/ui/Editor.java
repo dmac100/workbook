@@ -5,7 +5,11 @@ import java.util.function.Function;
 import org.eclipse.swt.widgets.Control;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.Subscribe;
+
 import workbook.editor.reference.Reference;
+import workbook.event.MajorRefreshEvent;
+import workbook.event.MinorRefreshEvent;
 
 public abstract class Editor {
 	private Function<String, Reference> referenceFunction;
@@ -14,6 +18,16 @@ public abstract class Editor {
 	
 	public abstract void readValue();
 	public abstract Control getControl();
+	
+	@Subscribe
+	public void onMinorRefresh(MinorRefreshEvent event) {
+		readValue();
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		readValue();
+	}
 	
 	public void setExpression(String expression) {
 		this.expression = expression;

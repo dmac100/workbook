@@ -8,21 +8,28 @@ import org.eclipse.swt.widgets.Display;
 
 import com.google.common.eventbus.EventBus;
 
+import workbook.event.MinorRefreshEvent;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
 public class StringTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
+	private final EventBus eventBus;
 	private final EditorText editorText;
+	
+	private boolean disableModifyCallback;
 	
 	public StringTabbedEditor(Composite parent, EventBus eventBus) {
 		this.parent = parent;
+		this.eventBus = eventBus;
 		
 		this.editorText = new EditorText(parent);
 		
 		editorText.getStyledText().addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
-				writeValue();
+				if(!disableModifyCallback) {
+					writeValue();
+				}
 			}
 		});
 	}
@@ -33,7 +40,9 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 				if(value instanceof String) {
 					Display.getDefault().asyncExec(() -> {
 						if(!editorText.getControl().isDisposed()) {
+							disableModifyCallback = true;
 							editorText.setText((String)value);
+							disableModifyCallback = false;
 						}
 					});
 				}
@@ -43,7 +52,9 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	
 	public void writeValue() {
 		if(reference != null) {
-			reference.set(editorText.getText());
+			reference.set(editorText.getText()).thenRun(() -> {
+				eventBus.post(new MinorRefreshEvent());
+			});
 		}
 	}
 

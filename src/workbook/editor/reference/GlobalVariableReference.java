@@ -14,11 +14,11 @@ public class GlobalVariableReference extends AbstractScriptReference {
 
 	@Override
 	protected void setSync(Engine script, Object value) throws Exception {
-		scriptController.getScriptSync().setVariable(expression, value);
+		script.setVariable(expression, value);
 	}
 
 	@Override
 	protected Object getSync(Engine script) throws Exception {
-		return scriptController.getScriptSync().getVariable(expression);
+		return script.getVariable(expression);
 	}
 }

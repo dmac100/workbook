@@ -19,7 +19,10 @@ import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
+import workbook.event.MajorRefreshEvent;
+import workbook.event.MinorRefreshEvent;
 import workbook.layout.GridLayoutBuilder;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
@@ -27,6 +30,7 @@ import workbook.util.ScrollUtil;
 import workbook.view.result.ResultRenderer;
 
 public class WorksheetTabbedView implements TabbedView {
+	private final EventBus eventBus;
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	private final ScriptController scriptController;
@@ -38,6 +42,7 @@ public class WorksheetTabbedView implements TabbedView {
 	private final List<Cell> cells = new ArrayList<>();
 	
 	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
+		this.eventBus = eventBus;
 		this.scriptController = scriptController;
 		this.resultRenderer = resultRenderer;
 		
@@ -64,6 +69,9 @@ public class WorksheetTabbedView implements TabbedView {
 		});
 
 		addPrompt();
+		
+		eventBus.register(this);
+		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	private static ScrolledComposite createScrolledComposite(Composite parent) {
@@ -78,6 +86,15 @@ public class WorksheetTabbedView implements TabbedView {
 			}
 		});
 		return scrolledComposite;
+	}
+	
+	@Subscribe
+	public void onMinorRefresh(MinorRefreshEvent event) {
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		refresh();
 	}
 	
 	private Cell addPrompt() {
@@ -136,14 +153,14 @@ public class WorksheetTabbedView implements TabbedView {
 					cells.get(index).setFocus();
 					ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 				}
+				eventBus.post(new MinorRefreshEvent());
 			}
 		});
 		
 		cell.addRunAllCallback(new Runnable() {
 			public void run() {
-				for(Cell prompt:cells) {
-					prompt.evaluate(false);
-				}
+				refresh();
+				eventBus.post(new MinorRefreshEvent());
 			}
 		});
 		
@@ -154,6 +171,14 @@ public class WorksheetTabbedView implements TabbedView {
 		ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cell.getBounds());
 		
 		return cell;
+	}
+	
+	private void refresh() {
+		Display.getDefault().asyncExec(() -> {
+			for(Cell prompt:cells) {
+				prompt.evaluate(false);
+			}
+		});
 	}
 	
 	private void selectLast() {

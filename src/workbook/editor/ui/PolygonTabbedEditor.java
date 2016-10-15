@@ -1,6 +1,7 @@
 package workbook.editor.ui;
 
 import static workbook.util.TypeUtil.isListOf;
+import static workbook.util.TypeUtil.isListOfOrEmpty;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ import org.eclipse.swt.widgets.Display;
 
 import com.google.common.eventbus.EventBus;
 
+import workbook.event.MinorRefreshEvent;
+import workbook.util.TypeUtil;
 import workbook.view.TabbedView;
 
 class PolygonCanvas {
@@ -376,11 +379,13 @@ class PolygonCanvas {
 }
 
 public class PolygonTabbedEditor extends Editor implements TabbedView {
+	private final EventBus eventBus;
 	private final Composite control;
 	private final PolygonCanvas canvas; 
 	
 	public PolygonTabbedEditor(Composite parent, EventBus eventBus) {
 		this.control = new Composite(parent, SWT.NONE);
+		this.eventBus = eventBus;
 		
 		GridLayout gridLayout = new GridLayout(1, false);
 		control.setLayout(gridLayout);
@@ -439,12 +444,14 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 	
 	public void writeValue() {
 		if(reference != null) {
-			reference.set(canvas.getPolygons());
+			reference.set(canvas.getPolygons()).thenRun(() ->
+				eventBus.post(new MinorRefreshEvent())
+			);
 		}
 	}
 
 	private static boolean isPolygonList(Object list) {
-		return isListOf(list, sublist -> isListOf(sublist, x -> x instanceof Point));
+		return isListOfOrEmpty(list, sublist -> isListOf(sublist, x -> x instanceof Point));
 	}
 
 	public Control getControl() {

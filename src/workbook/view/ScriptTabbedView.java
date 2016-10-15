@@ -13,6 +13,8 @@ import org.jdom2.Element;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import workbook.event.MajorRefreshEvent;
+import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.view.text.EditorText;
@@ -30,10 +32,8 @@ public class ScriptTabbedView implements TabbedView {
 		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
 			public void verifyKey(VerifyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
-					if(executeCallback != null) {
-						executeCallback.accept(editorText.getText());
-						event.doit = false;
-					}
+					refresh();
+					event.doit = false;
 				}
 			}
 		});
@@ -49,6 +49,23 @@ public class ScriptTabbedView implements TabbedView {
 		refreshBrush();
 	}
 	
+	@Subscribe
+	public void onMinorRefresh(MinorRefreshEvent event) {
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		refresh();
+	}
+	
+	private void refresh() {
+		Display.getDefault().asyncExec(() -> {
+			if(executeCallback != null) {
+				executeCallback.accept(editorText.getText());
+			}
+		});
+	}
+
 	private void refreshBrush() {
 		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
 	}

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
@@ -29,10 +28,8 @@ public class MainController {
 	private final EventBus eventBus;
 	private final Model model;
 	
-	private final List<Runnable> evalCallbacks = new ArrayList<>();
 	private final List<ConsoleTabbedView> consoles = new ArrayList<>();
 	
-	private final Consumer<Object> evalConsumer;
 	private final Consumer<Void> flushConsoleConsumer;
 	
 	private final StringBuilder outputBuffer = new StringBuilder();
@@ -45,24 +42,17 @@ public class MainController {
 		
 		scriptController.startQueueThread();
 		
-		evalConsumer = new ThrottledConsumer<>(100, true, result -> {
-			Display.getDefault().asyncExec(
-				() -> onEval(result)
-			);
-		});
-		
 		flushConsoleConsumer = new ThrottledConsumer<Void>(100, true, result -> flushConsole());
 	}
 	
 	public void clear() {
-		evalCallbacks.clear();
 		consoles.clear();
 	}
 
 	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet) {
 		worksheet.setExecuteFunction(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
-			result.thenAccept(evalConsumer);
+			result.thenAccept(value -> scriptController.setVariable("_", value));
 			return result;
 		});
 		return worksheet;
@@ -71,15 +61,8 @@ public class MainController {
 	public ScriptTabbedView addScriptEditor(ScriptTabbedView scriptEditor) {
 		scriptEditor.setExecuteCallback(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
-			result.thenAccept(evalConsumer);
 		});
 		return scriptEditor;
-	}
-	
-	private void onEval(Object result) {
-		scriptController
-			.setVariable("_", result)
-			.thenRun(() -> evalCallbacks.forEach(Runnable::run));
 	}
 	
 	private void addOutput(String output) {
@@ -112,8 +95,6 @@ public class MainController {
 	}
 	
 	public CanvasTabbedView addCanvasView(CanvasTabbedView canvas) {
-		canvas.getControl().addDisposeListener(event -> evalCallbacks.remove(canvas));
-		evalCallbacks.add(canvas::refresh);
 		canvas.setExecuteCallback(command -> {
 			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
 			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames, this::addOutput, this::addError);
@@ -126,8 +107,8 @@ public class MainController {
 
 	public <T extends Editor> T addEditor(T editor) {
 		editor.setReferenceFunction(expression -> new GlobalVariableReference(scriptController, expression));
-		editor.getControl().addDisposeListener(event -> evalCallbacks.remove(editor));
-		evalCallbacks.add(editor::readValue);
+		eventBus.register(editor);
+		editor.getControl().addDisposeListener(event -> eventBus.unregister(editor));
 		return editor;
 	}
 	

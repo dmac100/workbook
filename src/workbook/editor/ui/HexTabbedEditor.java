@@ -194,6 +194,7 @@ class HexView {
 
 public class HexTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
+	private final EventBus eventBus;
 	private final HexView hexView;
 	private final SashForm sashForm;
 	
@@ -210,6 +211,7 @@ public class HexTabbedEditor extends Editor implements TabbedView {
 
 	public HexTabbedEditor(Composite parent, EventBus eventBus) {
 		this.parent = parent;
+		this.eventBus = eventBus;
 		
 		parent.setLayout(new FillLayout());
 		

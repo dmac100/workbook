@@ -28,11 +28,13 @@ import com.google.common.eventbus.EventBus;
 
 import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
+import workbook.event.MinorRefreshEvent;
 import workbook.script.ScriptController;
 import workbook.view.TabbedView;
 
 public class TreeTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
+	private final EventBus eventBus;
 	private final ScriptTableUtil scriptTableUtil;
 	
 	private final Tree tree;
@@ -41,6 +43,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 	
 	public TreeTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
 		this.parent = parent;
+		this.eventBus = eventBus;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);
 		
 		this.tree = new Tree(parent, SWT.NONE);
@@ -258,6 +261,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		Reference reference = (Reference) treeItem.getData();
 		if(reference != null) {
 			reference.set(value).thenRunAlways(() -> {
+				eventBus.post(new MinorRefreshEvent());
 				readItemValue(treeItem, reference);
 			});
 		}
