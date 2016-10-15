@@ -399,13 +399,6 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 		canvas.getControl().setLayoutData(layout1);
 		toolbar.setLayoutData(layout2);
 		
-		canvas.setPolygons(Arrays.asList(Arrays.asList(
-			new Point(50, 50),
-			new Point(150, 50),
-			new Point(150, 150),
-			new Point(50, 150)
-		)));
-		
 		canvas.setChangeCallback(this::writeValue);
 	}
 	
