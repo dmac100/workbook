@@ -13,6 +13,8 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DragDetectEvent;
 import org.eclipse.swt.events.DragDetectListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -21,6 +23,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tracker;
 import org.jdom2.Element;
 
@@ -413,6 +417,7 @@ public class TabbedViewLayout {
 	private void setupTabFolder(CTabFolder folder) {
 		folder.setSimple(false);
 		folder.setTabHeight(24);
+		folder.setMenu(createMenu(folder));
 		
 		if(folder.getItemCount() > 0) {
 			folder.setSelection(0);
@@ -427,6 +432,25 @@ public class TabbedViewLayout {
 		addDragDetectListener(folder);
 	}
 	
+	private Menu createMenu(CTabFolder folder) {
+		Menu menu = new Menu(folder);
+		MenuItem menuItem = new MenuItem(menu, SWT.NONE);
+		menuItem.setText("Rename...");
+		menuItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				CTabItem tabItem = folder.getSelection();
+				if(tabItem != null) {
+					String name = InputDialog.open(folder.getShell(), "Name", "Name");
+					if(name != null) {
+						tabItem.setText(name);
+					}
+				}
+			}
+		});
+		
+		return menu;
+	}
+
 	/**
 	 * Sets default properties for a tab item.
 	 */
