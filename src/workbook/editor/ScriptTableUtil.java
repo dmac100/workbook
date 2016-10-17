@@ -15,6 +15,9 @@ import workbook.editor.reference.Reference;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
 
+/**
+ * Converts an object into a table based on the properties within it.
+ */
 public class ScriptTableUtil {
 	private final ScriptController scriptController;
 

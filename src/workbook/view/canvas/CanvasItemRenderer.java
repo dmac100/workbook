@@ -6,6 +6,9 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Transform;
 
+/**
+ * Renders an individual item given by a NameAndProperties object.
+ */
 public class CanvasItemRenderer {
 	private final ColorCache colorCache;
 

@@ -29,6 +29,9 @@ import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.result.ResultRenderer;
 
+/**
+ * A view that displays a worksheet allowing the entering of commands and the inline display of their results.
+ */
 public class WorksheetTabbedView implements TabbedView {
 	private final EventBus eventBus;
 	private final ScrolledComposite scrolledCellsComposite;

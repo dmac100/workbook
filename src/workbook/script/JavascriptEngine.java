@@ -19,6 +19,9 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import syntaxhighlighter.brush.Brush;
 import syntaxhighlighter.brush.BrushJScript;
 
+/**
+ * An engine using the JavaScript scripting language.
+ */
 public class JavascriptEngine implements Engine {
 	private final ScriptEngine engine;
 	private Map<String, Object> globals = new HashMap<>();

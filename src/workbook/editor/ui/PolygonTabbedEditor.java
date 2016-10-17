@@ -5,7 +5,6 @@ import static workbook.util.TypeUtil.isListOfOrEmpty;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -28,7 +27,6 @@ import org.eclipse.swt.widgets.Display;
 import com.google.common.eventbus.EventBus;
 
 import workbook.event.MinorRefreshEvent;
-import workbook.util.TypeUtil;
 import workbook.view.TabbedView;
 
 class PolygonCanvas {
@@ -40,6 +38,9 @@ class PolygonCanvas {
 		public default void mouseDoubleClicked(MouseEvent event) {}
 	}
 	
+	/**
+	 * Adds a point to a polygon on click, and completes the polygon on double-click.
+	 */
 	private class AddPolygonTool implements Tool {
 		private boolean addingPolygon = false;
 		
@@ -68,6 +69,9 @@ class PolygonCanvas {
 		}
 	}
 	
+	/**
+	 * Removes the nearest polygon on click.
+	 */
 	private class RemovePolygonTool implements Tool {
 		private int polygonIndex = -1;
 		
@@ -85,6 +89,9 @@ class PolygonCanvas {
 			}
 		}
 
+		/**
+		 * Sets polygonIndex to the nearest polygon.
+		 */
 		private void findRemovePolygon(int x, int y) {
 			double minDistance = Double.MAX_VALUE;
 			
@@ -103,7 +110,10 @@ class PolygonCanvas {
 			}
 		}
 	}
-	
+
+	/**
+	 * Moves points when dragged, inserts points when clicked next to a line.
+	 */
 	private class ModifyPointsTool implements Tool {
 		private int polygonIndex = -1;
 		private int pointIndex = -1;
@@ -121,6 +131,7 @@ class PolygonCanvas {
 					findInsertPoint(x, y);
 					
 					if(polygonIndex != -1) {
+						// Add new point where clicked.
 						List<Point> polygon = polygons.get(polygonIndex);
 						polygon.add(pointIndex, new Point(x, y));
 						
@@ -132,8 +143,10 @@ class PolygonCanvas {
 				
 				if(polygonIndex != -1) {
 					List<Point> polygon = polygons.get(polygonIndex);
+					// Remove nearest point on click.
 					polygon.remove(pointIndex);
 					
+					// Remove polygon is now empty.
 					if(polygon.size() == 0) {
 						polygons.remove(polygonIndex);
 					}
@@ -145,6 +158,9 @@ class PolygonCanvas {
 			}
 		}
 		
+		/**
+		 * Sets polygonIndex and pointIndex to any point at the given location.
+		 */
 		private void findMovePoint(int x, int y) {
 			for(int i = 0; i < polygons.size(); i++) {
 				List<Point> polygon = polygons.get(i);
@@ -159,6 +175,9 @@ class PolygonCanvas {
 			}
 		}
 		
+		/**
+		 * Sets polygonIndex and pointIndex to point next to the nearest line.
+		 */
 		private void findInsertPoint(int x, int y) {
 			double minDistance = Double.MAX_VALUE;
 			
@@ -178,6 +197,9 @@ class PolygonCanvas {
 			}
 		}
 		
+		/**
+		 * Sets polygonIndex and pointIndex to the nearest point.
+		 */
 		private void findDeletePoint(int x, int y) {
 			double minDistance = Double.MAX_VALUE;
 			
@@ -204,6 +226,7 @@ class PolygonCanvas {
 			if(polygonIndex >= 0 && polygonIndex < polygons.size()) {
 				List<Point> polygon = polygons.get(polygonIndex);
 				if(pointIndex >= 0 && pointIndex < polygon.size()) {
+					// Move point that is being dragged.
 					polygon.set(pointIndex, new Point(x, y));
 					
 					tooltip = "(" + x + ", " + y + ")";
@@ -378,6 +401,9 @@ class PolygonCanvas {
 	}
 }
 
+/**
+ * Edits a list of polygons, where each polygon is a list of points.
+ */
 public class PolygonTabbedEditor extends Editor implements TabbedView {
 	private final EventBus eventBus;
 	private final Composite control;

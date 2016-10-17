@@ -35,6 +35,9 @@ import syntaxhighlighter.brush.Brush;
 import workbook.view.FontList;
 import workbook.view.canvas.ColorCache;
 
+/**
+ * A view to edit text with extra editing features to allow easier editing of sourcecode.
+ */
 public class EditorText {
 	private final StyledText styledText;
 	private final ColorCache colorCache;

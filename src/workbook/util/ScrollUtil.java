@@ -5,19 +5,28 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
 public class ScrollUtil {
+	/**
+	 * Scrolls a ScrolledComposite so that bounds is visible.
+	 */
 	public static void scrollTo(ScrolledComposite scrolledComposite, Rectangle bounds) {
 		scrollTo(scrolledComposite, bounds, true, true);
 	}
 	
+	/**
+	 * Scrolls a ScrolledComposite horizontally so that bounds is visible.
+	 */
 	public static void scrollHorizontallyTo(ScrolledComposite scrolledComposite, Rectangle bounds) {
 		scrollTo(scrolledComposite, bounds, true, false);
 	}
 	
+	/**
+	 * Scrolls a ScrolledComposite vertically so that bounds is visible.
+	 */
 	public static void scrollVerticallyTo(ScrolledComposite scrolledComposite, Rectangle bounds) {
 		scrollTo(scrolledComposite, bounds, false, true);
 	}
 	
-	public static void scrollTo(ScrolledComposite scrolledComposite, Rectangle bounds, boolean scrollHorizontally, boolean scrollVertically) {
+	private static void scrollTo(ScrolledComposite scrolledComposite, Rectangle bounds, boolean scrollHorizontally, boolean scrollVertically) {
 		Rectangle area = scrolledComposite.getClientArea();
 		Point origin = scrolledComposite.getOrigin();
 		if(scrollHorizontally) {

@@ -1,6 +1,10 @@
 package workbook.layout;
+
 import org.eclipse.swt.layout.GridData;
 
+/**
+ * Builds a GridData.
+ */
 public class GridDataBuilder {
 	private final GridData gridData = new GridData();
 	

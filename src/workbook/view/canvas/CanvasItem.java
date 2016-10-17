@@ -3,6 +3,9 @@ package workbook.view.canvas;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * An individual item to render onto a canvas. 
+ */
 public class CanvasItem {
 	private final String name;
 	private final Map<String, String> values;

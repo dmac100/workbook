@@ -6,6 +6,9 @@ import java.util.function.Consumer;
 
 import syntaxhighlighter.brush.Brush;
 
+/**
+ * An engine that allows the running of commands, and querying of their results.
+ */
 public interface Engine {
 	public Brush getBrush();
 	public void setGlobals(Map<String, Object> globals);

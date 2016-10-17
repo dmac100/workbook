@@ -6,6 +6,9 @@ import java.util.function.Supplier;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
 
+/**
+ * A reference to a single value within a Map.
+ */
 public class MapPropertyReference extends AbstractScriptReference {
 	private final Map<Object, Object> object;
 	private final Object property;

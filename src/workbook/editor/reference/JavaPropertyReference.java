@@ -5,6 +5,9 @@ import java.lang.reflect.Method;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
 
+/**
+ * A reference to a Java property through a pair of get and set methods.
+ */
 public class JavaPropertyReference extends AbstractScriptReference {
 	private final Method getMethod;
 	private final Method setMethod;

@@ -28,6 +28,10 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tracker;
 import org.jdom2.Element;
 
+/**
+ * A tabbed view layout that displays views arranged in tabs and allows the dragged of tabs between views
+ * to split and merge tab folders together.
+ */
 public class TabbedViewLayout {
 	public enum FolderPosition {
 		LEFT, RIGHT, BOTTOM

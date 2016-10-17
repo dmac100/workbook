@@ -1,6 +1,10 @@
 package workbook.layout;
+
 import org.eclipse.swt.layout.GridLayout;
 
+/**
+ * Builds a GridLayout.
+ */
 public class GridLayoutBuilder {
 	private final GridLayout gridLayout = new GridLayout();
 	

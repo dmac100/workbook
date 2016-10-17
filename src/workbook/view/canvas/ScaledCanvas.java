@@ -6,6 +6,10 @@ import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.TextLayout;
 import org.eclipse.swt.graphics.Transform;
 
+/**
+ * Draws items onto a graphics context, scalled by a transformation matrix.
+ * Also extends bounds to cover all the content drawn.
+ */
 public class ScaledCanvas {
 	private final GC gc;
 	private final Bounds bounds;

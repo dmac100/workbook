@@ -3,6 +3,9 @@ package workbook.editor.reference;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
 
+/**
+ * A reference to a property within a script object.
+ */
 public class ScriptPropertyReference extends AbstractScriptReference {
 	private final Object object;
 	private final String property;

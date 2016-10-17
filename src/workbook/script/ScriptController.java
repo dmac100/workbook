@@ -10,6 +10,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Manages the interaction with the script engines. The script engine runs on a separate thread, and all interactions with it
+ * must run on the same thread. This controller allows posting events to a queue so that they will run on the correct thread,
+ * and return their results as a ScriptFuture.
+ */
 public class ScriptController {
 	private final BlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 	

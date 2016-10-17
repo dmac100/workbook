@@ -32,6 +32,9 @@ import workbook.event.MinorRefreshEvent;
 import workbook.script.ScriptController;
 import workbook.view.TabbedView;
 
+/**
+ * An editor that allows editing of properties within an object in a tree.
+ */
 public class TreeTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final EventBus eventBus;
@@ -68,6 +71,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		checkBounds(tree.getItems(), event);
 	}
 
+	/**
+	 * Checks whether the mouse event is within any items, and edits that item if so.
+	 */
 	private void checkBounds(TreeItem[] items, MouseEvent event) {
 		Rectangle clientArea = tree.getClientArea();
 		for(TreeItem item:items) {
@@ -86,6 +92,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 
+	/**
+	 * Activates an editor to edit the value of a tree item.
+	 */
 	private void editValue(TreeItem item) {
 		Text text = new Text(tree, SWT.NONE);
 		
@@ -94,6 +103,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		text.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent event) {
 				if(!text.isDisposed()) {
+					// Save value and dispose editor.
 					if(!text.getText().equals(originalValue)) {
 						writeItemValue(item, text.getText());
 					}
@@ -106,6 +116,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 			public void keyTraversed(TraverseEvent event) {
 				if(!text.isDisposed()) {
 					if(event.detail == SWT.TRAVERSE_RETURN) {
+						// Save value and dispose editor.
 						if(!text.getText().equals(originalValue)) {
 							writeItemValue(item, text.getText());
 						}
@@ -114,6 +125,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 					}
 					
 					if(event.detail == SWT.TRAVERSE_ESCAPE) {
+						// Cancel editing and dispose editor.
 						text.dispose();
 						event.doit = false;
 					}
@@ -127,6 +139,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		text.setFocus();
 	}
 	
+	/**
+	 * Refresh subitems when tree item is expanded.
+	 */
 	private void expandItem(TreeItem treeItem) {
 		treeItem.setExpanded(true);
 		Reference reference = (Reference) treeItem.getData();
@@ -142,6 +157,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Sets the root tree items based on the current referenced value.
+	 */
 	public void readValue() {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
@@ -157,6 +175,10 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Sets expandedItems to list of all tree items that are currently expanded, where each item is the full path of the item
+	 * made up of the text content of the item and all parent items.
+	 */
 	private void getExpandedItems(List<List<String>> expandedItems, List<String> expandedPrefix, TreeItem[] treeItems) {
 		for(TreeItem treeItem:treeItems) {
 			if(treeItem.getExpanded()) {
@@ -169,6 +191,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Sets the root tree items to rows.
+	 */
 	private void setTreeItems(Map<String, Reference> rows) {
 		expandedItems.clear();
 		getExpandedItems(expandedItems, new ArrayList<>(), tree.getItems());
@@ -190,6 +215,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		addTreeItems(tree, rows, expandedItems);
 	}
 
+	/**
+	 * Adds tree items for rows to the tree.
+	 */
 	private void addTreeItems(Tree parent, Map<String, Reference> rows, List<List<String>> expandedItem) {
 		TreeItem[] oldItems = parent.getItems();
 		
@@ -206,7 +234,10 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 			treeItem.dispose();
 		}
 	}
-	
+
+	/**
+	 * Adds tree items for rows to parent.
+	 */
 	private void addTreeItems(TreeItem parent, Map<String, Reference> rows) {
 		TreeItem[] oldItems = parent.getItems();
 		
@@ -222,6 +253,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Sets the treeItem value by reading the reference value.
+	 */
 	public void readItemValue(TreeItem treeItem, Reference reference) {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
@@ -243,6 +277,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Returns whether a treeItem should be expanded based on whether it is represented in expandedItems.
+	 */
 	private boolean shouldExpand(TreeItem treeItem) {
 		List<String> path = new ArrayList<>();
 		TreeItem parent = treeItem.getParentItem();
@@ -255,6 +292,9 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		return expandedItems.contains(path);
 	}
 
+	/**
+	 * Writes value to the reference of treeItem.
+	 */
 	private void writeItemValue(TreeItem treeItem, String value) {
 		treeItem.setText(1, "");
 		

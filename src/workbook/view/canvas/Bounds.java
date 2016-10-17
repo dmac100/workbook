@@ -1,5 +1,8 @@
 package workbook.view.canvas;
 
+/**
+ * Represents a rectangular bounding-box.
+ */
 public class Bounds {
 	private float minX;
 	private float minY;
@@ -40,10 +43,16 @@ public class Bounds {
 		return maxY;
 	}
 	
+	/**
+	 * Extends the bounding-box to cover the given values.
+	 */
 	public void extendBounds(double minX, double minY, double maxX, double maxY) {
 		extendBounds((float) minX, (float) minY, (float) maxX, (float) maxY);
 	}
 	
+	/**
+	 * Extends the bounding-box to cover the given values.
+	 */
 	public void extendBounds(float minX, float minY, float maxX, float maxY) {
 		this.minX = Math.min(this.minX, minX);
 		this.minY = Math.min(this.minY, minY);

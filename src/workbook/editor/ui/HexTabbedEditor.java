@@ -192,6 +192,9 @@ class HexView {
 	}
 }
 
+/**
+ * A hex editor that shows the bytes within a byte array.
+ */
 public class HexTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final EventBus eventBus;

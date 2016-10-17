@@ -27,6 +27,9 @@ import workbook.view.result.ResultRenderer;
 import workbook.view.result.StringRenderer;
 import workbook.view.result.TableRenderer;
 
+/**
+ * Main entry point to this workbook. Creates the views and starts the workbook.
+ */
 public class Workbook {
 	private final MainController mainController;
 	private final EventBus eventBus;

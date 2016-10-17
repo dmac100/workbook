@@ -18,6 +18,9 @@ import workbook.script.Engine;
 import workbook.script.ScriptController;
 import workbook.util.TypeUtil;
 
+/**
+ * Renders any result that is a List of Maps as a table.
+ */
 public class TableRenderer implements ResultRenderer {
 	private final ResultRenderer next;
 	private final ScriptController scriptController;

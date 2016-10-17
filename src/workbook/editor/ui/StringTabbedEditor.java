@@ -12,6 +12,9 @@ import workbook.event.MinorRefreshEvent;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
+/**
+ * An editor that shows and allows editing of a String.
+ */
 public class StringTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final EventBus eventBus;

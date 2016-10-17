@@ -1,6 +1,10 @@
 package workbook.layout;
+
 import org.eclipse.swt.layout.FillLayout;
 
+/**
+ * Builds a FillLayout.
+ */
 public class FillLayoutBuilder {
 	private final FillLayout fillLayout = new FillLayout();
 	

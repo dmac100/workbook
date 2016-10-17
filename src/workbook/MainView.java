@@ -43,6 +43,9 @@ import workbook.view.TabbedViewLayout.FolderPosition;
 import workbook.view.WorksheetTabbedView;
 import workbook.view.canvas.CanvasTabbedView;
 
+/**
+ * Main view for the workbook that contains all the controls of this program.
+ */
 public class MainView {
 	private final Shell shell;
 	private final MainController mainController;

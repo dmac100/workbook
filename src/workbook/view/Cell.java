@@ -27,6 +27,9 @@ import workbook.util.ScrollUtil;
 import workbook.view.result.Result;
 import workbook.view.result.ResultRenderer;
 
+/**
+ * A view that displays a single cell in a worksheets, with a prompt, command, and result view.
+ */
 public class Cell {
 	private final Composite parent;
 	private final Label prompt;

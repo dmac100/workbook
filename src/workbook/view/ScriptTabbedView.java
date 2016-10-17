@@ -19,6 +19,9 @@ import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.view.text.EditorText;
 
+/**
+ * A view that allows the editing and running of a script.
+ */
 public class ScriptTabbedView implements TabbedView {
 	private final EditorText editorText;
 	private final Model model;

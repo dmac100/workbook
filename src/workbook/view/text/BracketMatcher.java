@@ -2,6 +2,9 @@ package workbook.view.text;
 
 import com.google.common.base.Optional;
 
+/**
+ * Finds matches brackets in a text string.
+ */
 public class BracketMatcher {
 	/**
 	 * Returns the position of the matching bracket for the char at offset, if there is

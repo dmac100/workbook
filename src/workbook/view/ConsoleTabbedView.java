@@ -12,6 +12,9 @@ import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
 
+/**
+ * A view that displays the console output.
+ */
 public class ConsoleTabbedView implements TabbedView {
 	private final Composite parent;
 	private final StyledText text;

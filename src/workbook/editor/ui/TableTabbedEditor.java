@@ -30,6 +30,9 @@ import workbook.event.MinorRefreshEvent;
 import workbook.script.ScriptController;
 import workbook.view.TabbedView;
 
+/**
+ * An editor that allows editing of properties within an object in a table.
+ */
 public class TableTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final EventBus eventBus;
@@ -54,7 +57,10 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			}
 		});
 	}
-	
+
+	/**
+	 * Creates an editor for an item if the mouse event is within that item.
+	 */
 	private void onMouseDown(MouseEvent event) {
 		Rectangle clientArea = table.getClientArea();
 		for(int y = table.getTopIndex(); y < table.getItemCount(); y++) {
@@ -76,16 +82,20 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 
-	private void editValue(TableItem item, int x) {
+	/**
+	 * Creates an editor for an item, at a column.
+	 */
+	private void editValue(TableItem item, int column) {
 		Text text = new Text(table, SWT.NONE);
 		
-		String originalValue = item.getText(x);
+		String originalValue = item.getText(column);
 		
 		text.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent event) {
 				if(!text.isDisposed()) {
+					// Cancel and dispose editor.
 					if(!text.getText().equals(originalValue)) {
-						writeItemValue(item, x, text.getText());
+						writeItemValue(item, column, text.getText());
 					}
 					text.dispose();
 				}
@@ -96,14 +106,16 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			public void keyTraversed(TraverseEvent event) {
 				if(!text.isDisposed()) {
 					if(event.detail == SWT.TRAVERSE_RETURN) {
+						// Save value and dispose editor.
 						if(!text.getText().equals(originalValue)) {
-							writeItemValue(item, x, text.getText());
+							writeItemValue(item, column, text.getText());
 						}
 						text.dispose();
 						event.doit = false;
 					}
 					
 					if(event.detail == SWT.TRAVERSE_ESCAPE) {
+						// Cancel and dispose editor.
 						text.dispose();
 						event.doit = false;
 					}
@@ -111,12 +123,15 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			}
 		});
 		
-		tableEditor.setEditor(text, item, x);
+		tableEditor.setEditor(text, item, column);
 		text.setText(originalValue);
 		text.selectAll();
 		text.setFocus();
 	}
 	
+	/**
+	 * Sets the table items based on the current reference value.
+	 */
 	public void readValue() {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
@@ -132,6 +147,9 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Adds the table items based on columns.
+	 */
 	private void setTableData(Map<String, List<Reference>> columns) {
 		for(TableItem tableItem:table.getItems()) {
 			tableItem.dispose();
@@ -181,6 +199,9 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 	
+	/**
+	 * Reads the table item value from the reference.
+	 */
 	public void readItemValue(TableItem tableItem, int index, Reference reference) {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
@@ -193,7 +214,10 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			});
 		}
 	}
-	
+
+	/**
+	 * Writes vaue to the reference of tableItem.
+	 */
 	private void writeItemValue(TableItem tableItem, int index, String value) {
 		tableItem.setText(index, "");
 		

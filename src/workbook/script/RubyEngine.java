@@ -22,6 +22,9 @@ import org.jruby.RubyObject;
 import syntaxhighlighter.brush.Brush;
 import syntaxhighlighter.brush.BrushRuby;
 
+/**
+ * An engine using the Ruby scripting language.
+ */
 public class RubyEngine implements Engine {
 	private final ScriptEngine engine;
 	private Map<String, Object> globals = new HashMap<>();

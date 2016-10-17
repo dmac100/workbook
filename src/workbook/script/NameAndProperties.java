@@ -3,6 +3,9 @@ package workbook.script;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An item that has a name and list of properties as key-value pairs.
+ */
 public class NameAndProperties {
 	private final String name;
 	private final Map<String, String> properties;

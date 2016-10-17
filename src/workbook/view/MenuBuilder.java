@@ -10,6 +10,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+/**
+ * Builds a menu.
+ */
 public class MenuBuilder {
 	private Shell shell;
 	private Menu menubar;

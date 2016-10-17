@@ -31,6 +31,11 @@ import workbook.script.NameAndProperties;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
+/**
+ * A canvas that shows objects described by a list of NameAndProperties values. These values
+ * are rendered by a CanvasItemRenderer based on their name and properties. The canvas will
+ * scale to make all the drawn items visible.
+ */
 class CanvasView {
 	private final Canvas canvas;
 	private final ColorCache colorCache;
@@ -112,6 +117,9 @@ class CanvasView {
 		gc.drawRoundRectangle(canvasMargin / 2, canvasMargin / 2, canvasWidth - canvasMargin, canvasHeight - canvasMargin, 3, 3);
 	}
 
+	/**
+	 * Sets the values to render on the canvas.
+	 */
 	public void setCanvasItems(List<NameAndProperties> values) {
 		canvas.getDisplay().asyncExec(() -> {
 			canvasItems.clear();
@@ -127,6 +135,10 @@ class CanvasView {
 	}
 }
 
+/**
+ * Displays a canvas view, that has an editor to write a script that draws to a canvas, and
+ * a canvas that shows the drawn content.
+ */
 public class CanvasTabbedView implements TabbedView {
 	private final TabFolder folder;
 	private final EditorText editorText;
@@ -145,12 +157,14 @@ public class CanvasTabbedView implements TabbedView {
 		
 		ColorCache colorCache = new ColorCache(Display.getDefault());
 		
+		// Add design tab with canvas and editor.
 		SashForm designSashForm = new SashForm(folder, SWT.NONE);
 		this.editorText = new EditorText(designSashForm);
 		designTab.setControl(designSashForm);
 		CanvasView designTabCanvasView = new CanvasView(designSashForm, colorCache);
 		canvasViews.add(designTabCanvasView);
 		
+		// Add view tab with canvas only.
 		TabItem viewTab = new TabItem(folder, SWT.NONE);
 		viewTab.setText("View");
 		CanvasView viewTabCanvasView = new CanvasView(folder, colorCache);

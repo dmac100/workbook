@@ -10,6 +10,9 @@ import org.eclipse.swt.widgets.Control;
 import workbook.script.ScriptController;
 import workbook.view.FontList;
 
+/**
+ * A view that displays the result of a script command.
+ */
 public class Result {
 	private final ScriptController scriptController;
 	private final Composite composite;

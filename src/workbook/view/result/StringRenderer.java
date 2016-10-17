@@ -8,6 +8,9 @@ import org.eclipse.swt.widgets.Display;
 import workbook.script.ScriptController;
 import workbook.view.FontList;
 
+/**
+ * Renders results as a String.
+ */
 public class StringRenderer implements ResultRenderer {
 	private final ResultRenderer next;
 	private final ScriptController scriptController;

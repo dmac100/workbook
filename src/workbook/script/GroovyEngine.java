@@ -22,6 +22,9 @@ import org.codehaus.groovy.util.ReferenceBundle;
 import syntaxhighlighter.brush.Brush;
 import syntaxhighlighter.brush.BrushGroovy;
 
+/**
+ * An engine using the Groovy scripting language.
+ */
 public class GroovyEngine implements Engine {
 	private final ScriptEngine engine;
 	private Map<String, Object> globals = new HashMap<>();
