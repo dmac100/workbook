@@ -36,32 +36,39 @@ public class Completion {
 			completionPrefix = suffix;
 		}
 		
-		Set<String> wordsWithoutPrefix = new TreeSet<>(words);
-		wordsWithoutPrefix.remove(completionPrefix);
+		List<String> list = createCompletionList(words, completionPrefix);
 		
-		// Create list giving order of potential completions.
-		List<String> list = new ArrayList<>();
-		list.addAll(wordsWithoutPrefix);
-		list.add(completionPrefix);
-		list.addAll(wordsWithoutPrefix);
+		boolean useNextCompletion = lastCompletion.isEmpty();
 		
-		boolean startCompletion = false;
+		// Find the completion occuring after the last completion, or the first completion if there isn't any last completion.
 		for(String word:list) {
 			if(word.toLowerCase().startsWith(completionPrefix.toLowerCase())) {
-				if(word.equals(lastCompletion) || lastCompletion.isEmpty()) {
-					if(lastCompletion.isEmpty()) {
-						lastCompletion = word;
-						return prefix + word;
-					}
-					startCompletion = true;
-				} else if(startCompletion) {
+				if(useNextCompletion) {
 					lastCompletion = word;
 					return prefix + word;
+				}
+				
+				if(word.equals(lastCompletion)) {
+					useNextCompletion = true;
 				}
 			}
 		}
 		
 		return text;
+	}
+
+	/**
+	 * Returns a list of words that will be completed in order.
+	 */
+	private List<String> createCompletionList(Set<String> words, String completionPrefix) {
+		Set<String> wordsWithoutPrefix = new TreeSet<>(words);
+		wordsWithoutPrefix.remove(completionPrefix);
+		
+		List<String> list = new ArrayList<>();
+		list.addAll(wordsWithoutPrefix);
+		list.add(completionPrefix);
+		list.addAll(wordsWithoutPrefix);
+		return list;
 	}
 
 	public void dismiss() {
