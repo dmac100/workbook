@@ -115,16 +115,17 @@ public class MainView {
 			.addItem("New Polygon Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(PolygonTabbedEditor.class, expression)));
 		
 		menuBuilder.addMenu("&Console")
-			.addSubmenu("Engine", submenu -> submenu
-				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine("Javascript"))
-				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine("Ruby"))
-				.addItem("Groovy").addSelectionListener(() -> mainController.setEngine("Groovy"))
-			)
 			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
 		
 		menuBuilder.addMenu("&Script")
 			.addItem("Refresh All\tCtrl+Shift+Enter").addSelectionListener(() -> eventBus.post(new MajorRefreshEvent())).setAccelerator(SWT.CONTROL | SWT.SHIFT | '\r')
-			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt());
+			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt())
+			.addSeparator()
+			.addSubmenu("Engine", submenu -> submenu
+				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine("Javascript"))
+				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine("Ruby"))
+				.addItem("Groovy").addSelectionListener(() -> mainController.setEngine("Groovy"))
+			);
 		
 		menuBuilder.build();
 	}
