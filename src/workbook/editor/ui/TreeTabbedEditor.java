@@ -99,13 +99,14 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		Text text = new Text(tree, SWT.NONE);
 		
 		String originalValue = item.getText(1);
+		Object itemData = item.getData();
 		
 		text.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent event) {
 				if(!text.isDisposed()) {
 					// Save value and dispose editor.
 					if(!text.getText().equals(originalValue)) {
-						writeItemValue(item, text.getText());
+						writeItemValue(item, itemData, text.getText());
 					}
 					text.dispose();
 				}
@@ -118,7 +119,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 					if(event.detail == SWT.TRAVERSE_RETURN) {
 						// Save value and dispose editor.
 						if(!text.getText().equals(originalValue)) {
-							writeItemValue(item, text.getText());
+							writeItemValue(item, itemData, text.getText());
 						}
 						text.dispose();
 						event.doit = false;
@@ -295,10 +296,12 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 	/**
 	 * Writes value to the reference of treeItem.
 	 */
-	private void writeItemValue(TreeItem treeItem, String value) {
-		treeItem.setText(1, "");
+	private void writeItemValue(TreeItem treeItem, Object itemData, String value) {
+		if(!treeItem.isDisposed()) {
+			treeItem.setText(1, "");
+		}
 		
-		Reference reference = (Reference) treeItem.getData();
+		Reference reference = (Reference) itemData;
 		if(reference != null) {
 			reference.set(value).thenRunAlways(() -> {
 				eventBus.post(new MinorRefreshEvent());

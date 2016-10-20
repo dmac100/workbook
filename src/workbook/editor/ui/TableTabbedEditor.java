@@ -89,13 +89,14 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		Text text = new Text(table, SWT.NONE);
 		
 		String originalValue = item.getText(column);
+		Object itemData = item.getData();
 		
 		text.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent event) {
 				if(!text.isDisposed()) {
-					// Cancel and dispose editor.
+					// Save value and dispose editor.
 					if(!text.getText().equals(originalValue)) {
-						writeItemValue(item, column, text.getText());
+						writeItemValue(item, itemData, column, text.getText());
 					}
 					text.dispose();
 				}
@@ -108,7 +109,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 					if(event.detail == SWT.TRAVERSE_RETURN) {
 						// Save value and dispose editor.
 						if(!text.getText().equals(originalValue)) {
-							writeItemValue(item, column, text.getText());
+							writeItemValue(item, itemData, column, text.getText());
 						}
 						text.dispose();
 						event.doit = false;
@@ -218,10 +219,12 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 	/**
 	 * Writes vaue to the reference of tableItem.
 	 */
-	private void writeItemValue(TableItem tableItem, int index, String value) {
-		tableItem.setText(index, "");
+	private void writeItemValue(TableItem tableItem, Object itemData, int index, String value) {
+		if(!tableItem.isDisposed()) {
+			tableItem.setText(index, "");
+		}
 		
-		List<Reference> references = (List<Reference>) tableItem.getData();
+		List<Reference> references = (List<Reference>) itemData;
 		if(references != null && index < references.size()) {
 			Reference reference = references.get(index);
 			if(reference != null) {
