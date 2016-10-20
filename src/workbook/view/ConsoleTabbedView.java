@@ -5,9 +5,13 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
@@ -77,5 +81,15 @@ public class ConsoleTabbedView implements TabbedView {
 	}
 
 	public void deserialize(Element element) {
+	}
+
+	public void createMenu(Menu menu) {
+		MenuItem clearItem = new MenuItem(menu, SWT.NONE);
+		clearItem.setText("Clear");
+		clearItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				clear();
+			}
+		});
 	}
 }

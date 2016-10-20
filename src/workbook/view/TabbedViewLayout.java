@@ -13,6 +13,8 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DragDetectEvent;
 import org.eclipse.swt.events.DragDetectListener;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -421,7 +423,7 @@ public class TabbedViewLayout {
 	private void setupTabFolder(CTabFolder folder) {
 		folder.setSimple(false);
 		folder.setTabHeight(24);
-		folder.setMenu(createMenu(folder));
+		folder.setMenu(createContextMenu(folder));
 		
 		if(folder.getItemCount() > 0) {
 			folder.setSelection(0);
@@ -436,18 +438,36 @@ public class TabbedViewLayout {
 		addDragDetectListener(folder);
 	}
 	
-	private Menu createMenu(CTabFolder folder) {
+	private Menu createContextMenu(CTabFolder folder) {
 		Menu menu = new Menu(folder);
-		MenuItem menuItem = new MenuItem(menu, SWT.NONE);
-		menuItem.setText("Rename...");
-		menuItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
+		
+		menu.addMenuListener(new MenuAdapter() {
+			public void menuShown(MenuEvent event) {
+				// Dispose old items.
+				for(MenuItem menuItems:menu.getItems()) {
+					menuItems.dispose();
+				}
+				
+				// Create default items.
+				MenuItem renameItem = new MenuItem(menu, SWT.NONE);
+				renameItem.setText("Rename...");
+				renameItem.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent event) {
+						CTabItem tabItem = folder.getSelection();
+						if(tabItem != null) {
+							String name = InputDialog.open(folder.getShell(), "Name", "Name");
+							if(name != null) {
+								tabItem.setText(name);
+							}
+						}
+					}
+				});
+				
+				// Create menu for specific item.
 				CTabItem tabItem = folder.getSelection();
 				if(tabItem != null) {
-					String name = InputDialog.open(folder.getShell(), "Name", "Name");
-					if(name != null) {
-						tabItem.setText(name);
-					}
+					TabbedView tabbedView = ((TabbedView) tabItem.getData());
+					tabbedView.createMenu(menu);
 				}
 			}
 		});

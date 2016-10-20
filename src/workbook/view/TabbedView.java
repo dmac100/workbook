@@ -1,6 +1,7 @@
 package workbook.view;
 
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 import org.jdom2.Element;
 
 /**
@@ -21,4 +22,9 @@ public interface TabbedView {
 	 * Deserializes the contents of this view from an XML element.
 	 */
 	public void deserialize(Element element);
+
+	/**
+	 * Adds any menu items for this view to the menu.
+	 */
+	public default void createMenu(Menu menu) {}
 }

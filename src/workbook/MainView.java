@@ -114,9 +114,6 @@ public class MainView {
 			.addItem("New Hex Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(HexTabbedEditor.class, expression)))
 			.addItem("New Polygon Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(PolygonTabbedEditor.class, expression)));
 		
-		menuBuilder.addMenu("&Console")
-			.addItem("Clear").addSelectionListener(() -> mainController.clearConsole());
-		
 		menuBuilder.addMenu("&Script")
 			.addItem("Refresh All\tCtrl+Shift+Enter").addSelectionListener(() -> eventBus.post(new MajorRefreshEvent())).setAccelerator(SWT.CONTROL | SWT.SHIFT | '\r')
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt())
