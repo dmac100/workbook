@@ -24,7 +24,6 @@ import com.google.common.eventbus.Subscribe;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.layout.GridLayoutBuilder;
-import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.result.ResultRenderer;
@@ -36,7 +35,6 @@ public class WorksheetTabbedView implements TabbedView {
 	private final EventBus eventBus;
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
-	private final ScriptController scriptController;
 	private final ResultRenderer resultRenderer;
 	
 	private Function<String, ScriptFuture<Object>> executeFunction;
@@ -44,9 +42,8 @@ public class WorksheetTabbedView implements TabbedView {
 	private final Completion completion = new Completion();
 	private final List<Cell> cells = new ArrayList<>();
 	
-	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
+	public WorksheetTabbedView(Composite parent, EventBus eventBus, ResultRenderer resultRenderer) {
 		this.eventBus = eventBus;
-		this.scriptController = scriptController;
 		this.resultRenderer = resultRenderer;
 		
 		Display display = parent.getDisplay();
@@ -101,7 +98,7 @@ public class WorksheetTabbedView implements TabbedView {
 	}
 	
 	private Cell addPrompt() {
-		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, scriptController, resultRenderer);
+		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, resultRenderer);
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
 		cell.setCompletionFunction(text -> {

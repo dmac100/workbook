@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import workbook.layout.GridDataBuilder;
-import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.result.Result;
@@ -47,7 +46,7 @@ public class Cell {
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	private Function<String, String> completionFunction = null;
 	
-	public Cell(Composite parent, ScrolledComposite scrolledComposite, ScriptController scriptController, ResultRenderer resultRenderer) {
+	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer) {
 		this.parent = parent;
 		this.resultRenderer = resultRenderer;
 		
@@ -55,7 +54,7 @@ public class Cell {
 		
 		prompt = addLabel(parent, ">>>");
 		command = new Text(parent, SWT.NONE);
-		result = new Result(parent, scriptController, resultRenderer);
+		result = new Result(parent, resultRenderer);
 		
 		command.setFont(FontList.consolas10);
 		

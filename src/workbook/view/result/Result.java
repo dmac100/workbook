@@ -7,18 +7,16 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import workbook.script.ScriptController;
 import workbook.view.FontList;
 
 /**
  * A view that displays the result of a script command.
  */
 public class Result {
-	private final ScriptController scriptController;
 	private final Composite composite;
 	private final ResultRenderer resultRenderer;
 
-	public Result(Composite parent, ScriptController scriptController, ResultRenderer resultRenderer) {
+	public Result(Composite parent, ResultRenderer resultRenderer) {
 		composite = new Composite(parent, SWT.NONE) {
 			public Point computeSize(int wHint, int hHint, boolean changed) {
 				Point size = super.computeSize(wHint, hHint, changed);
@@ -28,7 +26,6 @@ public class Result {
 		composite.setLayout(new FillLayout());
 		
 		this.resultRenderer = resultRenderer;
-		this.scriptController = scriptController;
 	}
 	
 	public void setLoading() {
