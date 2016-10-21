@@ -100,7 +100,7 @@ public class JavascriptEngine implements Engine {
 	 * Evaluates a command, and returns the result.
 	 */
 	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		return eval(command, null, null, outputCallback, errorCallback);
+		return eval(command, null, outputCallback, errorCallback);
 	}
 
 	/**
@@ -130,12 +130,13 @@ public class JavascriptEngine implements Engine {
 			prefix.append("\n");
 		}
 		
-		eval(command, prefix.toString(), bindings, outputCallback, errorCallback);
+		eval(prefix.toString(), bindings, outputCallback, errorCallback);
+		eval(command, bindings, outputCallback, errorCallback);
 		
 		return callbackValues;
 	}
 	
-	private Object eval(String command, String prefix, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	private Object eval(String command, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
         PrintStream out = System.out;
         PrintStream err = System.err;
         try {
@@ -147,7 +148,7 @@ public class JavascriptEngine implements Engine {
         	
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
-        	String script = String.format("%s; with(new JavaImporter(java.util, java.lang)) { %s; }", prefix, command);
+        	String script = String.format("with(new JavaImporter(java.util, java.lang)) { %s; }", command);
 			Object value = (bindings == null) ? engine.eval(script) : engine.eval(script, bindings);
 			
 			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));

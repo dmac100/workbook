@@ -85,7 +85,7 @@ public class GroovyEngine implements Engine {
 	 * Evaluates a command, and returns the result.
 	 */
 	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		return eval(command, "", null, outputCallback, errorCallback);
+		return eval(command, null, outputCallback, errorCallback);
 	}
 
 	/**
@@ -116,13 +116,14 @@ public class GroovyEngine implements Engine {
 			prefix.append(String.format("void %s(values) { callback.accept('%s', new java.util.HashMap(values)); }", name, name));
 			prefix.append("\n");
 		}
-		
-		eval(command, prefix.toString(), bindings, outputCallback, errorCallback);
+	
+		eval(prefix.toString(), bindings, outputCallback, errorCallback);
+		eval(command, bindings, outputCallback, errorCallback);
 		
 		return callbackValues;
 	}
 	
-	private Object eval(String command, String prefix, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	private Object eval(String command, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
         PrintStream out = System.out;
         PrintStream err = System.err;
         try {
@@ -145,8 +146,7 @@ public class GroovyEngine implements Engine {
         	
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
-        	String script = String.format("%s; %s;", prefix, command);
-			Object value = (bindings == null) ? engine.eval(script) : engine.eval(script, bindings);
+			Object value = (bindings == null) ? engine.eval(command) : engine.eval(command, bindings);
 			
 			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 			
