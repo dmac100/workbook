@@ -422,8 +422,27 @@ public class TabbedViewLayout {
 	 */
 	private void setupTabFolder(CTabFolder folder) {
 		folder.setSimple(false);
-		folder.setTabHeight(24);
 		folder.setMenu(createContextMenu(folder));
+		folder.setMaximizeVisible(true);
+		folder.addCTabFolder2Listener(new CTabFolder2Adapter() {
+			public void restore(CTabFolderEvent event) {
+				folder.setMaximized(false);
+				for(Control control = folder; control != parent; control = control.getParent()) {
+					if(control instanceof SashForm) {
+						((SashForm) control).setMaximizedControl(null);
+					}
+				}
+			}
+			
+			public void maximize(CTabFolderEvent event) {
+				folder.setMaximized(true);
+				for(Control control = folder; control != parent; control = control.getParent()) {
+					if(control.getParent() instanceof SashForm) {
+						((SashForm) control.getParent()).setMaximizedControl(control);
+					}
+				}
+			}
+		});
 		
 		if(folder.getItemCount() > 0) {
 			folder.setSelection(0);
@@ -436,6 +455,12 @@ public class TabbedViewLayout {
 		});
 		
 		addDragDetectListener(folder);
+	}
+	
+	private void maximize(Control control, CTabFolder folder) {
+		if(control instanceof SashForm) {
+			maximize((SashForm) control, folder);
+		}
 	}
 	
 	private Menu createContextMenu(CTabFolder folder) {
