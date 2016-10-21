@@ -14,10 +14,14 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
+import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.jruby.RubyArray;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
+
+import com.google.common.base.Throwables;
 
 import syntaxhighlighter.brush.Brush;
 import syntaxhighlighter.brush.BrushRuby;
@@ -157,11 +161,18 @@ public class RubyEngine implements Engine {
 			return value;
         } catch(Exception e) {
         	e.printStackTrace(err);
-        	errorCallback.accept(e.getMessage());
+        	errorCallback.accept(getScriptExceptionCause(e));
         	return null;
         } finally {
         	System.setOut(out);
         	System.setErr(err);
         }
+	}
+	
+	private static String getScriptExceptionCause(Throwable e) {
+		while(e instanceof ScriptException) {
+    		e = e.getCause();
+    	}
+    	return Throwables.getStackTraceAsString(e);
 	}
 }
