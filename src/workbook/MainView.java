@@ -20,6 +20,7 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import com.google.common.base.Supplier;
 import com.google.common.eventbus.EventBus;
 
 import workbook.controller.MainController;
@@ -29,6 +30,7 @@ import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.event.MajorRefreshEvent;
+import workbook.script.Engine;
 import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
@@ -68,10 +70,19 @@ public class MainView {
 		
 		this.viewFactory = new TabbedViewFactory(tabbedViewLayout, mainController);
 		
-		mainController.registerEngine("Javascript", new JavascriptEngine());
-		mainController.registerEngine("Ruby", new RubyEngine());
-		mainController.registerEngine("Groovy", new GroovyEngine());
+		registerEngine("Javascript", JavascriptEngine::new);
+		registerEngine("Ruby", RubyEngine::new);
+		registerEngine("Groovy", GroovyEngine::new);
+		
 		mainController.setEngine("Groovy");
+	}
+	
+	private void registerEngine(String name, Supplier<Engine> engineSupplier) {
+		try {
+			mainController.registerEngine(name, engineSupplier.get());
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
 	}
 	
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
