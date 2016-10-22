@@ -124,6 +124,7 @@ public class TabbedViewLayout {
 					// Wait until drag is finished, then run callback if any is set.
 					if(tracker.open()) {
 						if(dragCallback != null) {
+							restoreFolder(folder);
 							dragCallback.run();
 						}
 					}
@@ -426,21 +427,11 @@ public class TabbedViewLayout {
 		folder.setMaximizeVisible(true);
 		folder.addCTabFolder2Listener(new CTabFolder2Adapter() {
 			public void restore(CTabFolderEvent event) {
-				folder.setMaximized(false);
-				for(Control control = folder; control != parent; control = control.getParent()) {
-					if(control instanceof SashForm) {
-						((SashForm) control).setMaximizedControl(null);
-					}
-				}
+				restoreFolder(folder);
 			}
 			
 			public void maximize(CTabFolderEvent event) {
-				folder.setMaximized(true);
-				for(Control control = folder; control != parent; control = control.getParent()) {
-					if(control.getParent() instanceof SashForm) {
-						((SashForm) control.getParent()).setMaximizedControl(control);
-					}
-				}
+				maximizeFolder(folder);
 			}
 		});
 		
@@ -455,6 +446,24 @@ public class TabbedViewLayout {
 		});
 		
 		addDragDetectListener(folder);
+	}
+	
+	private void maximizeFolder(CTabFolder folder) {
+		folder.setMaximized(true);
+		for(Control control = folder; control != parent; control = control.getParent()) {
+			if(control.getParent() instanceof SashForm) {
+				((SashForm) control.getParent()).setMaximizedControl(control);
+			}
+		}
+	}
+	
+	private void restoreFolder(CTabFolder folder) {
+		folder.setMaximized(false);
+		for(Control control = folder; control != parent; control = control.getParent()) {
+			if(control instanceof SashForm) {
+				((SashForm) control).setMaximizedControl(null);
+			}
+		}
 	}
 	
 	private void maximize(Control control, CTabFolder folder) {
