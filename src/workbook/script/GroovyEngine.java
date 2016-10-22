@@ -14,9 +14,9 @@ import java.util.function.Consumer;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.codehaus.groovy.util.ManagedConcurrentValueMap;
 import org.codehaus.groovy.util.ReferenceBundle;
@@ -34,10 +34,7 @@ public class GroovyEngine implements Engine {
 	private Map<String, Object> globals = new HashMap<>();
 	
 	public GroovyEngine() {
-		engine = new ScriptEngineManager().getEngineByName("groovy");
-		if(engine == null) {
-			throw new RuntimeException("Can't create Groovy engine");
-		}
+		engine = new GroovyScriptEngineImpl();
 	}
 	
 	public Brush getBrush() {
