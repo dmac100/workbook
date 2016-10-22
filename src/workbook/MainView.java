@@ -161,7 +161,7 @@ public class MainView {
 		}
 	}
 	
-	private void save(String location) {
+	public void save(String location) {
 		String document = serialize();
 		
 		try {
@@ -175,7 +175,7 @@ public class MainView {
 		open(selectOpenLocation());
 	}
 	
-	private void open(String location) {
+	public void open(String location) {
 		if(location != null) {
 			currentFileLocation = location;
 			

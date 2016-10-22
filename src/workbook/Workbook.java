@@ -151,6 +151,9 @@ public class Workbook {
 	
 	public static void main(String[] args) {
 		Workbook workbook = new Workbook();
+		if(args.length == 1) {
+			workbook.mainView.open(args[0]);
+		}
 		workbook.waitForExit();
 	}
 }
