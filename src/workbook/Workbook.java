@@ -1,6 +1,8 @@
 package workbook;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.eclipse.swt.widgets.Composite;
@@ -58,6 +60,14 @@ public class Workbook {
 		//mainView.addView(CanvasTabbedView.class);
 		//mainView.addView(StringTabbedEditor.class, "x");
 		//mainView.addView(HexTabbedEditor.class, "x");
+		
+		Map<String, Object> system = new HashMap<>();
+		system.put("mainView", mainView);
+		system.put("mainController", mainController);
+		system.put("model", model);
+		system.put("eventBus", eventBus);
+		system.put("display", Display.getDefault());
+		mainController.addVariable("system", system);
 		
 		mainView.removeEmptyFolders();
 	}
