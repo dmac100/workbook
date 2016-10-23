@@ -162,7 +162,7 @@ public class JavascriptEngine implements Engine {
 			errorReader.waitUntilDone();
 			
 			return value;
-        } catch(Exception e) {
+        } catch(Throwable e) {
         	e.printStackTrace(err);
         	errorCallback.accept(getScriptExceptionCause(e));
         	return null;
