@@ -1,5 +1,7 @@
 package workbook.view.result;
 
+import java.util.Objects;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
@@ -15,6 +17,9 @@ import workbook.view.FontList;
 public class Result {
 	private final Composite composite;
 	private final ResultRenderer resultRenderer;
+	
+	private Object previousValue = null;
+	private boolean hasPreviousValue = false;
 
 	public Result(Composite parent, ResultRenderer resultRenderer) {
 		composite = new Composite(parent, SWT.NONE) {
@@ -36,13 +41,17 @@ public class Result {
 		styledText.setEditable(false);
 		styledText.setText("...");
 	}
-
+	
 	public void setValue(Object value, Runnable callback) {
 		composite.getDisplay().asyncExec(() -> {
 			if(!composite.isDisposed()) {
+				boolean changed = (hasPreviousValue && !Objects.equals(value, previousValue));
+				this.previousValue = value;
+				this.hasPreviousValue = true;
+				
 				removeChildren();
 				
-				resultRenderer.addView(composite, value, callback);
+				resultRenderer.addView(composite, value, changed, callback);
 				
 				composite.pack();
 			}

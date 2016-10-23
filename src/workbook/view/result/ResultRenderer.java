@@ -9,5 +9,5 @@ public interface ResultRenderer {
 	/**
 	 * Adds a view to a parent to display the value, and then runs callback.
 	 */
-	void addView(Composite parent, Object value, Runnable callback);
+	void addView(Composite parent, Object value, boolean changed, Runnable callback);
 }

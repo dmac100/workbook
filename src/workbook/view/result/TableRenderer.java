@@ -30,7 +30,7 @@ public class TableRenderer implements ResultRenderer {
 		this.scriptController = scriptController;
 	}
 	
-	public void addView(Composite parent, Object value, Runnable callback) {
+	public void addView(Composite parent, Object value, boolean changed, Runnable callback) {
 		scriptController.exec(() -> {
 			ScriptTableUtil scriptTableUtil = new ScriptTableUtil(scriptController);
 			
@@ -49,7 +49,7 @@ public class TableRenderer implements ResultRenderer {
 				}
 			}
 			
-			next.addView(parent, value, callback);
+			next.addView(parent, value, changed, callback);
 			return null;
 		});
 	}
