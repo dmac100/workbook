@@ -44,7 +44,9 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 					Display.getDefault().asyncExec(() -> {
 						if(!editorText.getControl().isDisposed()) {
 							disableModifyCallback = true;
-							editorText.setText((String)value);
+							if(!editorText.getText().equals(value)) {
+								editorText.setText((String)value);
+							}
 							disableModifyCallback = false;
 						}
 					});
