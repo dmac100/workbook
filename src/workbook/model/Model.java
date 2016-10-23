@@ -3,8 +3,8 @@ package workbook.model;
 import syntaxhighlighter.brush.Brush;
 
 public class Model {
-	private String scriptType;
-	private Brush brush;
+	private volatile String scriptType;
+	private volatile Brush brush;
 
 	public String getScriptType() {
 		return scriptType;

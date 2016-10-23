@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -20,8 +21,10 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import workbook.controller.MainController;
 import workbook.editor.ui.HexTabbedEditor;
@@ -30,6 +33,7 @@ import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.event.MajorRefreshEvent;
+import workbook.event.ScriptTypeChangeEvent;
 import workbook.script.Engine;
 import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
@@ -66,8 +70,6 @@ public class MainView {
 		this.mainController = mainController;
 		tabbedViewLayout = new TabbedViewLayout(shell);
 		
-		createMenuBar(shell);
-		
 		this.viewFactory = new TabbedViewFactory(tabbedViewLayout, mainController);
 		
 		registerEngine("Javascript", JavascriptEngine::new);
@@ -75,6 +77,15 @@ public class MainView {
 		registerEngine("Groovy", GroovyEngine::new);
 		
 		mainController.setEngine("Groovy");
+		
+		createMenuBar(shell);
+		
+		eventBus.register(this);
+	}
+	
+	@Subscribe
+	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
+		Display.getDefault().asyncExec(() -> createMenuBar(shell));
 	}
 	
 	private void registerEngine(String name, Supplier<Engine> engineSupplier) {
@@ -130,9 +141,9 @@ public class MainView {
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt())
 			.addSeparator()
 			.addSubmenu("Engine", submenu -> submenu
-				.addItem("Javascript").addSelectionListener(() -> mainController.setEngine("Javascript"))
-				.addItem("Ruby").addSelectionListener(() -> mainController.setEngine("Ruby"))
-				.addItem("Groovy").addSelectionListener(() -> mainController.setEngine("Groovy"))
+				.addRadioItem("Javascript", Objects.equal(mainController.getEngine(), "Javascript")).addSelectionListener(() -> mainController.setEngine("Javascript"))
+				.addRadioItem("Ruby", Objects.equal(mainController.getEngine(), "Ruby")).addSelectionListener(() -> mainController.setEngine("Ruby"))
+				.addRadioItem("Groovy", Objects.equal(mainController.getEngine(), "Groovy")).addSelectionListener(() -> mainController.setEngine("Groovy"))
 			);
 		
 		menuBuilder.build();

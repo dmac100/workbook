@@ -135,6 +135,10 @@ public class MainController {
 			});
 	}
 	
+	public String getEngine() {
+		return model.getScriptType();
+	}
+	
 	public void addVariable(String name, Object value) {
 		scriptController.setVariable(name, value);
 	}

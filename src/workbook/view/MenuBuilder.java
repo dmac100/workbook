@@ -46,6 +46,16 @@ public class MenuBuilder {
 		return this;
 	}
 	
+	public MenuBuilder addRadioItem(String name, boolean checked) {
+		if(menu == null) throw new IllegalStateException("No menu");
+		
+		this.item = new MenuItem(menu, SWT.RADIO);
+		item.setText(name);
+		item.setSelection(checked);
+		
+		return this;
+	}
+	
 	public MenuBuilder addSubmenu(String name, Consumer<MenuBuilder> consumer) {
 		this.item = new MenuItem(menu, SWT.CASCADE);
 		item.setText(name);
