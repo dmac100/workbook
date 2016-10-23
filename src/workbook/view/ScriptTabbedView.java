@@ -1,6 +1,6 @@
 package workbook.view;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -17,6 +17,7 @@ import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
+import workbook.script.ScriptFuture;
 import workbook.view.text.EditorText;
 
 /**
@@ -24,12 +25,14 @@ import workbook.view.text.EditorText;
  */
 public class ScriptTabbedView implements TabbedView {
 	private final EditorText editorText;
+	private final EventBus eventBus;
 	private final Model model;
 	
-	private Consumer<String> executeCallback;
+	private Function<String, ScriptFuture<Object>> executeFunction;
 
 	public ScriptTabbedView(Composite parent, EventBus eventBus, Model model) {
 		this.editorText = new EditorText(parent);
+		this.eventBus = eventBus;
 		this.model = model;
 		
 		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
@@ -63,8 +66,9 @@ public class ScriptTabbedView implements TabbedView {
 	
 	private void refresh() {
 		Display.getDefault().asyncExec(() -> {
-			if(executeCallback != null) {
-				executeCallback.accept(editorText.getText());
+			if(executeFunction != null) {
+				executeFunction.apply(editorText.getText())
+					.thenRun(() -> eventBus.post(new MinorRefreshEvent()));
 			}
 		});
 	}
@@ -77,8 +81,8 @@ public class ScriptTabbedView implements TabbedView {
 		return editorText.getControl();
 	}
 
-	public void setExecuteCallback(Consumer<String> callback) {
-		this.executeCallback = callback;
+	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
+		this.executeFunction = executeFunction;
 	}
 
 	public void serialize(Element element) {

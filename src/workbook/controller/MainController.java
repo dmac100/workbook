@@ -59,8 +59,8 @@ public class MainController {
 	}
 	
 	public ScriptTabbedView addScriptEditor(ScriptTabbedView scriptEditor) {
-		scriptEditor.setExecuteCallback(command -> {
-			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
+		scriptEditor.setExecuteFunction(command -> {
+			return scriptController.eval(command, this::addOutput, this::addError);
 		});
 		return scriptEditor;
 	}
