@@ -12,10 +12,14 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
@@ -224,5 +228,16 @@ public class WorksheetTabbedView implements TabbedView {
 			Cell cell = addPrompt();
 			cell.setCommand(command.getText());
 		}
+	}
+	
+	public void createMenu(Menu menu) {
+		MenuItem clearItem = new MenuItem(menu, SWT.NONE);
+		clearItem.setText("Clear");
+		clearItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				clear();
+				addPrompt();
+			}
+		});
 	}
 }
