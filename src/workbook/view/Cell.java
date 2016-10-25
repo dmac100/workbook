@@ -42,6 +42,7 @@ public class Cell {
 	private final List<Runnable> deleteCallbacks = new ArrayList<>();
 	private final List<Runnable> runCallbacks = new ArrayList<>();
 	private final List<Runnable> runAllCallbacks = new ArrayList<>();
+	private final List<Runnable> notifyCallbacks = new ArrayList<>();
 	
 	private final Result result;
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
@@ -73,7 +74,8 @@ public class Cell {
 		
 		command.addSelectionListener(new SelectionAdapter() {
 			public void widgetDefaultSelected(SelectionEvent event) {
-				evaluate(() -> runCallbacks.forEach(Runnable::run));
+				runCallbacks.forEach(Runnable::run);
+				evaluate(true);
 			}
 		});
 		
@@ -84,7 +86,8 @@ public class Cell {
 					event.doit = false;
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
 					event.doit = false;
-					evaluate(() -> insertCallbacks.forEach(Runnable::run));
+					insertCallbacks.forEach(Runnable::run);
+					evaluate(true);
 				}
 			}
 		});
@@ -117,7 +120,8 @@ public class Cell {
 		result.asComposite().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
-					evaluate(() -> runCallbacks.forEach(Runnable::run));
+					runCallbacks.forEach(Runnable::run);
+					evaluate(true);
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					runAllCallbacks.forEach(Runnable::run);
 					event.doit = false;
@@ -149,7 +153,7 @@ public class Cell {
 		prompt.setForeground(display.getSystemColor(SWT.COLOR_DARK_CYAN));
 	}
 	
-	public void evaluate(Runnable callback) {
+	public void evaluate(boolean runNotifyCallbacks) {
 		if(!command.getText().trim().isEmpty()) {
 			result.setLoading();
 			
@@ -158,7 +162,9 @@ public class Cell {
 			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
 				result.setValue(resultObject, () -> {
 					Display.getDefault().asyncExec(() -> {
-						callback.run();
+						if(runNotifyCallbacks) {
+							notifyCallbacks.forEach(Runnable::run);
+						}
 						parent.pack();
 					});
 				});
@@ -206,6 +212,10 @@ public class Cell {
 		runAllCallbacks.add(callback);
 	}
 	
+	public void addNotifyCallbacks(Runnable callback) {
+		notifyCallbacks.add(callback);
+	}
+	
 	public Rectangle getBounds() {
 		Rectangle promptBounds = prompt.getBounds();
 		Rectangle resultBounds = result.asComposite().getBounds();
@@ -244,7 +254,6 @@ public class Cell {
 	}
 	
 	public void setFocus() {
-		command.setSelection(command.getText().length());
 		command.setFocus();
 	}
 	

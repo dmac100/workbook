@@ -46,6 +46,8 @@ public class WorksheetTabbedView implements TabbedView {
 	private final Completion completion = new Completion();
 	private final List<Cell> cells = new ArrayList<>();
 	
+	private Cell focusedCell = null;
+	
 	public WorksheetTabbedView(Composite parent, EventBus eventBus, ResultRenderer resultRenderer) {
 		this.eventBus = eventBus;
 		this.resultRenderer = resultRenderer;
@@ -105,6 +107,12 @@ public class WorksheetTabbedView implements TabbedView {
 		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, resultRenderer, cellAbove);
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
+		cell.addNotifyCallbacks(() -> {
+			eventBus.post(new MinorRefreshEvent(this));
+			pack();
+			scrollToFocusedCell();
+		});
+		
 		cell.setCompletionFunction(text -> {
 			if(text == null) {
 				completion.dismiss();
@@ -120,8 +128,7 @@ public class WorksheetTabbedView implements TabbedView {
 			public void run() {
 				int index = cells.indexOf(cell) - 1;
 				index = Math.max(index, 0);
-				cells.get(index).setFocus();
-				ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
+				focusCell(cells.get(index));
 			}
 		});
 		
@@ -129,17 +136,15 @@ public class WorksheetTabbedView implements TabbedView {
 			public void run() {
 				int index = cells.indexOf(cell) + 1;
 				index = Math.min(index, cells.size() - 1);
-				cells.get(index).setFocus();
-				ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
+				focusCell(cells.get(index));
 			}
 		});
 		
 		cell.addInsertCallback(new Runnable() {
 			public void run() {
 				addPrompt(cell);
-				int index = cells.indexOf(cell) + 1;
-				cells.get(index).setFocus();
-				ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
+				scrollToFocusedCell();
+				focusCell(cells.get(cells.indexOf(cell) + 1));
 			}
 		});
 		
@@ -149,10 +154,9 @@ public class WorksheetTabbedView implements TabbedView {
 					int index = cells.indexOf(cell);
 					cells.remove(index);
 					index = Math.max(0, index - 1);
-					cells.get(index).setFocus();
 					cell.dispose();
 					pack();
-					ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
+					focusCell(cells.get(index));
 				}
 			}
 		});
@@ -161,12 +165,10 @@ public class WorksheetTabbedView implements TabbedView {
 			public void run() {
 				if(cell == cells.get(cells.size() - 1)) {
 					addPrompt(null);
+					focusCell(cells.get(cells.size() - 1));
 				} else {
-					int index = cells.indexOf(cell) + 1;
-					cells.get(index).setFocus();
-					ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
+					focusCell(cells.get(cells.indexOf(cell) + 1));
 				}
-				eventBus.post(new MinorRefreshEvent(this));
 			}
 		});
 		
@@ -190,11 +192,23 @@ public class WorksheetTabbedView implements TabbedView {
 		
 		return cell;
 	}
+
+	private void focusCell(Cell cell) {
+		this.focusedCell = cell;
+		scrollToFocusedCell();
+	}
+	
+	private void scrollToFocusedCell() {
+		if(focusedCell != null) {
+			focusedCell.setFocus();
+			ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, focusedCell.getBounds());
+		}
+	}
 	
 	private void refresh() {
 		Display.getDefault().asyncExec(() -> {
 			for(Cell prompt:cells) {
-				prompt.evaluate(() -> {});
+				prompt.evaluate(false);
 			}
 		});
 	}
