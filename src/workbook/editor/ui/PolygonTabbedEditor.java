@@ -464,7 +464,7 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 	public void writeValue() {
 		if(reference != null) {
 			reference.set(canvas.getPolygons()).thenRun(() ->
-				eventBus.post(new MinorRefreshEvent())
+				eventBus.post(new MinorRefreshEvent(this))
 			);
 		}
 	}

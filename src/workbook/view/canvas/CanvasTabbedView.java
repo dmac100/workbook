@@ -197,7 +197,9 @@ public class CanvasTabbedView implements TabbedView {
 	
 	@Subscribe
 	public void onMinorRefresh(MinorRefreshEvent event) {
-		refresh();
+		if(event.getSource() != this) {
+			refresh();
+		}
 	}
 	
 	@Subscribe

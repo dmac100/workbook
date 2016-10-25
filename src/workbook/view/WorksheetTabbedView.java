@@ -157,14 +157,14 @@ public class WorksheetTabbedView implements TabbedView {
 					cells.get(index).setFocus();
 					ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 				}
-				eventBus.post(new MinorRefreshEvent());
+				eventBus.post(new MinorRefreshEvent(this));
 			}
 		});
 		
 		cell.addRunAllCallback(new Runnable() {
 			public void run() {
 				refresh();
-				eventBus.post(new MinorRefreshEvent());
+				eventBus.post(new MinorRefreshEvent(this));
 			}
 		});
 		

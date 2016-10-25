@@ -31,7 +31,9 @@ public abstract class Editor {
 	
 	@Subscribe
 	public void onMinorRefresh(MinorRefreshEvent event) {
-		readValue();
+		if(event.getSource() != this) {
+			readValue();
+		}
 	}
 	
 	@Subscribe

@@ -68,7 +68,7 @@ public class ScriptTabbedView implements TabbedView {
 		Display.getDefault().asyncExec(() -> {
 			if(executeFunction != null) {
 				executeFunction.apply(editorText.getText())
-					.thenRun(() -> eventBus.post(new MinorRefreshEvent()));
+					.thenRun(() -> eventBus.post(new MinorRefreshEvent(this)));
 			}
 		});
 	}

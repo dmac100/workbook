@@ -58,7 +58,7 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	public void writeValue() {
 		if(reference != null) {
 			reference.set(editorText.getText()).thenRun(() -> {
-				eventBus.post(new MinorRefreshEvent());
+				eventBus.post(new MinorRefreshEvent(this));
 			});
 		}
 	}

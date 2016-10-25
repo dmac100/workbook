@@ -229,7 +229,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			Reference reference = references.get(index);
 			if(reference != null) {
 				reference.set(value).thenRunAlways(() -> {
-					eventBus.post(new MinorRefreshEvent());
+					eventBus.post(new MinorRefreshEvent(this));
 					readItemValue(tableItem, index, reference);
 				});
 			}

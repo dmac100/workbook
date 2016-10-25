@@ -304,7 +304,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		Reference reference = (Reference) itemData;
 		if(reference != null) {
 			reference.set(value).thenRunAlways(() -> {
-				eventBus.post(new MinorRefreshEvent());
+				eventBus.post(new MinorRefreshEvent(this));
 				readItemValue(treeItem, reference);
 			});
 		}

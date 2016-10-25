@@ -5,6 +5,13 @@ package workbook.event;
  * side-effects to refresh their values.
  */
 public class MinorRefreshEvent {
-	public MinorRefreshEvent() {
+	private final Object source;
+
+	public MinorRefreshEvent(Object source) {
+		this.source = source;
+	}
+	
+	public Object getSource() {
+		return source;
 	}
 }
