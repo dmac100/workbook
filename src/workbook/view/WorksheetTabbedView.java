@@ -72,7 +72,7 @@ public class WorksheetTabbedView implements TabbedView {
 			}
 		});
 
-		addPrompt();
+		addPrompt(null);
 		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
@@ -101,8 +101,8 @@ public class WorksheetTabbedView implements TabbedView {
 		refresh();
 	}
 	
-	private Cell addPrompt() {
-		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, resultRenderer);
+	private Cell addPrompt(Cell cellAbove) {
+		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, resultRenderer, cellAbove);
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
 		cell.setCompletionFunction(text -> {
@@ -134,6 +134,15 @@ public class WorksheetTabbedView implements TabbedView {
 			}
 		});
 		
+		cell.addInsertCallback(new Runnable() {
+			public void run() {
+				addPrompt(cell);
+				int index = cells.indexOf(cell) + 1;
+				cells.get(index).setFocus();
+				ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
+			}
+		});
+		
 		cell.addDeleteCallback(new Runnable() {
 			public void run() {
 				if(cells.size() > 1) {
@@ -151,7 +160,7 @@ public class WorksheetTabbedView implements TabbedView {
 		cell.addRunCallback(new Runnable() {
 			public void run() {
 				if(cell == cells.get(cells.size() - 1)) {
-					addPrompt();
+					addPrompt(null);
 				} else {
 					int index = cells.indexOf(cell) + 1;
 					cells.get(index).setFocus();
@@ -167,8 +176,13 @@ public class WorksheetTabbedView implements TabbedView {
 				eventBus.post(new MinorRefreshEvent(this));
 			}
 		});
+
+		if(cellAbove == null) {
+			cells.add(cell);
+		} else {
+			cells.add(cells.indexOf(cellAbove) + 1, cell);
+		}
 		
-		cells.add(cell);
 		cell.setFocus();
 		pack();
 		
@@ -180,7 +194,7 @@ public class WorksheetTabbedView implements TabbedView {
 	private void refresh() {
 		Display.getDefault().asyncExec(() -> {
 			for(Cell prompt:cells) {
-				prompt.evaluate(false);
+				prompt.evaluate(() -> {});
 			}
 		});
 	}
@@ -225,7 +239,7 @@ public class WorksheetTabbedView implements TabbedView {
 		clear();
 		
 		for(Element command:element.getChildren("Command")) {
-			Cell cell = addPrompt();
+			Cell cell = addPrompt(null);
 			cell.setCommand(command.getText());
 		}
 	}
@@ -236,7 +250,7 @@ public class WorksheetTabbedView implements TabbedView {
 		clearItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				clear();
-				addPrompt();
+				addPrompt(null);
 			}
 		});
 	}

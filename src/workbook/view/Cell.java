@@ -38,6 +38,7 @@ public class Cell {
 	
 	private final List<Runnable> upCallbacks = new ArrayList<>();
 	private final List<Runnable> downCallbacks = new ArrayList<>();
+	private final List<Runnable> insertCallbacks = new ArrayList<>();
 	private final List<Runnable> deleteCallbacks = new ArrayList<>();
 	private final List<Runnable> runCallbacks = new ArrayList<>();
 	private final List<Runnable> runAllCallbacks = new ArrayList<>();
@@ -46,7 +47,7 @@ public class Cell {
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	private Function<String, String> completionFunction = null;
 	
-	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer) {
+	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer, Cell cellAbove) {
 		this.parent = parent;
 		this.resultRenderer = resultRenderer;
 		
@@ -55,6 +56,12 @@ public class Cell {
 		prompt = addLabel(parent, ">>>");
 		command = new Text(parent, SWT.NONE);
 		result = new Result(parent, resultRenderer);
+		
+		if(cellAbove != null) {
+			prompt.moveBelow(cellAbove.result.asComposite());
+			command.moveBelow(prompt);
+			result.asComposite().moveBelow(command);
+		}
 		
 		command.setFont(FontList.consolas10);
 		
@@ -66,7 +73,7 @@ public class Cell {
 		
 		command.addSelectionListener(new SelectionAdapter() {
 			public void widgetDefaultSelected(SelectionEvent event) {
-				evaluate(true);
+				evaluate(() -> runCallbacks.forEach(Runnable::run));
 			}
 		});
 		
@@ -75,6 +82,9 @@ public class Cell {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					runAllCallbacks.forEach(Runnable::run);
 					event.doit = false;
+				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
+					event.doit = false;
+					evaluate(() -> insertCallbacks.forEach(Runnable::run));
 				}
 			}
 		});
@@ -107,7 +117,7 @@ public class Cell {
 		result.asComposite().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
-					evaluate(true);
+					evaluate(() -> runCallbacks.forEach(Runnable::run));
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					runAllCallbacks.forEach(Runnable::run);
 					event.doit = false;
@@ -139,7 +149,7 @@ public class Cell {
 		prompt.setForeground(display.getSystemColor(SWT.COLOR_DARK_CYAN));
 	}
 	
-	public void evaluate(boolean fireCallbacks) {
+	public void evaluate(Runnable callback) {
 		if(!command.getText().trim().isEmpty()) {
 			result.setLoading();
 			
@@ -148,9 +158,7 @@ public class Cell {
 			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
 				result.setValue(resultObject, () -> {
 					Display.getDefault().asyncExec(() -> {
-						if(fireCallbacks) {
-							runCallbacks.forEach(Runnable::run);
-						}
+						callback.run();
 						parent.pack();
 					});
 				});
@@ -180,6 +188,10 @@ public class Cell {
 	
 	public void addDownCallback(Runnable callback) {
 		downCallbacks.add(callback);
+	}
+	
+	public void addInsertCallback(Runnable callback) {
+		insertCallbacks.add(callback);
 	}
 	
 	public void addDeleteCallback(Runnable callback) {
