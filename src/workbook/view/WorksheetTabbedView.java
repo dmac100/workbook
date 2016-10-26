@@ -195,6 +195,7 @@ public class WorksheetTabbedView implements TabbedView {
 
 	private void focusCell(Cell cell) {
 		this.focusedCell = cell;
+		focusedCell.selectAll();
 		scrollToFocusedCell();
 	}
 	

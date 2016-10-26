@@ -253,6 +253,10 @@ public class Cell {
 		return max;
 	}
 	
+	public void selectAll() {
+		command.selectAll();
+	}
+	
 	public void setFocus() {
 		command.setFocus();
 	}
