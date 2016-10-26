@@ -27,24 +27,31 @@ public class ScrollUtil {
 	}
 	
 	private static void scrollTo(ScrolledComposite scrolledComposite, Rectangle bounds, boolean scrollHorizontally, boolean scrollVertically) {
+		boolean scroll = false;
 		Rectangle area = scrolledComposite.getClientArea();
 		Point origin = scrolledComposite.getOrigin();
 		if(scrollHorizontally) {
 			if(origin.x > bounds.x) {
 				origin.x = Math.max(0, bounds.x);
+				scroll = true;
 			}
 			if(origin.x + area.width < bounds.x + bounds.width) {
 				origin.x = Math.max(0, bounds.x + bounds.width - area.width);
+				scroll = true;
 			}
 		}
 		if(scrollVertically) {
 			if(origin.y > bounds.y) {
 				origin.y = Math.max(0, bounds.y);
+				scroll = true;
 			}
 			if(origin.y + area.height < bounds.y + bounds.height) {
 				origin.y = Math.max(0, bounds.y + bounds.height - area.height);
+				scroll = true;
 			}
 		}
-		scrolledComposite.setOrigin(origin);
+		if(scroll) {
+			scrolledComposite.setOrigin(origin);
+		}
 	}
 }
