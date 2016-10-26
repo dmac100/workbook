@@ -42,6 +42,10 @@ public class Result {
 		styledText.setText("...");
 	}
 	
+	public void clear() {
+		removeChildren();
+	}
+	
 	public void setValue(Object value, Runnable callback) {
 		composite.getDisplay().asyncExec(() -> {
 			if(!composite.isDisposed()) {

@@ -154,7 +154,11 @@ public class Cell {
 	}
 	
 	public void evaluate(boolean runNotifyCallbacks) {
-		if(!command.getText().trim().isEmpty()) {
+		if(command.getText().trim().isEmpty()) {
+			result.clear();
+			
+			parent.pack();
+		} else {
 			result.setLoading();
 			
 			parent.pack();
