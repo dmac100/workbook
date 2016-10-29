@@ -148,6 +148,10 @@ public class ScriptController {
 		});
 	}
 	
+	public Map<String, Object> getGlobalsSync() {
+		return globals;
+	}
+	
 	public Engine getScriptSync() {
 		return engine;
 	}

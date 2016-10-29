@@ -10,7 +10,7 @@ import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
 
-import workbook.editor.reference.GlobalVariableReference;
+import workbook.editor.reference.OgnlReference;
 import workbook.editor.ui.Editor;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
@@ -116,7 +116,7 @@ public class MainController {
 	}
 
 	public <T extends Editor> T addEditor(T editor) {
-		editor.setReferenceFunction(expression -> new GlobalVariableReference(scriptController, expression));
+		editor.setReferenceFunction(expression -> new OgnlReference(scriptController, expression));
 		eventBus.register(editor);
 		editor.getControl().addDisposeListener(event -> eventBus.unregister(editor));
 		return editor;
