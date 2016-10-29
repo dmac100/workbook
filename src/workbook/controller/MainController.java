@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jdom2.Element;
 
@@ -52,6 +53,15 @@ public class MainController {
 	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet) {
 		worksheet.setExecuteFunction(command -> {
 			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
+			result.thenAccept(value -> scriptController.setVariable("_", value));
+			return result;
+		});
+		return worksheet;
+	}
+	
+	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet, Function<String, Object> commandFunction) {
+		worksheet.setExecuteFunction(command -> {
+			ScriptFuture<Object> result = scriptController.exec(() -> commandFunction.apply(command));
 			result.thenAccept(value -> scriptController.setVariable("_", value));
 			return result;
 		});
