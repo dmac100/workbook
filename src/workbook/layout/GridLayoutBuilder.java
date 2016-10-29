@@ -38,6 +38,26 @@ public class GridLayoutBuilder {
 		return this;
 	}
 	
+	public GridLayoutBuilder marginLeft(int marginLeft) {
+		gridLayout.marginLeft = marginLeft;
+		return this;
+	}
+	
+	public GridLayoutBuilder marginRight(int marginRight) {
+		gridLayout.marginRight = marginRight;
+		return this;
+	}
+	
+	public GridLayoutBuilder marginTop(int marginTop) {
+		gridLayout.marginTop = marginTop;
+		return this;
+	}
+	
+	public GridLayoutBuilder marginBottom(int marginBottom) {
+		gridLayout.marginBottom = marginBottom;
+		return this;
+	}
+	
 	public GridLayout build() {
 		return gridLayout;
 	}

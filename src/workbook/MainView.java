@@ -8,7 +8,11 @@ import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -34,6 +38,9 @@ import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
+import workbook.layout.FillLayoutBuilder;
+import workbook.layout.GridDataBuilder;
+import workbook.layout.GridLayoutBuilder;
 import workbook.script.Engine;
 import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
@@ -59,16 +66,28 @@ public class MainView {
 	private final TabbedViewLayout tabbedViewLayout;
 	private final TabbedViewFactory viewFactory;
 	
+	private final Composite toolbarComposite;
+	private final Composite tabsComposite;
+	
 	private String currentFileLocation = null;
 	
 	public MainView(Shell shell, MainController mainController, EventBus eventBus) {
 		this.shell = shell;
 		this.eventBus = eventBus;
 		
-		shell.setLayout(new FillLayout());
+		shell.setLayout(new GridLayoutBuilder().numColumns(1).makeColumnsEqualWidth(false).marginHeight(0).marginWidth(0).verticalSpacing(0).build());
 
+		toolbarComposite = new Composite(shell, SWT.NONE);
+		toolbarComposite.setLayout(new FillLayoutBuilder().marginHeight(0).marginWidth(0).build());
+		toolbarComposite.setLayoutData(new GridDataBuilder().grabExcessHorizontalSpace(true).build());
+		
+		tabsComposite = new Composite(shell, SWT.NONE);
+		tabsComposite.setLayoutData(new GridDataBuilder().fillHorizontal().fillVertical().build());
+		tabsComposite.setLayout(new FillLayout());
+		tabsComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL));
+		
 		this.mainController = mainController;
-		tabbedViewLayout = new TabbedViewLayout(shell);
+		tabbedViewLayout = new TabbedViewLayout(tabsComposite);
 		
 		this.viewFactory = new TabbedViewFactory(tabbedViewLayout, mainController);
 		
@@ -83,6 +102,24 @@ public class MainView {
 		eventBus.register(this);
 	}
 	
+	/**
+	 * Adds a new item to the toolbar that runs the callback when it is selected.
+	 */
+	public void addToolbarItem(String name, Runnable callback) {
+		toolbarComposite.setLayout(new FillLayoutBuilder().marginHeight(3).marginWidth(3).build());
+		Button button = new Button(toolbarComposite, SWT.NONE);
+		button.setText(name);
+		button.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				mainController.getScriptController().exec(() -> {
+					callback.run();
+					return null;
+				});
+			}
+		});
+		shell.pack();
+	}
+
 	@Subscribe
 	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
 		Display.getDefault().asyncExec(() -> createMenuBar(shell));

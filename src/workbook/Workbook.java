@@ -120,6 +120,10 @@ public class Workbook {
 		
 		return resultRenderer;
 	}
+	
+	public void addToolbarItem(String name, Runnable callback) {
+		mainView.addToolbarItem(name, callback);
+	}
 
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
 		mainView.registerView(type, defaultTitle, defaultPosition, factory);
