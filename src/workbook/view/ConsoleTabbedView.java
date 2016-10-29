@@ -15,6 +15,9 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+import workbook.event.MajorRefreshEvent;
 
 /**
  * A view that displays the console output.
@@ -39,6 +42,13 @@ public class ConsoleTabbedView implements TabbedView {
 				}
 			}
 		});
+		
+		eventBus.register(this);
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		clear();
 	}
 	
 	public void selectAll() {
