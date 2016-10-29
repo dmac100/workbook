@@ -109,12 +109,11 @@ public class TabbedViewLayout {
 				CTabItem dragItem = folder.getItem(new Point(event.x, event.y));
 				if(dragItem != null) {
 					// Create tracker to handle move events and display visual feedback.
+					dragCallback = null;
 					Tracker tracker = new Tracker(Display.getCurrent(), SWT.NONE);
 					tracker.setStippled(false);
 					tracker.addListener(SWT.Move, new Listener() {
 						public void handleEvent(Event event) {
-							dragCallback = null;
-							
 							for(CTabFolder folder:folders) {
 								if(handleDrag(tracker, folder, dragItem)) {
 									return;
