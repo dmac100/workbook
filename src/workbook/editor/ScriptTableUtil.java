@@ -2,11 +2,11 @@ package workbook.editor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 import workbook.editor.reference.JavaPropertyReference;
@@ -81,7 +81,7 @@ public class ScriptTableUtil {
 	 * Returns a single row of a table containing the properties of an object.
 	 */
 	public Map<String, Reference> getTableRow(Object object) {
-		Map<String, Reference> row = new TreeMap<>();
+		Map<String, Reference> row = new LinkedHashMap<>();
 		
 		Engine script = scriptController.getScriptSync();
 		
@@ -159,7 +159,7 @@ public class ScriptTableUtil {
 	 * Converts a List<Map<A, B>> to a Map<A, List<B>> by combining all keys together.
 	 */
 	private <A, B> Map<A, List<B>> combineKeys(List<Map<A, B>> rows) {
-		Map<A, List<B>> combinedRows = new TreeMap<>();
+		Map<A, List<B>> combinedRows = new LinkedHashMap<>();
 		
 		if(rows != null) {
 			for(Map<A, B> row:rows) {
@@ -179,7 +179,7 @@ public class ScriptTableUtil {
 	 * Returns a set of all keys in maps.
 	 */
 	private static <K, V> Set<K> getAllKeys(Iterable<Map<K, V>> maps) {
-		Set<K> keys = new HashSet<>();
+		Set<K> keys = new LinkedHashSet<>();
 		
 		maps.forEach(map -> {
 			if(map != null) {
