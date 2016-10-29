@@ -39,6 +39,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 	private final ScriptTableUtil scriptTableUtil;
 	
 	private final Table table;
+	private final TableSorter tableSorter;
 	private final TableEditor tableEditor;
 
 	public TableTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
@@ -56,6 +57,8 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 				onMouseDown(event);
 			}
 		});
+		
+		tableSorter = new TableSorter(table);
 	}
 
 	/**
@@ -168,9 +171,10 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		
 		// Add columns.
 		columns.forEach((name, values) -> {
-			TableColumn nameColumn = new TableColumn(table, SWT.NONE);
-			nameColumn.setText(name);
-			nameColumn.setWidth(100);
+			TableColumn column = new TableColumn(table, SWT.NONE);
+			column.setText(name);
+			column.setWidth(100);
+			column.setMoveable(true);
 			
 			columnIndexes.put(name, columnIndexes.size());
 		});
@@ -187,7 +191,6 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 				Reference reference = values.get(i);
 				readItemValue(item, columnIndexes.get(name), reference);
 			}
-
 		});
 		
 		// Set references data for each row.
@@ -198,6 +201,8 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			}
 			rows.get(i).setData(references);
 		}
+		
+		tableSorter.addListeners();
 	}
 	
 	/**
@@ -217,7 +222,7 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 	}
 
 	/**
-	 * Writes vaue to the reference of tableItem.
+	 * Writes value to the reference of tableItem.
 	 */
 	private void writeItemValue(TableItem tableItem, Object itemData, int index, String value) {
 		if(!tableItem.isDisposed()) {

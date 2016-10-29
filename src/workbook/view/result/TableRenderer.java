@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import workbook.editor.ScriptTableUtil;
 import workbook.editor.reference.Reference;
+import workbook.editor.ui.TableSorter;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
 import workbook.util.TypeUtil;
@@ -67,9 +68,10 @@ public class TableRenderer implements ResultRenderer {
 			
 			// Add columns.
 			columns.forEach((name, values) -> {
-				TableColumn nameColumn = new TableColumn(table, SWT.NONE);
-				nameColumn.setText(name);
-				nameColumn.setWidth(100);
+				TableColumn column = new TableColumn(table, SWT.NONE);
+				column.setText(name);
+				column.setWidth(100);
+				column.setMoveable(true);
 				
 				columnIndexes.put(name, columnIndexes.size());
 			});
@@ -86,7 +88,6 @@ public class TableRenderer implements ResultRenderer {
 					Reference reference = values.get(i);
 					readItemValue(item, columnIndexes.get(name), reference);
 				}
-
 			});
 			
 			// Set references data for each row.
@@ -97,6 +98,8 @@ public class TableRenderer implements ResultRenderer {
 				}
 				rows.get(i).setData(references);
 			}
+			
+			new TableSorter(table).addListeners();
 				
 			callback.run();
 		});
