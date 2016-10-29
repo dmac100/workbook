@@ -11,6 +11,8 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Point;
@@ -177,6 +179,12 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 			column.setMoveable(true);
 			
 			columnIndexes.put(name, columnIndexes.size());
+			
+			column.addSelectionListener(new SelectionAdapter() {
+				public void widgetDefaultSelected(SelectionEvent event) {
+					column.pack();
+				}
+			});
 		});
 		
 		// Add table items with values.

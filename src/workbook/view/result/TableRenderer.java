@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
@@ -74,6 +76,12 @@ public class TableRenderer implements ResultRenderer {
 				column.setMoveable(true);
 				
 				columnIndexes.put(name, columnIndexes.size());
+				
+				column.addSelectionListener(new SelectionAdapter() {
+					public void widgetDefaultSelected(SelectionEvent event) {
+						column.pack();
+					}
+				});
 			});
 			
 			// Add table items with values.
