@@ -276,6 +276,7 @@ public class TabbedViewLayout {
 		CTabFolder draggedFolder = draggedItem.getParent();
 		
 		CTabItem newTabItem = createTabItem(folder, draggedItem.getControl(), draggedItem.getText(), (TabbedView) draggedItem.getData());
+		draggedItem.setControl(null);
 		draggedItem.dispose();
 		
 		newTabItem.getParent().setSelection(newTabItem);
@@ -297,6 +298,7 @@ public class TabbedViewLayout {
 		// Check that tab is not already at destination.
 		if(destinationItem.getParent().indexOf(draggedItem) != index) {
 			CTabItem newTabItem = createTabItem(destinationItem.getParent(), draggedItem.getControl(), draggedItem.getText(), (TabbedView) draggedItem.getData(), index);
+			draggedItem.setControl(null);
 			draggedItem.dispose();
 			
 			newTabItem.getParent().setSelection(newTabItem);
@@ -316,9 +318,12 @@ public class TabbedViewLayout {
 		TabbedView data = (TabbedView) draggedItem.getData();
 		String text = draggedItem.getText();
 		
+		draggedItem.setControl(null);
 		draggedItem.dispose();
+		
 		CTabFolder newFolder = split(folder, dx, dy, weight);
 		createTabItem(newFolder, control, text, data);
+		
 		
 		removeIfEmpty(draggedFolder);
 		
@@ -518,8 +523,9 @@ public class TabbedViewLayout {
 		item.setShowClose(true);
 		item.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent event) {
-				TabbedView view = (TabbedView) item.getData();
-				view.getControl().dispose();
+				if(item.getControl() != null) {
+					item.getControl().dispose();
+				}
 			}
 		});
 	}
