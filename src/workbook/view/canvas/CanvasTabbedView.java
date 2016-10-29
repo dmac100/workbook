@@ -41,7 +41,7 @@ class CanvasView {
 	private final ColorCache colorCache;
 	
 	private Bounds bounds;
-	private String boundsFit = "extend";
+	private String boundsFit = "full";
 	
 	private final List<CanvasItem> canvasItems = new ArrayList<>();
 	
