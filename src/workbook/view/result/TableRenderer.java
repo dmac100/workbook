@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
@@ -80,6 +82,12 @@ public class TableRenderer implements ResultRenderer {
 				column.addSelectionListener(new SelectionAdapter() {
 					public void widgetDefaultSelected(SelectionEvent event) {
 						column.pack();
+					}
+				});
+				
+				column.addControlListener(new ControlAdapter() {
+					public void controlResized(ControlEvent event) {
+						table.getParent().pack();
 					}
 				});
 			});
