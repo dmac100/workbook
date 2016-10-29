@@ -11,6 +11,8 @@ import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.DragDetectEvent;
 import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.MenuAdapter;
@@ -514,6 +516,12 @@ public class TabbedViewLayout {
 	 */
 	private void setupTabItem(CTabItem item) {
 		item.setShowClose(true);
+		item.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent event) {
+				TabbedView view = (TabbedView) item.getData();
+				view.getControl().dispose();
+			}
+		});
 	}
 	
 	/**
