@@ -103,6 +103,19 @@ public class ScriptController {
 		return future;
 	}
 	
+	public ScriptFuture<Object> evalMethodCall(String methodName, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		ScriptFuture<Object> future = new ScriptFuture<>(this);
+		runnableQueue.add(() -> {
+			try {
+				Object result = engine.evalMethodCall(methodName, params, outputCallback, errorCallback);
+				future.complete(result);
+			} catch(Exception e) {
+				future.completeExceptionally(e);
+			}
+		});
+		return future;
+	}
+	
 	public ScriptFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
 		ScriptFuture<Object> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {

@@ -93,9 +93,16 @@ public class JavascriptEngine implements Engine {
 		return (Map<Object, Object>) object;
 	}
 	
-	public Object eval(String command) {
-		Consumer<String> nullCallback = x -> {};
-		return eval(command, nullCallback, nullCallback);
+	/**
+	 * Evaluates a method given its name and list of parameters, and returns the result.
+	 */
+	public Object evalMethodCall(String methodName, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		Bindings bindings = engine.createBindings();
+		bindings.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
+		bindings.put("arguments", params);
+		// TODO: Apply only works for javascript functions, not Java methods.
+		String command = "(" + methodName + ").apply(null, arguments)";
+		return eval(command, bindings, outputCallback, errorCallback);
 	}
 	
 	/**

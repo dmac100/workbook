@@ -60,6 +60,13 @@ public class GroovyEngineTest {
 	}
 	
 	@Test
+	public void evalMethodCall() {
+		Object sum = script.evalMethodCall("Double.sum", Arrays.asList(1, 2), x -> {}, x -> {});
+		
+		assertEquals(3.0, sum);
+	}
+	
+	@Test
 	public void isIterable_true() throws ScriptException {
 		Object object = script.eval("[1, 2, 3]");
 		assertTrue(script.isIterable(object));

@@ -65,6 +65,14 @@ public class JavascriptEngineTest {
 	}
 	
 	@Test
+	public void evalMethodCall() {
+		script.eval("function f(x, y) { return x + y }");
+		Object sum = script.evalMethodCall("f", Arrays.asList(1, 2), x -> {}, x -> {});
+		
+		assertEquals(3.0, sum);
+	}
+	
+	@Test
 	public void isIterable_true() throws ScriptException {
 		Object object = script.eval("[1, 2, 3]");
 		assertTrue(script.isIterable(object));

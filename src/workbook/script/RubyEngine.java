@@ -16,7 +16,6 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.jruby.RubyArray;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
@@ -82,9 +81,15 @@ public class RubyEngine implements Engine {
 		return new HashMap<>();
 	}
 	
-	public Object eval(String command) {
-		Consumer<String> nullCallback = x -> {};
-		return eval(command, nullCallback, nullCallback);
+	/**
+	 * Evaluates a method given its name and list of parameters, and returns the result.
+	 */
+	public Object evalMethodCall(String name, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		Bindings bindings = engine.createBindings();
+		bindings.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
+		bindings.put("arguments", params);
+		String command = name + "(*arguments)";
+		return eval(command, bindings, outputCallback, errorCallback);
 	}
 	
 	/**

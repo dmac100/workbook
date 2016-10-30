@@ -6,16 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptException;
 
 import org.junit.Test;
-
-import workbook.script.NameAndProperties;
-import workbook.script.RubyEngine;
 
 public class RubyEngineTest {
 	private final RubyEngine script = new RubyEngine();
@@ -61,6 +57,13 @@ public class RubyEngineTest {
 		List<NameAndProperties> values = script.evalWithCallbackFunctions("line({a: x});", Arrays.asList("line"), x -> {}, x -> {});
 		
 		assertEquals("3", values.get(0).getProperties().get("a"));
+	}
+	
+	@Test
+	public void evalMethodCall() {
+		Object sum = script.evalMethodCall("java.lang.Double.sum", Arrays.asList(1, 2), x -> {}, x -> {});
+		
+		assertEquals(3.0, sum);
 	}
 	
 	@Test

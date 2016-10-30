@@ -77,9 +77,15 @@ public class GroovyEngine implements Engine {
 		return new HashMap<>();
 	}
 	
-	public Object eval(String command) {
-		Consumer<String> nullCallback = x -> {};
-		return eval(command, nullCallback, nullCallback);
+	/**
+	 * Evaluates a method given its name and list of parameters, and returns the result.
+	 */
+	public Object evalMethodCall(String name, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		Bindings bindings = engine.createBindings();
+		bindings.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
+		bindings.put("arguments", params);
+		String command = name + "(*arguments)";
+		return eval(command, bindings, outputCallback, errorCallback);
 	}
 	
 	/**
