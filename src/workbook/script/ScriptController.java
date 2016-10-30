@@ -60,35 +60,22 @@ public class ScriptController {
 	}
 	
 	public ScriptFuture<Void> addEngine(String scriptType, Engine engine) {
-		ScriptFuture<Void> future = new ScriptFuture<>(this);
-		runnableQueue.add(() -> {
-			try {
-				engine.setGlobals(globals);
-				engines.put(scriptType, engine);
-				future.complete(null);
-			} catch(Exception e) {
-				future.completeExceptionally(e);
-			}
+		return exec(() -> {
+			engine.setGlobals(globals);
+			engines.put(scriptType, engine);
+			return null;
 		});
-		return future;
 	}
 	
 	public ScriptFuture<Void> setScriptType(String scriptType) {
 		this.scriptType = scriptType;
-		
-		ScriptFuture<Void> future = new ScriptFuture<>(this);
-		runnableQueue.add(() -> {
-			try {
-				engine = engines.get(scriptType);
-				if(engine == null) {
-					throw new IllegalArgumentException("Unknown script type: " + scriptType);
-				}
-				future.complete(null);
-			} catch(Exception e) {
-				future.completeExceptionally(e);
+		return exec(() -> {
+			engine = engines.get(scriptType);
+			if(engine == null) {
+				throw new IllegalArgumentException("Unknown script type: " + scriptType);
 			}
+			return null;
 		});
-		return future;
 	}
 	
 	public <T> ScriptFuture<T> exec(Supplier<T> supplier) {
@@ -104,55 +91,28 @@ public class ScriptController {
 	}
 	
 	public ScriptFuture<Object> evalMethodCall(String methodName, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		ScriptFuture<Object> future = new ScriptFuture<>(this);
-		runnableQueue.add(() -> {
-			try {
-				Object result = engine.evalMethodCall(methodName, params, outputCallback, errorCallback);
-				future.complete(result);
-			} catch(Exception e) {
-				future.completeExceptionally(e);
-			}
+		return exec(() -> {
+			return engine.evalMethodCall(methodName, params, outputCallback, errorCallback);
 		});
-		return future;
 	}
 	
 	public ScriptFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		ScriptFuture<Object> future = new ScriptFuture<>(this);
-		runnableQueue.add(() -> {
-			try {
-				Object result = engine.eval(expression, outputCallback, errorCallback);
-				future.complete(result);
-			} catch(Exception e) {
-				future.completeExceptionally(e);
-			}
+		return exec(() -> {
+			return engine.eval(expression, outputCallback, errorCallback);
 		});
-		return future;
 	}
 	
 	public ScriptFuture<List<NameAndProperties>> evalWithCallbackFunctions(String expression, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		ScriptFuture<List<NameAndProperties>> future = new ScriptFuture<>(this);
-		runnableQueue.add(() -> {
-			try {
-				List<NameAndProperties> result = engine.evalWithCallbackFunctions(expression, callbackFunctionNames, outputCallback, errorCallback);
-				future.complete(result);
-			} catch(Exception e) {
-				future.completeExceptionally(e);
-			}
+		return exec(() -> {
+			return engine.evalWithCallbackFunctions(expression, callbackFunctionNames, outputCallback, errorCallback);
 		});
-		return future;
 	}
 
 	public ScriptFuture<Void> setVariable(String name, Object value) {
-		ScriptFuture<Void> future = new ScriptFuture<>(this);
-		runnableQueue.add(() -> {
-			try {
-				engine.setVariable(name, value);
-				future.complete(null);
-			} catch(Exception e) {
-				future.completeExceptionally(e);
-			}
+		return exec(() -> {
+			engine.setVariable(name, value);
+			return null;
 		});
-		return future;
 	}
 	
 	public void getScript(Consumer<Engine> consumer) {
