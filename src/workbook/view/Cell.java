@@ -170,6 +170,7 @@ public class Cell {
 							notifyCallbacks.forEach(Runnable::run);
 						}
 						parent.pack();
+						parent.layout();
 					});
 				});
 			});
