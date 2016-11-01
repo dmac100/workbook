@@ -2,6 +2,7 @@ package workbook.editor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,7 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import workbook.editor.reference.ConstantReference;
 import workbook.editor.reference.JavaPropertyReference;
+import workbook.editor.reference.ListItemReference;
 import workbook.editor.reference.MapPropertyReference;
 import workbook.editor.reference.Reference;
 import workbook.script.Engine;
@@ -95,6 +98,18 @@ public class ScriptTableUtil {
 			map.forEach((k, v) -> {
 				row.put(toKeyValue(k), new MapPropertyReference(scriptController, map, k));
 			});
+		} else if(object instanceof List) {
+			List<Object> list = (List<Object>) object;
+			for(int i = 0; i < list.size(); i++) {
+				row.put(String.valueOf(i), new ListItemReference(scriptController, list, i));
+			}
+		} else if(object instanceof Iterable) {
+			Iterable iterable = (Iterable) object;
+			Iterator iterator = iterable.iterator();
+			int i = 0;
+			while(iterator.hasNext()) {
+				row.put(String.valueOf(i++), new ConstantReference(scriptController, iterator.next()));
+			}
 		} else if(object != null) {
 			iterateJavaObjectProperties(object, (k, v) -> {
 				row.put(toKeyValue(k), v);
