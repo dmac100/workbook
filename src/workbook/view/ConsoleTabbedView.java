@@ -44,6 +44,7 @@ public class ConsoleTabbedView implements TabbedView {
 		});
 		
 		eventBus.register(this);
+		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	@Subscribe

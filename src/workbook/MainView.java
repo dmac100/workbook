@@ -100,6 +100,7 @@ public class MainView {
 		createMenuBar(shell);
 		
 		eventBus.register(this);
+		shell.addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	/**
