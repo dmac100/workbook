@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -174,6 +175,30 @@ public class GroovyScriptTableUtilTest {
 		Map<String, List<String>> expected = Map(
 			"a", Arrays.asList("1", "3"),
 			"b", Arrays.asList("2", "4")
+		);
+		
+		assertEquals(expected, table);
+	}
+	
+	@Test
+	public void getTable_javaListList() throws Exception {
+		Map<String, List<String>> table = getTable(Arrays.asList(Arrays.asList("a", "b")));
+		
+		Map<String, List<String>> expected = Map(
+			"0", Arrays.asList("a"),
+			"1", Arrays.asList("b")
+		);
+		
+		assertEquals(expected, table);
+	}
+	
+	@Test
+	public void getTable_javaListIterable() throws Exception {
+		Map<String, List<String>> table = getTable(Arrays.asList(new HashSet<>(Arrays.asList("a", "b"))));
+		
+		Map<String, List<String>> expected = Map(
+			"0", Arrays.asList("a"),
+			"1", Arrays.asList("b")
 		);
 		
 		assertEquals(expected, table);
