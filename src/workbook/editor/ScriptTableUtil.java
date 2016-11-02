@@ -2,6 +2,8 @@ package workbook.editor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -142,7 +144,10 @@ public class ScriptTableUtil {
 	 * Iterate over the properties in a Java object (with get, set and is methods).
 	 */
 	private void iterateJavaObjectProperties(Object object, BiConsumer<String, Reference> consumer) {
-		for(Method getMethod:object.getClass().getMethods()) {
+		Method[] methods = object.getClass().getMethods();
+		Arrays.sort(methods, Comparator.comparing(Method::getName));
+		
+		for(Method getMethod:methods) {
 			if(getMethod.getName().equals("getClass")) continue;
 			
 			if(getMethod.getName().matches("(is|get).*") && getMethod.getParameterCount() == 0) {
