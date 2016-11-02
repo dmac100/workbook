@@ -397,6 +397,9 @@ public class TabbedViewLayout {
 		// Replace sashForm with nonEmptyChild.
 		if(nonEmptyChild != null) {
 			Composite parent = sashForm.getParent();
+			if(!(parent instanceof SashForm)) {
+				nonEmptyChild.setLayoutData(null);
+			}
 			nonEmptyChild.setParent(parent);
 			nonEmptyChild.moveAbove(sashForm);
 			sashForm.dispose();
