@@ -261,8 +261,7 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
 				boolean hasChild = !scriptTableUtil.getTableRow(value).isEmpty();
-				
-				String stringValue = String.valueOf(value);
+				String stringValue = hasChild ? "[" + String.valueOf(value.getClass()) + "]" : String.valueOf(value);
 				treeItem.getDisplay().asyncExec(() -> {
 					if(!treeItem.isDisposed()) {
 						treeItem.setText(1, stringValue);
