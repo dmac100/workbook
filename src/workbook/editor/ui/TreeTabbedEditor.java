@@ -78,13 +78,12 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 		Rectangle clientArea = tree.getClientArea();
 		for(TreeItem item:items) {
 			Rectangle bounds = item.getBounds(1);
+			if(bounds.contains(new Point(event.x, event.y))) {
+				editValue(item);
+				return;
+			}
 			if(item.getExpanded()) {
 				checkBounds(item.getItems(), event);
-			} else {
-				if(bounds.contains(new Point(event.x, event.y))) {
-					editValue(item);
-					return;
-				}
 			}
 			if(!bounds.intersects(clientArea)) {
 				return;
