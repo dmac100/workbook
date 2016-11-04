@@ -144,6 +144,10 @@ public class Workbook {
 	public void deserialize(String documentText) throws JDOMException, IOException {
 		mainView.deserialize(documentText);
 	}
+	
+	public void open(String location) {
+		mainView.open(location);
+	}
 
 	public void waitForExit() {
 		shell.setText("Workbook");
