@@ -15,7 +15,7 @@ public class OgnlReferenceTest {
 		scriptController.startQueueThread();
 		scriptController.addEngine("Javascript", new JavascriptEngine());
 		scriptController.setScriptType("Javascript");
-		scriptController.eval("x = { a: { b: 1 } }", x -> {}, x -> {}).get();
+		scriptController.eval("x = { a: { b: 1 } }").get();
 		
 		OgnlReference reference = new OgnlReference(scriptController, "x.a.b");
 		
@@ -31,7 +31,7 @@ public class OgnlReferenceTest {
 		scriptController.startQueueThread();
 		scriptController.addEngine("Javascript", new JavascriptEngine());
 		scriptController.setScriptType("Javascript");
-		scriptController.eval("x = [1, 2, 3]", x -> {}, x -> {}).get();
+		scriptController.eval("x = [1, 2, 3]").get();
 		
 		OgnlReference reference = new OgnlReference(scriptController, "x[\"1\"]");
 		

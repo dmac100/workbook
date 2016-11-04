@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
@@ -36,12 +37,16 @@ public class MainController {
 	private final StringBuilder outputBuffer = new StringBuilder();
 	private final StringBuilder errorBuffer = new StringBuilder();
 
-	
 	public MainController(EventBus eventBus, Model model) {
 		this.eventBus = eventBus;
 		this.model = model;
 		
 		scriptController.startQueueThread();
+		
+		scriptController.setOutputCallbacks(
+			line -> Display.getDefault().asyncExec(() -> addOutput(line)),
+			line -> Display.getDefault().asyncExec(() -> addError(line))
+		);
 		
 		flushConsoleConsumer = new ThrottledConsumer<Void>(100, true, result -> flushConsole());
 	}
@@ -52,7 +57,7 @@ public class MainController {
 
 	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet) {
 		worksheet.setExecuteFunction(command -> {
-			ScriptFuture<Object> result = scriptController.eval(command, this::addOutput, this::addError);
+			ScriptFuture<Object> result = scriptController.eval(command);
 			result.thenAccept(value -> scriptController.setVariable("_", value));
 			return result;
 		});
@@ -70,7 +75,7 @@ public class MainController {
 	
 	public ScriptTabbedView addScriptEditor(ScriptTabbedView scriptEditor) {
 		scriptEditor.setExecuteFunction(command -> {
-			return scriptController.eval(command, this::addOutput, this::addError);
+			return scriptController.eval(command);
 		});
 		return scriptEditor;
 	}
@@ -107,7 +112,7 @@ public class MainController {
 	public CanvasTabbedView addCanvasView(CanvasTabbedView canvas) {
 		canvas.setExecuteCallback(command -> {
 			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
-			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames, this::addOutput, this::addError);
+			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames);
 			result.thenAccept(value -> {
 				canvas.setCanvasItems(value);
 			});

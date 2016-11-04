@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,20 +27,22 @@ public class GroovyEngineTest {
 	@Test
 	public void eval_scriptOutput() {
 		List<String> list = new ArrayList<>();
-		Object result = script.eval("println 'a'", list::add, list::add);
+		System.setOut(new PrintStream(new LineReader(list::add).getOutputStream()));
+		Object result = script.eval("println 'a'");
 		assertEquals(Arrays.asList("a"), list);
 	}
 	
 	@Test
 	public void eval_javaOutput() {
 		List<String> list = new ArrayList<>();
-		Object result = script.eval("java.lang.System.out.println 'a'", list::add, list::add);
+		System.setOut(new PrintStream(new LineReader(list::add).getOutputStream()));
+		Object result = script.eval("java.lang.System.out.println 'a'");
 		assertEquals(Arrays.asList("a"), list);
 	}
 	
 	@Test
 	public void evalWithCallbackFunctions() {
-		List<NameAndProperties> values = script.evalWithCallbackFunctions("rect([a: 1, b: 2]); line([a: 3]);", Arrays.asList("rect", "line"), x -> {}, x -> {});
+		List<NameAndProperties> values = script.evalWithCallbackFunctions("rect([a: 1, b: 2]); line([a: 3]);", Arrays.asList("rect", "line"));
 
 		assertEquals(2, values.size());
 		
@@ -54,14 +58,14 @@ public class GroovyEngineTest {
 	public void evalWithCallbackFunctions_accessGlobals() {
 		script.eval("x = 3");
 		
-		List<NameAndProperties> values = script.evalWithCallbackFunctions("line([a: x]);", Arrays.asList("line"), x -> {}, x -> {});
+		List<NameAndProperties> values = script.evalWithCallbackFunctions("line([a: x]);", Arrays.asList("line"));
 		
 		assertEquals("3", values.get(0).getProperties().get("a"));
 	}
 	
 	@Test
 	public void evalMethodCall() {
-		Object sum = script.evalMethodCall("Double.sum", Arrays.asList(1, 2), x -> {}, x -> {});
+		Object sum = script.evalMethodCall("Double.sum", Arrays.asList(1, 2));
 		
 		assertEquals(3.0, sum);
 	}

@@ -1,6 +1,7 @@
 package workbook.script;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,27 +97,27 @@ public class JavascriptEngine implements Engine {
 	/**
 	 * Evaluates a method given its name and list of parameters, and returns the result.
 	 */
-	public Object evalMethodCall(String methodName, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public Object evalMethodCall(String methodName, List<Object> params) {
 		Bindings bindings = engine.createBindings();
 		bindings.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 		bindings.put("arguments", params);
 		// TODO: Apply only works for javascript functions, not Java methods.
 		String command = "(" + methodName + ").apply(null, arguments)";
-		return eval(command, bindings, outputCallback, errorCallback);
+		return eval(command, bindings);
 	}
 	
 	/**
 	 * Evaluates a command, and returns the result.
 	 */
-	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		return eval(command, null, outputCallback, errorCallback);
+	public Object eval(String command) {
+		return eval(command, null);
 	}
 
 	/**
 	 * Evaluates a command against a list of callback functions and returns the functions that were called. So if callbackFunctionNames contains
 	 * 'rect', and command contains the function call 'rect({x: 1})', then [NameAndProperties('rect', { x => 1 })] will be returned.
 	 */
-	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames) {
 		List<NameAndProperties> callbackValues = new ArrayList<>();
 		
 		Bindings bindings = engine.createBindings();
@@ -139,21 +140,16 @@ public class JavascriptEngine implements Engine {
 			prefix.append("\n");
 		}
 		
-		eval(prefix.toString(), bindings, outputCallback, errorCallback);
-		eval(command, bindings, outputCallback, errorCallback);
+		eval(prefix.toString(), bindings);
+		eval(command, bindings);
 		
 		return callbackValues;
 	}
 	
-	private Object eval(String command, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-        PrintStream out = System.out;
-        PrintStream err = System.err;
+	private Object eval(String command, Bindings bindings) {
         try {
-        	LineReader outputReader = new LineReader(outputCallback);
-        	LineReader errorReader = new LineReader(errorCallback);
-        	
-        	System.setOut(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(outputReader.getOutputStream()), out));
-        	System.setErr(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(errorReader.getOutputStream()), err));
+        	engine.getContext().setWriter(new PrintWriter(System.out));
+        	engine.getContext().setErrorWriter(new PrintWriter(System.err));
         	
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
@@ -162,20 +158,10 @@ public class JavascriptEngine implements Engine {
 			
 			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 			
-			System.out.close();
-			System.err.close();
-			
-			outputReader.waitUntilDone();
-			errorReader.waitUntilDone();
-			
 			return value;
         } catch(Throwable e) {
-        	e.printStackTrace(err);
-        	errorCallback.accept(getScriptExceptionCause(e));
+        	e.printStackTrace();
         	return null;
-        } finally {
-        	System.setOut(out);
-        	System.setErr(err);
         }
 	}
 	

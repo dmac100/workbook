@@ -7,7 +7,7 @@ import java.util.Locale;
 /**
  * Splits a PrintStream so that one thread goes to one stream, and the rest go to another.
  */
-final class PrintStreamSplitter extends PrintStream {
+public class PrintStreamSplitter extends PrintStream {
 	private final Thread thread;
 	private final PrintStream currentThreadStream;
 	private final PrintStream otherThreadStream;

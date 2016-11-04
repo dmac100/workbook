@@ -1,5 +1,6 @@
 package workbook.script;
 
+import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -25,6 +26,9 @@ public class ScriptController {
 	private Engine engine;
 	
 	private volatile Thread thread = null;
+
+	private Consumer<String> outputCallback = line -> {};
+	private Consumer<String> errorCallback = line -> {};
 	
 	/**
 	 * Starts a thread to handle the items posted to the runnable queue.
@@ -46,6 +50,8 @@ public class ScriptController {
 	}
 	
 	private void runQueue() {
+		redirectOutput(false);
+		
 		while(true) {
 			try {
 				runnableQueue.take().run();
@@ -53,6 +59,29 @@ public class ScriptController {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * Sends the system output and error streams to outputCallback and errorCallback consumers.
+	 */
+	private void redirectOutput(boolean currentThreadOnly) {
+		LineReader outputReader = new LineReader(line -> outputCallback.accept(line));
+    	LineReader errorReader = new LineReader(line -> errorCallback.accept(line));
+    	if(currentThreadOnly) {
+			System.setOut(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(outputReader.getOutputStream()), System.out));
+			System.setErr(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(errorReader.getOutputStream()), System.err));
+    	} else {
+    		System.setOut(new PrintStream(outputReader.getOutputStream()));
+	    	System.setErr(new PrintStream(errorReader.getOutputStream()));
+    	}
+	}
+
+	public void setOutputCallbacks(Consumer<String> outputCallback, Consumer<String> errorCallback) {
+		exec(() -> {
+			this.outputCallback = outputCallback;
+			this.errorCallback = errorCallback;
+			return null;
+		});
 	}
 	
 	public String getScriptType() {
@@ -90,21 +119,21 @@ public class ScriptController {
 		return future;
 	}
 	
-	public ScriptFuture<Object> evalMethodCall(String methodName, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public ScriptFuture<Object> evalMethodCall(String methodName, List<Object> params) {
 		return exec(() -> {
-			return engine.evalMethodCall(methodName, params, outputCallback, errorCallback);
+			return engine.evalMethodCall(methodName, params);
 		});
 	}
 	
-	public ScriptFuture<Object> eval(String expression, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public ScriptFuture<Object> eval(String expression) {
 		return exec(() -> {
-			return engine.eval(expression, outputCallback, errorCallback);
+			return engine.eval(expression);
 		});
 	}
 	
-	public ScriptFuture<List<NameAndProperties>> evalWithCallbackFunctions(String expression, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public ScriptFuture<List<NameAndProperties>> evalWithCallbackFunctions(String expression, List<String> callbackFunctionNames) {
 		return exec(() -> {
-			return engine.evalWithCallbackFunctions(expression, callbackFunctionNames, outputCallback, errorCallback);
+			return engine.evalWithCallbackFunctions(expression, callbackFunctionNames);
 		});
 	}
 

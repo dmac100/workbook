@@ -1,6 +1,5 @@
 package workbook.script;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -80,26 +79,26 @@ public class GroovyEngine implements Engine {
 	/**
 	 * Evaluates a method given its name and list of parameters, and returns the result.
 	 */
-	public Object evalMethodCall(String name, List<Object> params, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public Object evalMethodCall(String name, List<Object> params) {
 		Bindings bindings = engine.createBindings();
 		bindings.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 		bindings.put("arguments", params);
 		String command = name + "(*arguments)";
-		return eval(command, bindings, outputCallback, errorCallback);
+		return eval(command, bindings);
 	}
 	
 	/**
 	 * Evaluates a command, and returns the result.
 	 */
-	public Object eval(String command, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-		return eval(command, null, outputCallback, errorCallback);
+	public Object eval(String command) {
+		return eval(command, null);
 	}
 
 	/**
 	 * Evaluates a command against a list of callback functions and returns the functions that were called. So if callbackFunctionNames contains
 	 * 'rect', and command contains the function call 'rect({x: 1})', then [NameAndProperties('rect', { x => 1 })] will be returned.
 	 */
-	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames, Consumer<String> outputCallback, Consumer<String> errorCallback) {
+	public List<NameAndProperties> evalWithCallbackFunctions(String command, List<String> callbackFunctionNames) {
 		List<NameAndProperties> callbackValues = new ArrayList<>();
 		
 		Bindings bindings = engine.createBindings();
@@ -124,53 +123,32 @@ public class GroovyEngine implements Engine {
 			prefix.append("\n");
 		}
 	
-		eval(prefix.toString(), bindings, outputCallback, errorCallback);
-		eval(command, bindings, outputCallback, errorCallback);
+		eval(prefix.toString(), bindings);
+		eval(command, bindings);
 		
 		return callbackValues;
 	}
 	
-	private Object eval(String command, Bindings bindings, Consumer<String> outputCallback, Consumer<String> errorCallback) {
-        PrintStream out = System.out;
-        PrintStream err = System.err;
+	private Object eval(String command, Bindings bindings) {
         try {
-        	LineReader outputReader = new LineReader(outputCallback);
-        	LineReader errorReader = new LineReader(errorCallback);
-        	
-        	System.setOut(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(outputReader.getOutputStream()), out));
-        	System.setErr(new PrintStreamSplitter(Thread.currentThread(), new PrintStream(errorReader.getOutputStream()), err));
-        	
-        	PrintWriter outputWriter = new PrintWriter(outputReader.getOutputStream());
-        	PrintWriter errorWriter = new PrintWriter(errorReader.getOutputStream());
-     
-        	engine.getContext().setWriter(outputWriter);
-        	engine.getContext().setErrorWriter(errorWriter);
+        	engine.getContext().setWriter(new PrintWriter(System.out));
+        	engine.getContext().setErrorWriter(new PrintWriter(System.err));
         	
         	// Clear cache to work around invalid cached classes.
         	Field field = engine.getClass().getDeclaredField("classMap");
 			field.setAccessible(true);
 			field.set(engine, new ManagedConcurrentValueMap<String, Class>(ReferenceBundle.getSoftBundle()));
-        	
+			
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
 			Object value = (bindings == null) ? engine.eval(command) : engine.eval(command, bindings);
 			
 			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 			
-			outputWriter.close();
-			errorWriter.close();
-			
-			outputReader.waitUntilDone();
-			errorReader.waitUntilDone();
-			
 			return value;
         } catch(Throwable e) {
-        	e.printStackTrace(err);
-        	errorCallback.accept(getScriptExceptionCause(e));
+        	e.printStackTrace();
         	return null;
-        } finally {
-        	System.setOut(out);
-        	System.setErr(err);
         }
 	}
 

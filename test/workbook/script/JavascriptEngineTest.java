@@ -5,18 +5,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptException;
 
 import org.junit.Test;
-
-import workbook.script.JavascriptEngine;
-import workbook.script.NameAndProperties;
 
 public class JavascriptEngineTest {
 	private final JavascriptEngine script = new JavascriptEngine();
@@ -30,13 +27,14 @@ public class JavascriptEngineTest {
 	@Test
 	public void eval_output() {
 		List<String> list = new ArrayList<>();
-		Object result = script.eval("print('a')", list::add, list::add);
+		System.setOut(new PrintStream(new LineReader(list::add).getOutputStream()));
+		Object result = script.eval("print('a')");
 		assertEquals(Arrays.asList("a"), list);
 	}
 	
 	@Test
 	public void evalWithCallbackFunctions() {
-		List<NameAndProperties> values = script.evalWithCallbackFunctions("rect({a: 1, b: 2}); line({a: 3});", Arrays.asList("rect", "line"), x -> {}, x -> {});
+		List<NameAndProperties> values = script.evalWithCallbackFunctions("rect({a: 1, b: 2}); line({a: 3});", Arrays.asList("rect", "line"));
 		
 		assertEquals(2, values.size());
 		
@@ -52,14 +50,14 @@ public class JavascriptEngineTest {
 	public void evalWithCallbackFunctions_accessGlobals() {
 		script.eval("x = 3");
 		
-		List<NameAndProperties> values = script.evalWithCallbackFunctions("line({a: x});", Arrays.asList("line"), x -> {}, x -> {});
+		List<NameAndProperties> values = script.evalWithCallbackFunctions("line({a: x});", Arrays.asList("line"));
 		
 		assertEquals("3", values.get(0).getProperties().get("a"));
 	}
 	
 	@Test
 	public void evalWithCallbackFunctions_callbackScope() {
-		List<NameAndProperties> values = script.evalWithCallbackFunctions("line({a: x});", Arrays.asList("line"), x -> {}, x -> {});
+		List<NameAndProperties> values = script.evalWithCallbackFunctions("line({a: x});", Arrays.asList("line"));
 		
 		assertNull(script.eval("line"));
 	}
@@ -67,7 +65,7 @@ public class JavascriptEngineTest {
 	@Test
 	public void evalMethodCall() {
 		script.eval("function f(x, y) { return x + y }");
-		Object sum = script.evalMethodCall("f", Arrays.asList(1, 2), x -> {}, x -> {});
+		Object sum = script.evalMethodCall("f", Arrays.asList(1, 2));
 		
 		assertEquals(3.0, sum);
 	}

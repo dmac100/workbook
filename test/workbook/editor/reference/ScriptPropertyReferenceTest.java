@@ -14,7 +14,7 @@ public class ScriptPropertyReferenceTest {
 		scriptController.startQueueThread();
 		scriptController.addEngine("Javascript", new JavascriptEngine());
 		scriptController.setScriptType("Javascript");
-		Object object = scriptController.eval("x = { a: 1, b: 2 }; x", x -> {}, x -> {}).get();
+		Object object = scriptController.eval("x = { a: 1, b: 2 }; x").get();
 		
 		Reference reference = new ScriptPropertyReference(scriptController, object, "a");
 		

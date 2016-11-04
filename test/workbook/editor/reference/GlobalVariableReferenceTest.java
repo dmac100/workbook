@@ -14,7 +14,7 @@ public class GlobalVariableReferenceTest {
 		scriptController.startQueueThread();
 		scriptController.addEngine("Javascript", new JavascriptEngine());
 		scriptController.setScriptType("Javascript");
-		scriptController.eval("x = 2", x -> {}, x -> {}).get();
+		scriptController.eval("x = 2").get();
 		
 		GlobalVariableReference reference = new GlobalVariableReference(scriptController, "x");
 		

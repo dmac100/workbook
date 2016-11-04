@@ -207,7 +207,7 @@ public class RubyScriptTableUtilTest {
 	}
 	
 	private Object eval(String expression) throws InterruptedException, ExecutionException {
-		return scriptController.eval(expression, x -> {}, x -> {}).get();
+		return scriptController.eval(expression).get();
 	}
 	
 	private static Map<String, List<String>> resolveReferences(Map<String, List<Reference>> map) {

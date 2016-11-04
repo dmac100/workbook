@@ -1,56 +1,46 @@
 package workbook.script;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.OutputStream;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Creates an OutputStream that calls a callback for each line that's written to it.
  */
 public class LineReader {
-	private static ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).build());
-	
-	private PipedOutputStream outputStream;
-	private Future<?> future;
+	private final OutputStream outputStream;
+	private final CompletableFuture<?> future;
 	
 	public LineReader(final Consumer<String> callback) {
-		try {
-			final PipedInputStream pipedInputStream = new PipedInputStream();
-			final PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
-			  
-			future = executor.submit(new Runnable() {
-				public void run() {
-					try {
-						BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pipedInputStream));
-						String line;
-						while((line = bufferedReader.readLine()) != null) {
-							callback.accept(line);
-						}
-					} catch(IOException e) {
-						e.printStackTrace();
+		this.future = new CompletableFuture<Void>();
+		
+		this.outputStream = new OutputStream() {
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			
+			public void write(int b) throws IOException {
+				if(b != '\r') {
+					if(b == '\n') {
+						callback.accept(new String(buffer.toByteArray()));
+						buffer = new ByteArrayOutputStream();
+					} else {
+						buffer.write(b);
 					}
 				}
-			});
+			}
 			
-			this.outputStream = pipedOutputStream;
-		} catch(IOException e) {
-			throw new RuntimeException("Error creating outputstream", e);
-		}
+			public void close() {
+				future.complete(null);
+			}
+		};
 	}
 	
 	/**
 	 * Returns the OutputStream to write to, which will call the main callback for each line.
 	 */
-	public PipedOutputStream getOutputStream() {
+	public OutputStream getOutputStream() {
 		return outputStream;
 	}
 
