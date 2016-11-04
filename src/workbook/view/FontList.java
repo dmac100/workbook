@@ -25,11 +25,8 @@ public class FontList {
 			fonts.add(fontData.getName());
 		}
 
-		System.out.println(fonts);
-		
 		for(String name:Arrays.asList("Consolas", "Courier", "Courier New")) {
 			if(fonts.contains(name)) {
-				System.out.println("Using: " + name);
 				return name;
 			}
 		}
