@@ -11,6 +11,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -63,6 +64,11 @@ public class TableRenderer implements ResultRenderer {
 		Map<String, List<Reference>> columns = new ScriptTableUtil(scriptController).getTable(value);
 		
 		Display.getDefault().asyncExec(() -> {
+			// Remove any existing results.
+			for(Control control:parent.getChildren()) {
+				control.dispose();
+			}
+			
 			Table table = new Table(parent, SWT.BORDER);
 			table.setHeaderVisible(true);
 			

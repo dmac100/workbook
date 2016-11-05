@@ -3,6 +3,7 @@ package workbook.view.result;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import workbook.script.ScriptController;
@@ -28,6 +29,11 @@ public class StringRenderer implements ResultRenderer {
 			String valueString = String.valueOf(value);
 			
 			Display.getDefault().asyncExec(() -> {
+				// Remove any existing results.
+				for(Control control:parent.getChildren()) {
+					control.dispose();
+				}
+				
 				StyledText styledText = new StyledText(parent, SWT.NONE);
 				styledText.setFont(FontList.consolas10);
 				styledText.setEditable(false);
