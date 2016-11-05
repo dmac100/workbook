@@ -31,8 +31,8 @@ public class StringRenderer implements ResultRenderer {
 				StyledText styledText = new StyledText(parent, SWT.NONE);
 				styledText.setFont(FontList.consolas10);
 				styledText.setEditable(false);
-				styledText.setText(String.valueOf(value));
-
+				styledText.setText(valueString);
+				
 				if(changed) {
 					// Start animation to indicate value has changed.
 					updateBackground(styledText, 0);
