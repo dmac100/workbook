@@ -6,10 +6,9 @@ import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -18,7 +17,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 import workbook.layout.GridDataBuilder;
 import workbook.script.ScriptFuture;
@@ -32,7 +30,7 @@ import workbook.view.result.ResultRenderer;
 public class Cell {
 	private final Composite parent;
 	private final Label prompt;
-	private final Text command;
+	private final StyledText command;
 	
 	private final ResultRenderer resultRenderer;
 	
@@ -55,7 +53,7 @@ public class Cell {
 		Display display = parent.getDisplay();
 		
 		prompt = addLabel(parent, ">>>");
-		command = new Text(parent, SWT.NONE);
+		command = new StyledText(parent, SWT.NONE);
 		result = new Result(parent, resultRenderer);
 		
 		if(cellAbove != null) {
@@ -68,20 +66,19 @@ public class Cell {
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
-				event.text = event.text.replaceAll("(^[\r\n]+)|([\r\n]+$)", "");
-			}
-		});
-		
-		command.addSelectionListener(new SelectionAdapter() {
-			public void widgetDefaultSelected(SelectionEvent event) {
-				runCallbacks.forEach(Runnable::run);
-				evaluate(true);
+				if(event.text.matches("[\r\n]+")) {
+					event.doit = false;
+				}
+				event.text = event.text.replaceAll("[\r\n]+", "");
 			}
 		});
 		
 		command.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
-				if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
+					runCallbacks.forEach(Runnable::run);
+					evaluate(true);
+				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					runAllCallbacks.forEach(Runnable::run);
 					event.doit = false;
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
@@ -141,7 +138,7 @@ public class Cell {
 		
 		command.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
-				int x = command.getCaretLocation().x + command.getBounds().x + getBounds().x;
+				int x = command.getCaret().getLocation().x + command.getBounds().x + getBounds().x;
 				ScrollUtil.scrollHorizontallyTo(scrolledComposite, new Rectangle(x - 50, 0, 100, 0));
 			}
 		});

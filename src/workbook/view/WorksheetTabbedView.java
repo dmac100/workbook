@@ -63,7 +63,7 @@ public class WorksheetTabbedView implements TabbedView {
 			.numColumns(2)
 			.marginWidth(5)
 			.marginHeight(3)
-			.horizontalSpacing(0)
+			.horizontalSpacing(2)
 			.verticalSpacing(2)
 			.build()
 		);
