@@ -41,12 +41,12 @@ public class ScrollUtil {
 			}
 		}
 		if(scrollVertically) {
-			if(origin.y > bounds.y) {
-				origin.y = Math.max(0, bounds.y);
-				scroll = true;
-			}
 			if(origin.y + area.height < bounds.y + bounds.height) {
 				origin.y = Math.max(0, bounds.y + bounds.height - area.height);
+				scroll = true;
+			}
+			if(origin.y > bounds.y) {
+				origin.y = Math.max(0, bounds.y);
 				scroll = true;
 			}
 		}
