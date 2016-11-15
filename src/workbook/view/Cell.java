@@ -122,10 +122,12 @@ public class Cell {
 		command.addTraverseListener(new TraverseListener() {
 			public void keyTraversed(TraverseEvent event) {
 				if(event.keyCode == SWT.TAB && event.stateMask == 0) {
-					String completedText = completionFunction.apply(command.getText());
-					command.setText(completedText);
-					command.setSelection(command.getText().length());
-					event.doit = false;
+					if(command.getSelection().x == command.getText().length()) {
+						String completedText = completionFunction.apply(command.getText());
+						command.setText(completedText);
+						command.setSelection(command.getText().length());
+						event.doit = false;
+					}
 				}
 			}
 		});
