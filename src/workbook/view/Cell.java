@@ -96,7 +96,7 @@ public class Cell {
 					if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
 						// Run run callbacks on return.
 						runCallbacks.forEach(Runnable::run);
-						evaluate(true);
+						evaluate(() -> notifyCallbacks.forEach(Runnable::run));
 					} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 						// Run runAll callbacks on ctrl+return.
 						runAllCallbacks.forEach(Runnable::run);
@@ -105,7 +105,7 @@ public class Cell {
 						// Run insert callbacks on shift+return.
 						event.doit = false;
 						insertCallbacks.forEach(Runnable::run);
-						evaluate(true);
+						evaluate(() -> notifyCallbacks.forEach(Runnable::run));
 					}
 				}
 			});
@@ -168,10 +168,10 @@ public class Cell {
 		command.setForeground(display.getSystemColor(SWT.COLOR_DARK_CYAN));
 	}
 	
-	public void evaluate(boolean runNotifyCallbacks) {
+	public void evaluate(Runnable callback) {
 		if(command.getText().trim().isEmpty()) {
 			result.clear();
-			
+			callback.run();
 			parent.pack();
 		} else {
 			result.setLoading();
@@ -181,9 +181,7 @@ public class Cell {
 			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
 				result.setValue(resultObject, () -> {
 					Display.getDefault().asyncExec(() -> {
-						if(runNotifyCallbacks) {
-							notifyCallbacks.forEach(Runnable::run);
-						}
+						callback.run();
 						parent.pack();
 						parent.layout();
 					});

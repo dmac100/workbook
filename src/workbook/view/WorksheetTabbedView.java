@@ -207,9 +207,18 @@ public class WorksheetTabbedView implements TabbedView {
 	}
 	
 	private void refresh() {
-		Display.getDefault().asyncExec(() -> {
-			for(Cell prompt:cells) {
-				prompt.evaluate(false);
+		// Run evaluate on all cells, and post minor refresh event when all have been evaluated.
+		Display.getDefault().asyncExec(new Runnable() {
+			int count = cells.size();
+			
+			public void run() {
+				for(Cell cell:cells) {
+					cell.evaluate(() -> {
+						if(--count == 0) {
+							eventBus.post(new MinorRefreshEvent(this));
+						}
+					});
+				}
 			}
 		});
 	}
