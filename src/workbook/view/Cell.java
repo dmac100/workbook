@@ -1,6 +1,7 @@
 package workbook.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -56,6 +57,8 @@ public class Cell {
 		command = new StyledText(parent, SWT.NONE);
 		result = new Result(parent, resultRenderer);
 		
+		List<Composite> commandAndResultComposites = Arrays.asList(command, result.asComposite());
+		
 		if(cellAbove != null) {
 			prompt.moveBelow(cellAbove.result.asComposite());
 			command.moveBelow(prompt);
@@ -74,70 +77,45 @@ public class Cell {
 			}
 		});
 		
-		command.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent event) {
-				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
-					// Run run callbacks on return.
-					runCallbacks.forEach(Runnable::run);
-					evaluate(true);
-				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
-					// Run runAll callbacks on ctrl+return.
-					runAllCallbacks.forEach(Runnable::run);
-					event.doit = false;
-				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
-					// Run insert callbacks on shift+return.
-					event.doit = false;
-					insertCallbacks.forEach(Runnable::run);
-					evaluate(true);
+		commandAndResultComposites.forEach(composite -> {
+			composite.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent event) {
+					if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
+						// Run run callbacks on return.
+						runCallbacks.forEach(Runnable::run);
+						evaluate(true);
+					} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+						// Run runAll callbacks on ctrl+return.
+						runAllCallbacks.forEach(Runnable::run);
+						event.doit = false;
+					} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
+						// Run insert callbacks on shift+return.
+						event.doit = false;
+						insertCallbacks.forEach(Runnable::run);
+						evaluate(true);
+					}
 				}
-			}
+			});
 		});
 		
-		result.asComposite().addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent event) {
-				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
-					// Run run callbacks on return.
-					runCallbacks.forEach(Runnable::run);
-					evaluate(true);
-				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
-					// Run runAll callbacks on ctrl+return.
-					runAllCallbacks.forEach(Runnable::run);
-					event.doit = false;
-				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
-					// Run insert callbacks on shift+return.
-					event.doit = false;
-					insertCallbacks.forEach(Runnable::run);
-					evaluate(true);
+		commandAndResultComposites.forEach(composite -> {
+			composite.addKeyListener(new KeyAdapter() {
+				public void keyPressed(KeyEvent event) {
+					if(event.character == SWT.BS && command.getText().isEmpty()) {
+						// Run delete callbacks on backspace in empty text.
+						deleteCallbacks.forEach(Runnable::run);
+					} else if(event.keyCode == SWT.ARROW_UP) {
+						// Return up callback.
+						upCallbacks.forEach(Runnable::run);
+					} else if(event.keyCode == SWT.ARROW_DOWN) {
+						// Return down callback.
+						downCallbacks.forEach(Runnable::run);
+					} else if(event.keyCode != SWT.TAB) {
+						// Dismiss completion on any character except tab.
+						completionFunction.apply(null);
+					}
 				}
-			}
-		});
-
-		command.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent event) {
-				if(event.character == SWT.BS && command.getText().isEmpty()) {
-					// Run delete callbacks on backspace in empty text.
-					deleteCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode == SWT.ARROW_UP) {
-					// Return up callback.
-					upCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode == SWT.ARROW_DOWN) {
-					// Return down callback.
-					downCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode != SWT.TAB) {
-					// Dismiss completion on any character except tab.
-					completionFunction.apply(null);
-				}
-			}
-		});
-		
-		result.asComposite().addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent event) {
-				if(event.keyCode == SWT.ARROW_UP) {
-					upCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode == SWT.ARROW_DOWN) {
-					downCallbacks.forEach(Runnable::run);
-				}
-			}
+			});
 		});
 		
 		command.addTraverseListener(new TraverseListener() {
