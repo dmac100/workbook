@@ -32,6 +32,10 @@ public class Completion {
 		String prefix = text.replaceAll("\\w*$", "");
 		String suffix = text.substring(prefix.length());
 		
+		if(suffix.length() == 0) {
+			return text;
+		}
+		
 		if(completionPrefix.isEmpty()) {
 			completionPrefix = suffix;
 		}
