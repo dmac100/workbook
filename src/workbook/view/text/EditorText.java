@@ -162,6 +162,8 @@ public class EditorText {
 						editFunctions.selectAll();
 					} else if(event.keyCode == 'd') {
 						deleteLine();
+					} else if(event.keyCode == 'f') {
+						find();
 					}
 				}
 			}
@@ -549,6 +551,10 @@ public class EditorText {
 	
 	public Control getControl() {
 		return styledText;
+	}
+	
+	public void find() {
+		new FindDialog(Display.getDefault().getActiveShell(), styledText).open();
 	}
 
 	public void convertTabsToSpaces() {
