@@ -103,17 +103,6 @@ public class Cell {
 			}
 		});
 		
-		command.addTraverseListener(new TraverseListener() {
-			public void keyTraversed(TraverseEvent event) {
-				if(event.keyCode == SWT.TAB && event.stateMask == 0) {
-					String completedText = completionFunction.apply(command.getText());
-					command.setText(completedText);
-					command.setSelection(command.getText().length());
-					event.doit = false;
-				}
-			}
-		});
-		
 		result.asComposite().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
@@ -121,6 +110,21 @@ public class Cell {
 					evaluate(true);
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					runAllCallbacks.forEach(Runnable::run);
+					event.doit = false;
+				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
+					event.doit = false;
+					insertCallbacks.forEach(Runnable::run);
+					evaluate(true);
+				}
+			}
+		});
+		
+		command.addTraverseListener(new TraverseListener() {
+			public void keyTraversed(TraverseEvent event) {
+				if(event.keyCode == SWT.TAB && event.stateMask == 0) {
+					String completedText = completionFunction.apply(command.getText());
+					command.setText(completedText);
+					command.setSelection(command.getText().length());
 					event.doit = false;
 				}
 			}
