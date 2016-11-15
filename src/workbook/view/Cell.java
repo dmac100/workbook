@@ -66,6 +66,7 @@ public class Cell {
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
+				// Remove whitespace on insertion.
 				if(event.text.matches("[\r\n\t]+")) {
 					event.doit = false;
 				}
@@ -76,29 +77,18 @@ public class Cell {
 		command.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
+					// Run run callbacks on return.
 					runCallbacks.forEach(Runnable::run);
 					evaluate(true);
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+					// Run runAll callbacks on ctrl+return.
 					runAllCallbacks.forEach(Runnable::run);
 					event.doit = false;
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
+					// Run insert callbacks on shift+return.
 					event.doit = false;
 					insertCallbacks.forEach(Runnable::run);
 					evaluate(true);
-				}
-			}
-		});
-		
-		command.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent event) {
-				if(event.character == SWT.BS && command.getText().isEmpty()) {
-					deleteCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode == SWT.ARROW_UP) {
-					upCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode == SWT.ARROW_DOWN) {
-					downCallbacks.forEach(Runnable::run);
-				} else if(event.keyCode != SWT.TAB) {
-					completionFunction.apply(null);
 				}
 			}
 		});
@@ -106,28 +96,36 @@ public class Cell {
 		result.asComposite().addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
 				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
+					// Run run callbacks on return.
 					runCallbacks.forEach(Runnable::run);
 					evaluate(true);
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+					// Run runAll callbacks on ctrl+return.
 					runAllCallbacks.forEach(Runnable::run);
 					event.doit = false;
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
+					// Run insert callbacks on shift+return.
 					event.doit = false;
 					insertCallbacks.forEach(Runnable::run);
 					evaluate(true);
 				}
 			}
 		});
-		
-		command.addTraverseListener(new TraverseListener() {
-			public void keyTraversed(TraverseEvent event) {
-				if(event.keyCode == SWT.TAB && event.stateMask == 0) {
-					if(command.getSelection().x == command.getText().length()) {
-						String completedText = completionFunction.apply(command.getText());
-						command.setText(completedText);
-						command.setSelection(command.getText().length());
-						event.doit = false;
-					}
+
+		command.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent event) {
+				if(event.character == SWT.BS && command.getText().isEmpty()) {
+					// Run delete callbacks on backspace in empty text.
+					deleteCallbacks.forEach(Runnable::run);
+				} else if(event.keyCode == SWT.ARROW_UP) {
+					// Return up callback.
+					upCallbacks.forEach(Runnable::run);
+				} else if(event.keyCode == SWT.ARROW_DOWN) {
+					// Return down callback.
+					downCallbacks.forEach(Runnable::run);
+				} else if(event.keyCode != SWT.TAB) {
+					// Dismiss completion on any character except tab.
+					completionFunction.apply(null);
 				}
 			}
 		});
@@ -142,8 +140,23 @@ public class Cell {
 			}
 		});
 		
+		command.addTraverseListener(new TraverseListener() {
+			public void keyTraversed(TraverseEvent event) {
+				// Insert tab completion on tab when cursor is at the end of the command control.
+				if(event.keyCode == SWT.TAB && event.stateMask == 0) {
+					if(command.getSelection().x == command.getText().length()) {
+						String completedText = completionFunction.apply(command.getText());
+						command.setText(completedText);
+						command.setSelection(command.getText().length());
+						event.doit = false;
+					}
+				}
+			}
+		});
+		
 		command.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
+				// Scroll to make this cell visible when any character is entered.
 				int x = command.getCaret().getLocation().x + command.getBounds().x + getBounds().x;
 				ScrollUtil.scrollHorizontallyTo(scrolledComposite, new Rectangle(x - 50, 0, 100, 0));
 			}
