@@ -8,6 +8,9 @@ import java.util.function.Function;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.TraverseEvent;
@@ -74,6 +77,12 @@ public class Cell {
 					event.doit = false;
 				}
 				event.text = event.text.replaceAll("[\r\n\t]+", "");
+			}
+		});
+		
+		command.addFocusListener(new FocusAdapter() {
+			public void focusLost(FocusEvent event) {
+				command.setSelection(command.getCharCount());
 			}
 		});
 		
