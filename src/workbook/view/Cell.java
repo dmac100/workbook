@@ -66,10 +66,10 @@ public class Cell {
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
-				if(event.text.matches("[\r\n]+")) {
+				if(event.text.matches("[\r\n\t]+")) {
 					event.doit = false;
 				}
-				event.text = event.text.replaceAll("[\r\n]+", "");
+				event.text = event.text.replaceAll("[\r\n\t]+", "");
 			}
 		});
 		
