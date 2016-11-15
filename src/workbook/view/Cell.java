@@ -100,17 +100,30 @@ public class Cell {
 		
 		commandAndResultComposites.forEach(composite -> {
 			composite.addKeyListener(new KeyAdapter() {
+				private boolean empty = false;
+				
 				public void keyPressed(KeyEvent event) {
 					if(event.character == SWT.BS && command.getText().isEmpty()) {
-						// Run delete callbacks on backspace in empty text.
-						deleteCallbacks.forEach(Runnable::run);
+						// Run delete callbacks on backspace, if the previous text value was empty.
+						if(empty) {
+							deleteCallbacks.forEach(Runnable::run);
+						} else {
+							empty = true;
+						}
 					} else if(event.keyCode == SWT.ARROW_UP) {
 						// Return up callback.
 						upCallbacks.forEach(Runnable::run);
 					} else if(event.keyCode == SWT.ARROW_DOWN) {
 						// Return down callback.
 						downCallbacks.forEach(Runnable::run);
-					} else if(event.keyCode != SWT.TAB) {
+					} else {
+						// Reset empty if the command is no longer empty.
+						if(!command.getText().isEmpty()) {
+							empty = false;
+						}
+					}
+					
+					if(event.keyCode != SWT.TAB) {
 						// Dismiss completion on any character except tab.
 						completionFunction.apply(null);
 					}
