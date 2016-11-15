@@ -50,6 +50,8 @@ public class Cell {
 	private Function<String, ScriptFuture<Object>> executeFunction = null;
 	private Function<String, String> completionFunction = null;
 	
+	private String previousCommandText = "";
+	
 	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer, Cell cellAbove) {
 		this.parent = parent;
 		this.resultRenderer = resultRenderer;
@@ -72,6 +74,8 @@ public class Cell {
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
+				previousCommandText = command.getText();
+				
 				// Remove whitespace on insertion.
 				if(event.text.matches("[\r\n\t]+")) {
 					event.doit = false;
@@ -109,32 +113,25 @@ public class Cell {
 		
 		commandAndResultComposites.forEach(composite -> {
 			composite.addKeyListener(new KeyAdapter() {
-				private boolean empty = false;
-				
 				public void keyPressed(KeyEvent event) {
-					if(event.character == SWT.BS && command.getText().isEmpty()) {
+					if(event.character == SWT.BS && previousCommandText.isEmpty()) {
 						// Run delete callbacks on backspace, if the previous text value was empty.
-						if(empty) {
-							deleteCallbacks.forEach(Runnable::run);
-						} else {
-							empty = true;
-						}
+						deleteCallbacks.forEach(Runnable::run);
 					} else if(event.keyCode == SWT.ARROW_UP) {
 						// Return up callback.
 						upCallbacks.forEach(Runnable::run);
 					} else if(event.keyCode == SWT.ARROW_DOWN) {
 						// Return down callback.
 						downCallbacks.forEach(Runnable::run);
-					} else {
-						// Reset empty if the command is no longer empty.
-						if(!command.getText().isEmpty()) {
-							empty = false;
-						}
 					}
 					
 					if(event.keyCode != SWT.TAB) {
 						// Dismiss completion on any character except tab.
 						completionFunction.apply(null);
+					}
+					
+					if(!command.isDisposed()) {
+						previousCommandText = command.getText();
 					}
 				}
 			});
