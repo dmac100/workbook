@@ -539,7 +539,11 @@ public class EditorText {
 
 	public void setText(String string) {
 		if(!replaceNewLines(styledText.getText()).equals(replaceNewLines(string))) {
+			Point selection = styledText.getSelection();
+			
 			styledText.setText(string);
+
+			styledText.setSelection(selection);
 		}
 	}
 	
