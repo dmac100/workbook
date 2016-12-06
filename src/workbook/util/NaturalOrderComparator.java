@@ -1,5 +1,6 @@
 package workbook.util;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +16,12 @@ public class NaturalOrderComparator implements Comparator<String> {
 	
 	private static class CompareBuilder {
 		private int compare = 0;
+		
+		public void compare(BigInteger a, BigInteger b) {
+			if(compare == 0) {
+				compare = a.compareTo(b);
+			}
+		}
 		
 		public void compare(String a, String b) {
 			if(compare == 0) {
@@ -44,7 +51,7 @@ public class NaturalOrderComparator implements Comparator<String> {
 			String sb = groupb.get(i);
 			
 			if(Character.isDigit(sa.charAt(0)) && Character.isDigit(sb.charAt(0))) {
-				compare.compare(Integer.parseInt(sa), Integer.parseInt(sb));
+				compare.compare(new BigInteger(sa), new BigInteger(sb));
 			} else {
 				compare.compare(sa, sb);
 			}
