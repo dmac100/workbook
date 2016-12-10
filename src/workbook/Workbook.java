@@ -92,7 +92,7 @@ public class Workbook {
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new StringTabbedEditor(parent, eventBus));
+			return controller.addEditor(new StringTabbedEditor(parent, eventBus, mainController.getScriptController()));
 		});
 		
 		mainView.registerView(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> {
@@ -104,11 +104,11 @@ public class Workbook {
 		});
 		
 		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new HexTabbedEditor(parent, eventBus));
+			return controller.addEditor(new HexTabbedEditor(parent, eventBus, mainController.getScriptController()));
 		});
 		
 		mainView.registerView(PolygonTabbedEditor.class, "PolygonEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new PolygonTabbedEditor(parent, eventBus));
+			return controller.addEditor(new PolygonTabbedEditor(parent, eventBus, mainController.getScriptController()));
 		});
 	}
 

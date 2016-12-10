@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Display;
 import com.google.common.eventbus.EventBus;
 
 import workbook.event.MinorRefreshEvent;
+import workbook.script.ScriptController;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
@@ -22,7 +23,9 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	
 	private boolean disableModifyCallback;
 	
-	public StringTabbedEditor(Composite parent, EventBus eventBus) {
+	public StringTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
+		super(eventBus, scriptController);
+		
 		this.parent = parent;
 		this.eventBus = eventBus;
 		

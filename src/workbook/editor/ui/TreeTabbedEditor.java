@@ -45,6 +45,8 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 	private final List<List<String>> expandedItems = new ArrayList<>();
 	
 	public TreeTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
+		super(eventBus, scriptController);
+		
 		this.parent = parent;
 		this.eventBus = eventBus;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);

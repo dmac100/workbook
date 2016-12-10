@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Display;
 import com.google.common.eventbus.EventBus;
 
 import workbook.event.MinorRefreshEvent;
+import workbook.script.ScriptController;
 import workbook.view.TabbedView;
 
 class PolygonCanvas {
@@ -409,7 +410,9 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 	private final Composite control;
 	private final PolygonCanvas canvas; 
 	
-	public PolygonTabbedEditor(Composite parent, EventBus eventBus) {
+	public PolygonTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
+		super(eventBus, scriptController);
+		
 		this.control = new Composite(parent, SWT.NONE);
 		this.eventBus = eventBus;
 		

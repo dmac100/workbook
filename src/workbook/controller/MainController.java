@@ -121,7 +121,6 @@ public class MainController {
 	}
 
 	public <T extends Editor> T addEditor(T editor) {
-		editor.setReferenceFunction(expression -> new OgnlReference(scriptController, expression));
 		eventBus.register(editor);
 		editor.getControl().addDisposeListener(event -> eventBus.unregister(editor));
 		return editor;

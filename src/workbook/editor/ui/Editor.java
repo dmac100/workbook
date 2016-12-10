@@ -1,23 +1,31 @@
 package workbook.editor.ui;
 
-import java.util.function.Function;
-
 import org.eclipse.swt.widgets.Control;
 import org.jdom2.Element;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import workbook.editor.reference.OgnlReference;
 import workbook.editor.reference.Reference;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
+import workbook.script.ScriptController;
 
 /**
  * An editor view that can be used to view and modify the contents of a reference.
  */
 public abstract class Editor {
-	private Function<String, Reference> referenceFunction;
+	private final ScriptController scriptController;
+	private final EventBus eventBus;
+	
 	private String expression;
 	protected Reference reference;
+	
+	public Editor(EventBus eventBus, ScriptController scriptController) {
+		this.eventBus = eventBus;
+		this.scriptController = scriptController;
+	}
 	
 	/**
 	 * Reads the reference value, updating this view.
@@ -46,22 +54,8 @@ public abstract class Editor {
 	 */
 	public void setExpression(String expression) {
 		this.expression = expression;
-		refreshReference();
-	}
-	
-	/**
-	 * Sets a function that is used to get a reference from an expression.
-	 */
-	public void setReferenceFunction(Function<String, Reference> referenceFunction) {
-		this.referenceFunction = referenceFunction;
-		refreshReference();
-	}
-	
-	private void refreshReference() {
-		if(referenceFunction != null && expression != null) {
-			reference = referenceFunction.apply(expression);
-			readValue();
-		}
+		this.reference = new OgnlReference(scriptController, expression);
+		readValue();
 	}
 	
 	public void serialize(Element element) {

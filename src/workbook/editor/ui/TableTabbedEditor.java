@@ -45,6 +45,8 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 	private final TableEditor tableEditor;
 
 	public TableTabbedEditor(Composite parent, EventBus eventBus, ScriptController scriptController) {
+		super(eventBus, scriptController);
+		
 		this.parent = parent;
 		this.eventBus = eventBus;
 		this.scriptTableUtil = new ScriptTableUtil(scriptController);
