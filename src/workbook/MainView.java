@@ -46,6 +46,7 @@ import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
 import workbook.view.ConsoleTabbedView;
+import workbook.view.FormTabbedView;
 import workbook.view.InputDialog;
 import workbook.view.MenuBuilder;
 import workbook.view.ScriptTabbedView;
@@ -167,6 +168,7 @@ public class MainView {
 			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addView(WorksheetTabbedView.class))
 			.addItem("New Script").addSelectionListener(() -> viewFactory.addView(ScriptTabbedView.class))
 			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addView(CanvasTabbedView.class))
+			.addItem("New Form").addSelectionListener(() -> viewFactory.addView(FormTabbedView.class))
 			.addSeparator()
 			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(StringTabbedEditor.class, expression)))
 			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TableTabbedEditor.class, expression)))

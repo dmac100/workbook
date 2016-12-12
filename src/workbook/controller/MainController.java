@@ -21,7 +21,9 @@ import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
 import workbook.view.ConsoleTabbedView;
+import workbook.view.FormTabbedView;
 import workbook.view.ScriptTabbedView;
+import workbook.view.TabbedView;
 import workbook.view.WorksheetTabbedView;
 import workbook.view.canvas.CanvasTabbedView;
 
@@ -118,6 +120,17 @@ public class MainController {
 			});
 		});
 		return canvas;
+	}
+	
+	public TabbedView addFormView(FormTabbedView form) {
+		form.setExecuteCallback(command -> {
+			List<String> callbackNames = Arrays.asList("sliderItem", "booleanItem", "textItem");
+			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames);
+			result.thenAccept(value -> {
+				form.setFormItems(value);
+			});
+		});
+		return form;
 	}
 
 	public <T extends Editor> T addEditor(T editor) {

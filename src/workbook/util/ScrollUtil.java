@@ -1,10 +1,31 @@
 package workbook.util;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
 
 public class ScrollUtil {
+	/**
+	 * Creates a ScrolledComposite containing a composite that will be resized when the scrolled composite is resized.
+	 */
+	public static ScrolledComposite createScrolledComposite(Composite parent) {
+		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
+		final Composite composite = new Composite(scrolledComposite, SWT.NONE);
+		scrolledComposite.setContent(composite);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		scrolledComposite.addControlListener(new ControlAdapter() {
+			public void controlResized(ControlEvent event) {
+				scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			}
+		});
+		return scrolledComposite;
+	}
+	
 	/**
 	 * Scrolls a ScrolledComposite so that bounds is visible.
 	 */

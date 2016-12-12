@@ -20,6 +20,7 @@ import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.model.Model;
 import workbook.view.ConsoleTabbedView;
+import workbook.view.FormTabbedView;
 import workbook.view.ScriptTabbedView;
 import workbook.view.TabbedView;
 import workbook.view.TabbedViewLayout.FolderPosition;
@@ -89,6 +90,10 @@ public class Workbook {
 		
 		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> {
 			return controller.addCanvasView(new CanvasTabbedView(parent, eventBus, model));
+		});
+		
+		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, (controller, parent) -> {
+			return controller.addFormView(new FormTabbedView(parent, eventBus, model));
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {
@@ -170,7 +175,7 @@ public class Workbook {
 	public static void main(String[] args) {
 		Workbook workbook = new Workbook();
 		if(args.length == 1) {
-			workbook.mainView.open(args[0]);
+			workbook.open(args[0]);
 		}
 		workbook.waitForExit();
 	}

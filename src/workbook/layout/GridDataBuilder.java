@@ -50,6 +50,16 @@ public class GridDataBuilder {
 		return this;
 	}
 	
+	public GridDataBuilder width(int width) {
+		gridData.widthHint = width;
+		return this;
+	}
+	
+	public GridDataBuilder height(int height) {
+		gridData.widthHint = height;
+		return this;
+	}
+	
 	public GridData build() {
 		return gridData;
 	}

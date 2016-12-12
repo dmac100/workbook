@@ -56,7 +56,7 @@ public class WorksheetTabbedView implements TabbedView {
 		
 		parent.setLayout(new FillLayout());
 		
-		scrolledCellsComposite = createScrolledComposite(parent);
+		scrolledCellsComposite = ScrollUtil.createScrolledComposite(parent);
 		cellsComposite = (Composite) scrolledCellsComposite.getContent();
 		cellsComposite.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 		cellsComposite.setLayout(new GridLayoutBuilder()
@@ -78,20 +78,6 @@ public class WorksheetTabbedView implements TabbedView {
 		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
-	}
-	
-	private static ScrolledComposite createScrolledComposite(Composite parent) {
-		final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-		final Composite composite = new Composite(scrolledComposite, SWT.NONE);
-		scrolledComposite.setContent(composite);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
-		scrolledComposite.addControlListener(new ControlAdapter() {
-			public void controlResized(ControlEvent event) {
-				scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			}
-		});
-		return scrolledComposite;
 	}
 	
 	@Subscribe
