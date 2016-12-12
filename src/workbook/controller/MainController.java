@@ -124,7 +124,7 @@ public class MainController {
 	
 	public TabbedView addFormView(FormTabbedView form) {
 		form.setExecuteCallback(command -> {
-			List<String> callbackNames = Arrays.asList("sliderItem", "booleanItem", "textItem");
+			List<String> callbackNames = Arrays.asList("sliderItem", "booleanItem", "textItem", "buttonItem");
 			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames);
 			result.thenAccept(value -> {
 				form.setFormItems(value);

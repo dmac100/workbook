@@ -93,7 +93,7 @@ public class Workbook {
 		});
 		
 		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addFormView(new FormTabbedView(parent, eventBus, model));
+			return controller.addFormView(new FormTabbedView(parent, eventBus, mainController.getScriptController(), model));
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {

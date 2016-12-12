@@ -9,6 +9,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
@@ -27,6 +29,7 @@ import org.jdom2.Element;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import workbook.editor.reference.OgnlReference;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
@@ -34,14 +37,20 @@ import workbook.layout.GridDataBuilder;
 import workbook.layout.GridLayoutBuilder;
 import workbook.model.Model;
 import workbook.script.NameAndProperties;
+import workbook.script.ScriptController;
 import workbook.util.ScrollUtil;
 import workbook.view.text.EditorText;
 
 class FormView {
+	private final EventBus eventBus;
+	private final ScriptController scriptController;
 	private final ScrolledComposite scrolledComposite;
 	private final Composite composite;
 	
-	public FormView(Composite parent) {
+	public FormView(Composite parent, EventBus eventBus, ScriptController scriptController) {
+		this.eventBus = eventBus;
+		this.scriptController = scriptController;
+		
 		scrolledComposite = ScrollUtil.createScrolledComposite(parent);
 		scrolledComposite.setLayout(new FillLayout());
 		
@@ -68,16 +77,31 @@ class FormView {
 		slider.setMinimum(0);
 		slider.setMaximum(max - min);
 		slider.setThumb(1);
-		slider.setSelection(0);
 		slider.setLayoutData(new GridDataBuilder().fillHorizontal().build());
 		
 		Label value = new Label(control, SWT.NONE);
 		value.setText(String.valueOf(min));
 		value.setLayoutData(new GridDataBuilder().width(50).build());
 		
+		OgnlReference reference = new OgnlReference(scriptController, expression);
+		
+		reference.get().thenAccept(x -> {
+			if(x instanceof Integer) {
+				int intValue = (Integer) x;
+				Display.getDefault().asyncExec(() -> {
+					if(!value.isDisposed() && !slider.isDisposed()) {
+						value.setText(String.valueOf(intValue));		
+						slider.setSelection(intValue - min);
+					}
+				});
+			}
+		});
+		
 		slider.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				value.setText(String.valueOf(slider.getSelection() + min));
+				reference.set(slider.getSelection() + min);
+				eventBus.post(new MinorRefreshEvent(FormView.this));
 			}
 		});
 	}
@@ -90,6 +114,26 @@ class FormView {
 		Button button = new Button(composite, SWT.CHECK);
 		button.setText(labelText);
 		button.setLayoutData(new GridDataBuilder().grabExcessHorizontalSpace(true).build());
+		
+		OgnlReference reference = new OgnlReference(scriptController, expression);
+		
+		reference.get().thenAccept(x -> {
+			if(x instanceof Boolean) {
+				boolean booleanValue = (Boolean) x;
+				Display.getDefault().asyncExec(() -> {
+					if(!button.isDisposed()) {
+						button.setSelection(booleanValue);
+					}
+				});
+			}
+		});
+		
+		button.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				reference.set(button.getSelection());
+				eventBus.post(new MinorRefreshEvent(FormView.this));
+			}
+		});
 	}
 	
 	private void addTextItem(String expression, String labelText) {
@@ -99,15 +143,41 @@ class FormView {
 
 		Text text = new Text(composite, SWT.BORDER);
 		text.setLayoutData(new GridDataBuilder().grabExcessHorizontalSpace(true).fillHorizontal().build());
+		
+		OgnlReference reference = new OgnlReference(scriptController, expression);
+		
+		reference.get().thenAccept(x -> {
+			if(x instanceof String) {
+				String textValue = (String) x;
+				Display.getDefault().asyncExec(() -> {
+					if(!text.isDisposed()) {
+						text.setText(textValue);
+					}
+				});
+			}
+		});
+		
+		text.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent event) {
+				reference.set(text.getText());
+				eventBus.post(new MinorRefreshEvent(FormView.this));
+			}
+		});
 	}
 	
-	private void addButton(String name, Runnable runnable) {
+	private void addButtonItem(String expression, String labelText) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("");
 		label.setLayoutData(new GridDataBuilder().build());
 
 		Button button = new Button(composite, SWT.BORDER);
-		button.setText(name);
+		button.setText(labelText);
+		
+		button.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				scriptController.eval(expression);
+			}
+		});
 	}
 	
 	public Control getControl() {
@@ -129,12 +199,16 @@ class FormView {
 					addSliderItem(expression, label, (int) min, (int) max);
 				} else if(name.equals("booleanItem")) {
 					String expression = getStringOrDefault(properties.get("expression"), "expression");
-					String label = getStringOrDefault(properties.get("label"), "label");
+					String label = getStringOrDefault(properties.get("label"), expression);
 					addBooleanItem(expression, label);
 				} else if(name.equals("textItem")) {
 					String expression = getStringOrDefault(properties.get("expression"), "expression");
-					String label = getStringOrDefault(properties.get("label"), "label");
+					String label = getStringOrDefault(properties.get("label"), expression);
 					addTextItem(expression, label);
+				} else if(name.equals("buttonItem")) {
+					String expression = getStringOrDefault(properties.get("expression"), "expression");
+					String label = getStringOrDefault(properties.get("label"), expression);
+					addButtonItem(expression, label);
 				}
 			}
 			composite.pack();
@@ -183,7 +257,7 @@ public class FormTabbedView implements TabbedView {
 	
 	private final List<FormView> formViews = new ArrayList<>();
 	
-	public FormTabbedView(Composite parent, EventBus eventBus, Model model) {
+	public FormTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, Model model) {
 		folder = new TabFolder(parent, SWT.BOTTOM);
 		this.model = model;
 		
@@ -194,13 +268,13 @@ public class FormTabbedView implements TabbedView {
 		SashForm designSashForm = new SashForm(folder, SWT.NONE);
 		this.editorText = new EditorText(designSashForm);
 		designTab.setControl(designSashForm);
-		FormView designTabFormView = new FormView(designSashForm);
+		FormView designTabFormView = new FormView(designSashForm, eventBus, scriptController);
 		formViews.add(designTabFormView);
 		
 		// Add view tab with form only.
 		TabItem viewTab = new TabItem(folder, SWT.NONE);
 		viewTab.setText("View");
-		FormView viewTabFormView = new FormView(folder);
+		FormView viewTabFormView = new FormView(folder, eventBus, scriptController);
 		formViews.add(viewTabFormView);
 		viewTab.setControl(viewTabFormView.getControl());
 		
@@ -228,9 +302,13 @@ public class FormTabbedView implements TabbedView {
 	
 	@Subscribe
 	public void onMinorRefresh(MinorRefreshEvent event) {
-		if(event.getSource() != this) {
-			refresh();
+		for(FormView formView:formViews) {
+			if(event.getSource() == formView) {
+				return;
+			}
 		}
+		
+		refresh();
 	}
 	
 	@Subscribe
