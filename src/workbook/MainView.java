@@ -232,7 +232,6 @@ public class MainView {
 			
 			try {
 				String document = FileUtils.readFileToString(new File(location), "UTF-8");
-				mainController.clear();
 				tabbedViewLayout.clear();
 				deserialize(document);
 			} catch(Exception e) {

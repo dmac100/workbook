@@ -18,6 +18,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import workbook.event.MajorRefreshEvent;
+import workbook.event.OutputEvent;
 
 /**
  * A view that displays the console output.
@@ -48,40 +49,45 @@ public class ConsoleTabbedView implements TabbedView {
 	}
 	
 	@Subscribe
+	public void onOutput(OutputEvent event) {
+		text.getDisplay().asyncExec(() -> {
+			addOutput(event.getOutput());
+			addError(event.getError());
+		});
+	}
+	
+	@Subscribe
 	public void onMajorRefresh(MajorRefreshEvent event) {
-		clear();
+		text.getDisplay().asyncExec(() -> {
+			clear();
+		});
 	}
 	
 	public void selectAll() {
 		text.setSelection(0, text.getText().length());
 	}
 	
-	public void addOutput(String output) {
-		text.getDisplay().asyncExec(() -> {
-			text.append(output);
-			text.setTopIndex(text.getLineCount() - 1);
-		});
+	private void addOutput(String output) {
+		text.append(output);
+		text.setTopIndex(text.getLineCount() - 1);
 	}
 	
+	private void addError(String error) {
+		int start = text.getCharCount();
+		
+		text.append(error);
+		text.setTopIndex(text.getLineCount() - 1);
+		
+		StyleRange styleRange = new StyleRange();
+		styleRange.start = start;
+		styleRange.length = error.length();
+		styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+		
+		text.replaceStyleRanges(start, error.length(), new StyleRange[] { styleRange });
+	}
 	
 	public void clear() {
 		text.setText("");
-	}
-	
-	public void addError(String error) {
-		text.getDisplay().asyncExec(() -> {
-			int start = text.getCharCount();
-			
-			text.append(error);
-			text.setTopIndex(text.getLineCount() - 1);
-			
-			StyleRange styleRange = new StyleRange();
-			styleRange.start = start;
-			styleRange.length = error.length();
-			styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-			
-			text.replaceStyleRanges(start, error.length(), new StyleRange[] { styleRange });
-		});
 	}
 
 	public Control getControl() {

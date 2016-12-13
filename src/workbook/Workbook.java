@@ -85,7 +85,7 @@ public class Workbook {
 		});
 		
 		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> {
-			return controller.addConsole(new ConsoleTabbedView(parent, eventBus));
+			return new ConsoleTabbedView(parent, eventBus);
 		});
 		
 		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> {

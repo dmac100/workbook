@@ -1,35 +1,23 @@
 package workbook.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
 
-import workbook.editor.ui.Editor;
+import workbook.event.OutputEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
-import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
-import workbook.view.ConsoleTabbedView;
-import workbook.view.FormTabbedView;
-import workbook.view.ScriptTabbedView;
-import workbook.view.TabbedView;
-import workbook.view.WorksheetTabbedView;
-import workbook.view.canvas.CanvasTabbedView;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
 	private final EventBus eventBus;
 	private final Model model;
-	
-	private final List<ConsoleTabbedView> consoles = new ArrayList<>();
 	
 	private final Consumer<Void> flushConsoleConsumer;
 	
@@ -50,10 +38,6 @@ public class MainController {
 		flushConsoleConsumer = new ThrottledConsumer<Void>(100, true, result -> flushConsole());
 	}
 	
-	public void clear() {
-		consoles.clear();
-	}
-
 	private void addOutput(String output) {
 		outputBuffer.append(output + "\n");
 		flushConsoleConsumer.accept(null);
@@ -69,18 +53,7 @@ public class MainController {
 		String error = errorBuffer.toString();
 		outputBuffer.setLength(0);
 		errorBuffer.setLength(0);
-		consoles.forEach(console -> console.addOutput(output));
-		consoles.forEach(console -> console.addError(error));
-	}
-	
-	public void clearConsole() {
-		consoles.forEach(console -> console.clear());
-	}
-
-	public ConsoleTabbedView addConsole(ConsoleTabbedView console) {
-		console.getControl().addDisposeListener(event -> consoles.remove(console));
-		consoles.add(console);
-		return console;
+		eventBus.post(new OutputEvent(output, error));
 	}
 	
 	public void interrupt() {
