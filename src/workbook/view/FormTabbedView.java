@@ -41,6 +41,10 @@ import workbook.script.ScriptController;
 import workbook.util.ScrollUtil;
 import workbook.view.text.EditorText;
 
+/**
+ * Displays the form items and updates their values from their expressions, and writes
+ * the values when the form items are changed.
+ */
 class FormView {
 	private final EventBus eventBus;
 	private final ScriptController scriptController;
@@ -71,6 +75,9 @@ class FormView {
 		}
 	}
 	
+	/**
+	 * Adds a slider form item to represent the value in expression between min and max.
+	 */
 	private void addSliderItem(String expression, String labelText, int min, int max) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(labelText + ":");
@@ -91,7 +98,8 @@ class FormView {
 		value.setLayoutData(new GridDataBuilder().width(50).build());
 		
 		OgnlReference reference = new OgnlReference(scriptController, expression);
-		
+
+		// Read expression value.
 		refreshCallbacks.add(() -> {
 			reference.get().thenAccept(x -> {
 				if(x instanceof Integer) {
@@ -106,6 +114,7 @@ class FormView {
 			});
 		});
 		
+		// Write expression value.
 		slider.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				value.setText(String.valueOf(slider.getSelection() + min));
@@ -115,6 +124,9 @@ class FormView {
 		});
 	}
 	
+	/**
+	 * Adds a boolean form item to represent the value in expression.
+	 */
 	private void addBooleanItem(String expression, String labelText) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("");
@@ -125,7 +137,8 @@ class FormView {
 		button.setLayoutData(new GridDataBuilder().grabExcessHorizontalSpace(true).build());
 		
 		OgnlReference reference = new OgnlReference(scriptController, expression);
-		
+
+		// Read expression value.
 		refreshCallbacks.add(() -> {
 			reference.get().thenAccept(x -> {
 				if(x instanceof Boolean) {
@@ -139,6 +152,7 @@ class FormView {
 			});
 		});
 		
+		// Write expression value.
 		button.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				reference.set(button.getSelection());
@@ -147,6 +161,9 @@ class FormView {
 		});
 	}
 	
+	/**
+	 * Adds a text form item to represent the value in expression.
+	 */
 	private void addTextItem(String expression, String labelText) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(labelText + ":");
@@ -156,7 +173,8 @@ class FormView {
 		text.setLayoutData(new GridDataBuilder().grabExcessHorizontalSpace(true).fillHorizontal().build());
 		
 		OgnlReference reference = new OgnlReference(scriptController, expression);
-		
+
+		// Read expression value.
 		refreshCallbacks.add(() -> {
 			reference.get().thenAccept(x -> {
 				if(x instanceof String) {
@@ -174,6 +192,7 @@ class FormView {
 			});
 		});
 		
+		// Write expression value.
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
 				if(!disableModifyListener) {
@@ -184,6 +203,9 @@ class FormView {
 		});
 	}
 	
+	/**
+	 * Adds a button item that will evaluate expression when selected.
+	 */
 	private void addButtonItem(String expression, String labelText) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText("");
@@ -191,7 +213,8 @@ class FormView {
 
 		Button button = new Button(composite, SWT.BORDER);
 		button.setText(labelText);
-		
+
+		// Evaluate expression.
 		button.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				scriptController.eval(expression);
@@ -203,6 +226,9 @@ class FormView {
 		return scrolledComposite;
 	}
 
+	/**
+	 * Creates the form items from the given items.
+	 */
 	public void setFormItems(List<NameAndProperties> formItems) {
 		composite.getDisplay().asyncExec(() -> {
 			if(!formItems.equals(this.formItems)) {
