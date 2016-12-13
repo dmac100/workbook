@@ -1,9 +1,9 @@
 package workbook.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -38,6 +38,7 @@ import workbook.layout.GridLayoutBuilder;
 import workbook.model.Model;
 import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
+import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.text.EditorText;
 
@@ -300,16 +301,16 @@ class FormView {
  * a form view.
  */
 public class FormTabbedView implements TabbedView {
+	private final ScriptController scriptController;
 	private final TabFolder folder;
 	private final EditorText editorText;
 	private final Model model;
-	
-	private Consumer<String> executeCallback;
 	
 	private final List<FormView> formViews = new ArrayList<>();
 	
 	public FormTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, Model model) {
 		folder = new TabFolder(parent, SWT.BOTTOM);
+		this.scriptController = scriptController;
 		this.model = model;
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);
@@ -371,20 +372,12 @@ public class FormTabbedView implements TabbedView {
 		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
 	}
 	
-	public void setExecuteCallback(Consumer<String> executeCallback) {
-		this.executeCallback = executeCallback;
-	}
-	
 	public void refresh() {
 		Display.getDefault().asyncExec(() -> {
-			if(executeCallback != null) {
-				executeCallback.accept(editorText.getText());
-			}
+			List<String> callbackNames = Arrays.asList("sliderItem", "booleanItem", "textItem", "buttonItem");
+			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(editorText.getText(), callbackNames);
+			result.thenAccept(values -> formViews.forEach(formView -> formView.setFormItems(values)));
 		});
-	}
-	
-	public void setFormItems(List<NameAndProperties> formItems) {
-		formViews.forEach(formView -> formView.setFormItems(formItems));
 	}
 	
 	public Control getControl() {

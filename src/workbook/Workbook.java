@@ -81,7 +81,7 @@ public class Workbook {
 		});
 		
 		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> {
-			return controller.addScriptEditor(new ScriptTabbedView(parent, eventBus, model));
+			return new ScriptTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
 		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> {
@@ -89,31 +89,31 @@ public class Workbook {
 		});
 		
 		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addCanvasView(new CanvasTabbedView(parent, eventBus, model));
+			return new CanvasTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
 		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addFormView(new FormTabbedView(parent, eventBus, mainController.getScriptController(), model));
+			return new FormTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new StringTabbedEditor(parent, eventBus, mainController.getScriptController()));
+			return new StringTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
 		mainView.registerView(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new TableTabbedEditor(parent, eventBus, mainController.getScriptController()));
+			return new TableTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
 		mainView.registerView(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new TreeTabbedEditor(parent, eventBus, mainController.getScriptController()));
+			return new TreeTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
 		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new HexTabbedEditor(parent, eventBus, mainController.getScriptController()));
+			return new HexTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
 		mainView.registerView(PolygonTabbedEditor.class, "PolygonEditor", FolderPosition.RIGHT, (controller, parent) -> {
-			return controller.addEditor(new PolygonTabbedEditor(parent, eventBus, mainController.getScriptController()));
+			return new PolygonTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 	}
 

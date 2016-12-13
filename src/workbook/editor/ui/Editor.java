@@ -22,9 +22,17 @@ public abstract class Editor {
 	private String expression;
 	protected Reference reference;
 	
-	public Editor(EventBus eventBus, ScriptController scriptController) {
+	protected Editor(EventBus eventBus, ScriptController scriptController) {
 		this.eventBus = eventBus;
 		this.scriptController = scriptController;
+	}
+	
+	/**
+	 * Register event listeners on the EventBus and removes them when disposed.
+	 */
+	protected void registerEvents() {
+		eventBus.register(this);
+		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	/**

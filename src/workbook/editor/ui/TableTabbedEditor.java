@@ -63,6 +63,8 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 		});
 		
 		tableSorter = new TableSorter(table);
+		
+		registerEvents();
 	}
 
 	/**

@@ -1,8 +1,8 @@
 package workbook.view.canvas;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -28,6 +28,8 @@ import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.script.NameAndProperties;
+import workbook.script.ScriptController;
+import workbook.script.ScriptFuture;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
@@ -140,16 +142,16 @@ class CanvasView {
  * a canvas that shows the drawn content.
  */
 public class CanvasTabbedView implements TabbedView {
+	private final ScriptController scriptController;
 	private final TabFolder folder;
 	private final EditorText editorText;
 	private final Model model;
 	
-	private Consumer<String> executeCallback;
-	
 	private final List<CanvasView> canvasViews = new ArrayList<>();
 	
-	public CanvasTabbedView(Composite parent, EventBus eventBus, Model model) {
+	public CanvasTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, Model model) {
 		folder = new TabFolder(parent, SWT.BOTTOM);
+		this.scriptController = scriptController;
 		this.model = model;
 		
 		TabItem designTab = new TabItem(folder, SWT.NONE);
@@ -211,20 +213,12 @@ public class CanvasTabbedView implements TabbedView {
 		Display.getDefault().asyncExec(() -> editorText.setBrush(model.getBrush()));
 	}
 	
-	public void setExecuteCallback(Consumer<String> executeCallback) {
-		this.executeCallback = executeCallback;
-	}
-	
 	public void refresh() {
 		Display.getDefault().asyncExec(() -> {
-			if(executeCallback != null) {
-				executeCallback.accept(editorText.getText());
-			}
+			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
+			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(editorText.getText(), callbackNames);
+			result.thenAccept(values -> canvasViews.forEach(canvasView -> canvasView.setCanvasItems(values)));
 		});
-	}
-	
-	public void setCanvasItems(List<NameAndProperties> values) {
-		canvasViews.forEach(canvasView -> canvasView.setCanvasItems(values));
 	}
 
 	public Control getControl() {

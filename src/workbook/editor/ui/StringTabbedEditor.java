@@ -38,6 +38,8 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 				}
 			}
 		});
+		
+		registerEvents();
 	}
 	
 	public void readValue() {

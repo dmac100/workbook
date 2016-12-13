@@ -1,7 +1,6 @@
 package workbook.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -11,12 +10,10 @@ import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
 
-import workbook.editor.reference.OgnlReference;
 import workbook.editor.ui.Editor;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.script.Engine;
-import workbook.script.NameAndProperties;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
@@ -75,13 +72,6 @@ public class MainController {
 		return worksheet;
 	}
 	
-	public ScriptTabbedView addScriptEditor(ScriptTabbedView scriptEditor) {
-		scriptEditor.setExecuteFunction(command -> {
-			return scriptController.eval(command);
-		});
-		return scriptEditor;
-	}
-	
 	private void addOutput(String output) {
 		outputBuffer.append(output + "\n");
 		flushConsoleConsumer.accept(null);
@@ -109,34 +99,6 @@ public class MainController {
 		console.getControl().addDisposeListener(event -> consoles.remove(console));
 		consoles.add(console);
 		return console;
-	}
-	
-	public CanvasTabbedView addCanvasView(CanvasTabbedView canvas) {
-		canvas.setExecuteCallback(command -> {
-			List<String> callbackNames = Arrays.asList("rect", "ellipse", "fill", "circle", "line", "text");
-			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames);
-			result.thenAccept(value -> {
-				canvas.setCanvasItems(value);
-			});
-		});
-		return canvas;
-	}
-	
-	public TabbedView addFormView(FormTabbedView form) {
-		form.setExecuteCallback(command -> {
-			List<String> callbackNames = Arrays.asList("sliderItem", "booleanItem", "textItem", "buttonItem");
-			ScriptFuture<List<NameAndProperties>> result = scriptController.evalWithCallbackFunctions(command, callbackNames);
-			result.thenAccept(value -> {
-				form.setFormItems(value);
-			});
-		});
-		return form;
-	}
-
-	public <T extends Editor> T addEditor(T editor) {
-		eventBus.register(editor);
-		editor.getControl().addDisposeListener(event -> eventBus.unregister(editor));
-		return editor;
 	}
 	
 	public void interrupt() {

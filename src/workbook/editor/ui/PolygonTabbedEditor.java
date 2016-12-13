@@ -416,6 +416,8 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 		this.control = new Composite(parent, SWT.NONE);
 		this.eventBus = eventBus;
 		
+		registerEvents();
+		
 		GridLayout gridLayout = new GridLayout(1, false);
 		control.setLayout(gridLayout);
 		

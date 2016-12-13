@@ -227,6 +227,8 @@ public class HexTabbedEditor extends Editor implements TabbedView {
 		Composite top = new Composite(sashForm, SWT.NONE);
 		Composite bottom = new Composite(sashForm, SWT.NONE);
 		
+		registerEvents();
+		
 		this.hexView = new HexView(top);
 		hexView.setSelectedCallback(this::onSelected);
 		

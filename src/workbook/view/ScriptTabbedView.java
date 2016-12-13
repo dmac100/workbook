@@ -1,7 +1,5 @@
 package workbook.view;
 
-import java.util.function.Function;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -17,7 +15,7 @@ import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
-import workbook.script.ScriptFuture;
+import workbook.script.ScriptController;
 import workbook.view.text.EditorText;
 
 /**
@@ -26,13 +24,13 @@ import workbook.view.text.EditorText;
 public class ScriptTabbedView implements TabbedView {
 	private final EditorText editorText;
 	private final EventBus eventBus;
+	private final ScriptController scriptController;
 	private final Model model;
 	
-	private Function<String, ScriptFuture<Object>> executeFunction;
-
-	public ScriptTabbedView(Composite parent, EventBus eventBus, Model model) {
+	public ScriptTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, Model model) {
 		this.editorText = new EditorText(parent);
 		this.eventBus = eventBus;
+		this.scriptController = scriptController;
 		this.model = model;
 		
 		editorText.getStyledText().addVerifyKeyListener(new VerifyKeyListener() {
@@ -66,10 +64,8 @@ public class ScriptTabbedView implements TabbedView {
 	
 	private void refresh() {
 		Display.getDefault().asyncExec(() -> {
-			if(executeFunction != null) {
-				executeFunction.apply(editorText.getText())
-					.thenRun(() -> eventBus.post(new MinorRefreshEvent(this)));
-			}
+			scriptController.eval(editorText.getText())
+				.thenRun(() -> eventBus.post(new MinorRefreshEvent(this)));
 		});
 	}
 
@@ -79,10 +75,6 @@ public class ScriptTabbedView implements TabbedView {
 	
 	public Control getControl() {
 		return editorText.getControl();
-	}
-
-	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
-		this.executeFunction = executeFunction;
 	}
 
 	public void serialize(Element element) {

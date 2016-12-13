@@ -67,6 +67,8 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 				expandItem((TreeItem) event.item);
 			}
 		});
+		
+		registerEvents();
 	}
 	
 	private void onMouseDown(MouseEvent event) {
