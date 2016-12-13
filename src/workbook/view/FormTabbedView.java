@@ -47,6 +47,11 @@ class FormView {
 	private final ScrolledComposite scrolledComposite;
 	private final Composite composite;
 	
+	private boolean disableModifyListener = false;
+	
+	private List<NameAndProperties> formItems = new ArrayList<>();
+	private List<Runnable> refreshCallbacks = new ArrayList<>();
+	
 	public FormView(Composite parent, EventBus eventBus, ScriptController scriptController) {
 		this.eventBus = eventBus;
 		this.scriptController = scriptController;
@@ -59,6 +64,8 @@ class FormView {
 	}
 	
 	private void clearItems() {
+		formItems.clear();
+		refreshCallbacks.clear();
 		for(Control control:composite.getChildren()) {
 			control.dispose();
 		}
@@ -85,16 +92,18 @@ class FormView {
 		
 		OgnlReference reference = new OgnlReference(scriptController, expression);
 		
-		reference.get().thenAccept(x -> {
-			if(x instanceof Integer) {
-				int intValue = (Integer) x;
-				Display.getDefault().asyncExec(() -> {
-					if(!value.isDisposed() && !slider.isDisposed()) {
-						value.setText(String.valueOf(intValue));		
-						slider.setSelection(intValue - min);
-					}
-				});
-			}
+		refreshCallbacks.add(() -> {
+			reference.get().thenAccept(x -> {
+				if(x instanceof Integer) {
+					int intValue = (Integer) x;
+					Display.getDefault().asyncExec(() -> {
+						if(!value.isDisposed() && !slider.isDisposed()) {
+							value.setText(String.valueOf(intValue));		
+							slider.setSelection(intValue - min);
+						}
+					});
+				}
+			});
 		});
 		
 		slider.addSelectionListener(new SelectionAdapter() {
@@ -117,15 +126,17 @@ class FormView {
 		
 		OgnlReference reference = new OgnlReference(scriptController, expression);
 		
-		reference.get().thenAccept(x -> {
-			if(x instanceof Boolean) {
-				boolean booleanValue = (Boolean) x;
-				Display.getDefault().asyncExec(() -> {
-					if(!button.isDisposed()) {
-						button.setSelection(booleanValue);
-					}
-				});
-			}
+		refreshCallbacks.add(() -> {
+			reference.get().thenAccept(x -> {
+				if(x instanceof Boolean) {
+					boolean booleanValue = (Boolean) x;
+					Display.getDefault().asyncExec(() -> {
+						if(!button.isDisposed()) {
+							button.setSelection(booleanValue);
+						}
+					});
+				}
+			});
 		});
 		
 		button.addSelectionListener(new SelectionAdapter() {
@@ -146,21 +157,29 @@ class FormView {
 		
 		OgnlReference reference = new OgnlReference(scriptController, expression);
 		
-		reference.get().thenAccept(x -> {
-			if(x instanceof String) {
-				String textValue = (String) x;
-				Display.getDefault().asyncExec(() -> {
-					if(!text.isDisposed()) {
-						text.setText(textValue);
-					}
-				});
-			}
+		refreshCallbacks.add(() -> {
+			reference.get().thenAccept(x -> {
+				if(x instanceof String) {
+					String textValue = (String) x;
+					Display.getDefault().asyncExec(() -> {
+						if(!text.isDisposed()) {
+							if(!text.equals(textValue)) {
+								disableModifyListener = true;
+								text.setText(textValue);
+								disableModifyListener = false;
+							}
+						}
+					});
+				}
+			});
 		});
 		
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
-				reference.set(text.getText());
-				eventBus.post(new MinorRefreshEvent(FormView.this));
+				if(!disableModifyListener) {
+					reference.set(text.getText());
+					eventBus.post(new MinorRefreshEvent(FormView.this));
+				}
 			}
 		});
 	}
@@ -184,34 +203,40 @@ class FormView {
 		return scrolledComposite;
 	}
 
-	public void setFormItems(List<NameAndProperties> values) {
+	public void setFormItems(List<NameAndProperties> formItems) {
 		composite.getDisplay().asyncExec(() -> {
-			clearItems();
-			for(NameAndProperties nameAndProperties:values) {
-				String name = nameAndProperties.getName();
-				Map<String, String> properties = nameAndProperties.getProperties();
+			if(!formItems.equals(this.formItems)) {
+				clearItems();
+				this.formItems = formItems;
 				
-				if(name.equals("sliderItem")) {
-					String expression = getStringOrDefault(properties.get("expression"), "expression");
-					String label = getStringOrDefault(properties.get("label"), expression);
-					double min = getDoubleOrDefault(properties.get("min"), 0);
-					double max = getDoubleOrDefault(properties.get("max"), 100);
-					addSliderItem(expression, label, (int) min, (int) max);
-				} else if(name.equals("booleanItem")) {
-					String expression = getStringOrDefault(properties.get("expression"), "expression");
-					String label = getStringOrDefault(properties.get("label"), expression);
-					addBooleanItem(expression, label);
-				} else if(name.equals("textItem")) {
-					String expression = getStringOrDefault(properties.get("expression"), "expression");
-					String label = getStringOrDefault(properties.get("label"), expression);
-					addTextItem(expression, label);
-				} else if(name.equals("buttonItem")) {
-					String expression = getStringOrDefault(properties.get("expression"), "expression");
-					String label = getStringOrDefault(properties.get("label"), expression);
-					addButtonItem(expression, label);
+				for(NameAndProperties nameAndProperties:formItems) {
+					String name = nameAndProperties.getName();
+					Map<String, String> properties = nameAndProperties.getProperties();
+					
+					if(name.equals("sliderItem")) {
+						String expression = getStringOrDefault(properties.get("expression"), "expression");
+						String label = getStringOrDefault(properties.get("label"), expression);
+						double min = getDoubleOrDefault(properties.get("min"), 0);
+						double max = getDoubleOrDefault(properties.get("max"), 100);
+						addSliderItem(expression, label, (int) min, (int) max);
+					} else if(name.equals("booleanItem")) {
+						String expression = getStringOrDefault(properties.get("expression"), "expression");
+						String label = getStringOrDefault(properties.get("label"), expression);
+						addBooleanItem(expression, label);
+					} else if(name.equals("textItem")) {
+						String expression = getStringOrDefault(properties.get("expression"), "expression");
+						String label = getStringOrDefault(properties.get("label"), expression);
+						addTextItem(expression, label);
+					} else if(name.equals("buttonItem")) {
+						String expression = getStringOrDefault(properties.get("expression"), "expression");
+						String label = getStringOrDefault(properties.get("label"), expression);
+						addButtonItem(expression, label);
+					}
 				}
+				composite.pack();
 			}
-			composite.pack();
+			
+			refreshCallbacks.forEach(Runnable::run);
 		});
 	}
 	
@@ -332,8 +357,8 @@ public class FormTabbedView implements TabbedView {
 		});
 	}
 	
-	public void setFormItems(List<NameAndProperties> values) {
-		formViews.forEach(formView -> formView.setFormItems(values));
+	public void setFormItems(List<NameAndProperties> formItems) {
+		formViews.forEach(formView -> formView.setFormItems(formItems));
 	}
 	
 	public Control getControl() {
