@@ -77,7 +77,7 @@ public class Workbook {
 		ResultRenderer resultRenderer = createResultRenders();
 		
 		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> {
-			return controller.addWorksheet(new WorksheetTabbedView(parent, eventBus, resultRenderer));
+			return new WorksheetTabbedView(parent, eventBus, mainController.getScriptController(), resultRenderer);
 		});
 		
 		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> {

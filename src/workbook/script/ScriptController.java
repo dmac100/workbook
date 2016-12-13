@@ -127,7 +127,9 @@ public class ScriptController {
 	
 	public ScriptFuture<Object> eval(String expression) {
 		return exec(() -> {
-			return engine.eval(expression);
+			Object result = engine.eval(expression);
+			engine.setVariable("_", result);
+			return result;
 		});
 	}
 	

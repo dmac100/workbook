@@ -54,24 +54,6 @@ public class MainController {
 		consoles.clear();
 	}
 
-	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet) {
-		worksheet.setExecuteFunction(command -> {
-			ScriptFuture<Object> result = scriptController.eval(command);
-			result.thenAccept(value -> scriptController.setVariable("_", value));
-			return result;
-		});
-		return worksheet;
-	}
-	
-	public WorksheetTabbedView addWorksheet(WorksheetTabbedView worksheet, Function<String, Object> commandFunction) {
-		worksheet.setExecuteFunction(command -> {
-			ScriptFuture<Object> result = scriptController.exec(() -> commandFunction.apply(command));
-			result.thenAccept(value -> scriptController.setVariable("_", value));
-			return result;
-		});
-		return worksheet;
-	}
-	
 	private void addOutput(String output) {
 		outputBuffer.append(output + "\n");
 		flushConsoleConsumer.accept(null);

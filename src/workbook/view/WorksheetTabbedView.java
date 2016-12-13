@@ -8,8 +8,6 @@ import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -28,6 +26,7 @@ import com.google.common.eventbus.Subscribe;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.layout.GridLayoutBuilder;
+import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.result.ResultRenderer;
@@ -40,7 +39,6 @@ public class WorksheetTabbedView implements TabbedView {
 	private final ScrolledComposite scrolledCellsComposite;
 	private final Composite cellsComposite;
 	private final ResultRenderer resultRenderer;
-	
 	private Function<String, ScriptFuture<Object>> executeFunction;
 	
 	private final Completion completion = new Completion();
@@ -48,7 +46,23 @@ public class WorksheetTabbedView implements TabbedView {
 	
 	private Cell focusedCell = null;
 	
-	public WorksheetTabbedView(Composite parent, EventBus eventBus, ResultRenderer resultRenderer) {
+	/**
+	 * Creates a worksheet that evaluates against the script controller evaluation function.
+	 */
+	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
+		this(parent, eventBus, resultRenderer);
+		this.executeFunction = command -> scriptController.eval(command);
+	}
+	
+	/**
+	 * Creates a worksheet that evaluates against a custom evaluation function.
+	 */
+	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer, Function<String, Object> executeFunction) {
+		this(parent, eventBus, scriptController, resultRenderer);
+		this.executeFunction = command -> scriptController.exec(() -> executeFunction.apply(command));
+	}
+	
+	private WorksheetTabbedView(Composite parent, EventBus eventBus, ResultRenderer resultRenderer) {
 		this.eventBus = eventBus;
 		this.resultRenderer = resultRenderer;
 		
@@ -215,10 +229,6 @@ public class WorksheetTabbedView implements TabbedView {
 			cells.get(index).setFocus();
 			ScrollUtil.scrollVerticallyTo(scrolledCellsComposite, cells.get(index).getBounds());
 		}
-	}
-	
-	public void setExecuteFunction(Function<String, ScriptFuture<Object>> executeFunction) {
-		this.executeFunction = executeFunction;
 	}
 	
 	public void pack() {
