@@ -588,6 +588,8 @@ public class TabbedViewLayout {
 		setupTabFolder(folder);
 		
 		deserialize(viewFactory, parentElement.getChildren().get(0), folder);
+		
+		parent.layout();
 	}
 
 	private void deserialize(TabbedViewFactory viewFactory, Element element, CTabFolder folder) {
