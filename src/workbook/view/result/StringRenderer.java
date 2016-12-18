@@ -2,6 +2,8 @@ package workbook.view.result;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -38,6 +40,13 @@ public class StringRenderer implements ResultRenderer {
 				styledText.setFont(FontList.consolas10);
 				styledText.setEditable(false);
 				styledText.setText(valueString);
+				
+				// Remove selection after losing focus.
+				styledText.addFocusListener(new FocusAdapter() {
+					public void focusLost(FocusEvent event) {
+						styledText.setSelection(styledText.getSelection().x);
+					}
+				});
 				
 				if(changed) {
 					// Start animation to indicate value has changed.
