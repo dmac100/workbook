@@ -1,6 +1,5 @@
 package workbook.script;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -151,6 +150,7 @@ public class JavascriptEngine implements Engine {
         	engine.getContext().setWriter(new PrintWriter(System.out));
         	engine.getContext().setErrorWriter(new PrintWriter(System.err));
         	
+        	engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
         	String script = String.format("with(new JavaImporter(java.util, java.lang)) { %s; }", command);

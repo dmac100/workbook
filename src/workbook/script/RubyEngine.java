@@ -138,6 +138,7 @@ public class RubyEngine implements Engine {
         	engine.getContext().setWriter(new PrintWriter(System.out));
         	engine.getContext().setErrorWriter(new PrintWriter(System.err));
         	
+        	engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
         	String script = String.format("require 'java'; %s;", command);

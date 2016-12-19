@@ -139,6 +139,7 @@ public class GroovyEngine implements Engine {
 			field.setAccessible(true);
 			field.set(engine, new ManagedConcurrentValueMap<String, Class>(ReferenceBundle.getSoftBundle()));
 			
+			engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
 			Object value = (bindings == null) ? engine.eval(command) : engine.eval(command, bindings);

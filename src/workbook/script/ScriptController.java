@@ -146,6 +146,16 @@ public class ScriptController {
 		});
 	}
 	
+	public ScriptFuture<Void> clearGlobals() {
+		return exec(() -> {
+			Object system = globals.get("system");
+			globals.clear();
+			globals.put("system", system);
+			
+			return null;
+		});
+	}
+	
 	public void getScript(Consumer<Engine> consumer) {
 		runnableQueue.add(() -> {
 			consumer.accept(engine);

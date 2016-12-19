@@ -59,6 +59,10 @@ public class MainController {
 	public void interrupt() {
 		scriptController.interrupt();
 	}
+	
+	public void clearGlobals() {
+		scriptController.clearGlobals();
+	}
 
 	public ScriptController getScriptController() {
 		return scriptController;

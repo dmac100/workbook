@@ -178,6 +178,7 @@ public class MainView {
 		
 		menuBuilder.addMenu("&Script")
 			.addItem("Refresh All\tCtrl+Shift+Enter").addSelectionListener(() -> eventBus.post(new MajorRefreshEvent())).setAccelerator(SWT.CONTROL | SWT.SHIFT | '\r')
+			.addItem("Clear Global Variables").addSelectionListener(() -> mainController.clearGlobals())
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt())
 			.addSeparator()
 			.addSubmenu("Engine", submenu -> submenu
