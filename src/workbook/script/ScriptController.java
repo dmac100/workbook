@@ -1,11 +1,19 @@
 package workbook.script;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
@@ -174,5 +182,77 @@ public class ScriptController {
 		if(thread != null && thread.isAlive()) {
 			thread.interrupt();
 		}
+	}
+
+	/**
+	 * Returns the globals map serialized into a String.
+	 */
+	public ScriptFuture<String> serializeGlobals() {
+		return exec(() -> {
+			try {
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+				
+				for(Entry<String, Object> entry:globals.entrySet()) {
+					if(!entry.getKey().equals("system")) {
+						if(entry.getValue() instanceof Serializable) {
+							// Serialize name and value of each variable.
+							objectOutputStream.writeObject(entry.getKey());
+							objectOutputStream.writeObject(entry.getValue());
+						}
+					}
+				}
+				
+				// Mark end of variables.
+				objectOutputStream.writeObject(null);
+		
+				return wrap(Base64.getEncoder().encodeToString(outputStream.toByteArray()));
+			} catch(IOException e) {
+				e.printStackTrace();
+				return "";
+			}
+		});
+	}
+	
+	/**
+	 * Deserializes the global map from a String.
+	 */
+	public ScriptFuture<Void> deserializeGlobals(String globalMap) {
+		return exec(() -> {
+			try {
+				String encoded = globalMap.replaceAll("\\s", "");
+				if(encoded.length() > 0) {
+					byte[] globalsData = Base64.getDecoder().decode(encoded);
+					ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(globalsData));
+					
+					globals.clear();
+					
+					// Read name and value of each variable.
+					while(true) {
+						String name = (String) objectInputStream.readObject();
+						if(name == null) break;
+						Object value = objectInputStream.readObject();
+						globals.put(name, value);
+					}
+				}
+			} catch(IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		});
+	}
+	
+	/**
+	 * Returns the string with wrapped lines.
+	 */
+	private static String wrap(String string) {
+		int w = 60;
+		StringBuilder wrapped = new StringBuilder();
+		for(int c = 0; c < string.length(); c += w) {
+			wrapped.append(string.substring(c, Math.min(string.length(), c + w)));
+			wrapped.append("\n");
+		}
+		return wrapped.toString();
 	}
 }
