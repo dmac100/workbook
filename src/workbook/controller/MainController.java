@@ -19,6 +19,7 @@ import org.jdom2.Element;
 import com.google.common.base.Splitter;
 import com.google.common.eventbus.EventBus;
 
+import workbook.event.MinorRefreshEvent;
 import workbook.event.OutputEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
@@ -74,6 +75,7 @@ public class MainController {
 	
 	public void clearGlobals() {
 		scriptController.clearGlobals();
+		eventBus.post(new MinorRefreshEvent(this));
 	}
 
 	public ScriptController getScriptController() {
