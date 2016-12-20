@@ -1,10 +1,22 @@
 package workbook.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
 
+import com.google.common.base.Splitter;
 import com.google.common.eventbus.EventBus;
 
 import workbook.event.OutputEvent;
@@ -92,13 +104,100 @@ public class MainController {
 	}
 
 	public void serialize(Element element) {
-		Element scriptTypeElement = new Element("ScriptType");
-		scriptTypeElement.setText(scriptController.getScriptType().toString());
-		element.addContent(scriptTypeElement);
+		try {
+			// Serialize script type.
+			Element scriptTypeElement = new Element("ScriptType");
+			scriptTypeElement.setText(scriptController.getScriptType().toString());
+			element.addContent(scriptTypeElement);
+			
+			// Serialize globals.
+			Element globalsElement = new Element("Globals");
+			element.addContent(globalsElement);
+			scriptController.exec(() -> {
+				try {
+					globalsElement.setText(serializeGlobals(scriptController.getGlobalsSync()));
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+				return null;
+			}).get();
+		} catch(ExecutionException | InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void deserialize(Element element) {
+		try {
+			// Deserialize script type.
+			String scriptType = element.getChildText("ScriptType");
+			scriptController.setScriptType(scriptType);
+			
+			// Deserialize globals.
+			if(element.getChild("Globals") != null) {
+				Map<String, Object> globalsMap = deserializeGlobals(element.getChildText("Globals"));
+				scriptController.exec(() -> {
+					scriptController.getGlobalsSync().putAll(globalsMap);
+					return null;
+				});
+			}
+		} catch(IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void deserialize(Element element) {
-		String scriptType = element.getChild("ScriptType").getText();
-		scriptController.setScriptType(scriptType);
+	/**
+	 * Deserializes the global map from a String.
+	 */
+	private static Map<String, Object> deserializeGlobals(String text) throws IOException, ClassNotFoundException {
+		byte[] globals = Base64.getDecoder().decode(text.replaceAll("\\s", ""));
+		ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(globals));
+		
+		Map<String, Object> globalsMap = new HashMap<>();
+		
+		// Read name and value of each variable.
+		while(true) {
+			String name = (String) objectInputStream.readObject();
+			if(name == null) break;
+			Object value = objectInputStream.readObject();
+			globalsMap.put(name, value);
+		}
+		
+		return globalsMap;
+	}
+
+	/**
+	 * Returns the globals map serialized into a String.
+	 */
+	private static String serializeGlobals(Map<String, Object> globalsMap) throws IOException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+		
+		for(Entry<String, Object> entry:globalsMap.entrySet()) {
+			if(!entry.getKey().equals("system")) {
+				if(entry.getValue() instanceof Serializable) {
+					// Serialize name and value of each variable.
+					objectOutputStream.writeObject(entry.getKey());
+					objectOutputStream.writeObject(entry.getValue());
+				}
+			}
+		}
+		
+		// Mark end of variables.
+		objectOutputStream.writeObject(null);
+
+		return wrap(Base64.getEncoder().encodeToString(outputStream.toByteArray()));
+	}
+
+	/**
+	 * Returns the string with wrapped lines.
+	 */
+	private static String wrap(String string) {
+		int w = 60;
+		StringBuilder wrapped = new StringBuilder();
+		for(int c = 0; c < string.length(); c += w) {
+			wrapped.append(string.substring(c, Math.min(string.length(), c + w)));
+			wrapped.append("\n");
+		}
+		return wrapped.toString();
 	}
 }
