@@ -37,6 +37,7 @@ import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.event.MajorRefreshEvent;
+import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
 import workbook.layout.FillLayoutBuilder;
 import workbook.layout.GridDataBuilder;
@@ -268,6 +269,8 @@ public class MainView {
 		
 		Element controllerElement = document.getRootElement().getChild("Controller");
 		mainController.deserialize(controllerElement);
+		
+		eventBus.post(new MinorRefreshEvent(this));
 	}
 
 	private String selectSaveLocation() {
