@@ -122,10 +122,14 @@ public class MainController {
 		scriptController.setScriptType(scriptType);
 		
 		// Deserialize globals.
-		List<Element> globals = element.getChild("Globals").getChildren();
-		if(!globals.isEmpty()) {
-			String globalsXml = toXmlString(globals.get(0));
-			scriptController.deserializeGlobals(globalsXml);
+		try {
+			List<Element> globals = element.getChild("Globals").getChildren();
+			if(!globals.isEmpty()) {
+				String globalsXml = toXmlString(globals.get(0));
+				scriptController.deserializeGlobals(globalsXml).get();
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
 		}
 	}
 	
