@@ -1,6 +1,5 @@
 package workbook.script;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.HashMap;
@@ -8,9 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Manages the interaction with the script engines. The script engine runs on a separate thread, and all interactions with it
@@ -108,11 +107,11 @@ public class ScriptController {
 		});
 	}
 	
-	public <T> ScriptFuture<T> exec(Supplier<T> supplier) {
+	public <T> ScriptFuture<T> exec(Callable<T> callable) {
 		ScriptFuture<T> future = new ScriptFuture<>(this);
 		runnableQueue.add(() -> {
 			try {
-				future.complete(supplier.get());
+				future.complete(callable.call());
 			} catch(Exception e) {
 				future.completeExceptionally(e);
 			}
@@ -182,14 +181,9 @@ public class ScriptController {
 	 */
 	public ScriptFuture<String> serializeGlobals() {
 		return exec(() -> {
-			try {
-				Map<String, Object> map = new HashMap<>(globals);
-				map.remove("system");
-				return new ObjectSerializer().serialize(map);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return "";
-			}
+			Map<String, Object> map = new HashMap<>(globals);
+			map.remove("system");
+			return new ObjectSerializer().serialize(map);
 		});
 	}
 	
@@ -198,15 +192,10 @@ public class ScriptController {
 	 */
 	public ScriptFuture<Void> deserializeGlobals(String globalMap) {
 		return exec(() -> {
-			try {
-				Map<String, Object> map = new ObjectSerializer().deserialize(globalMap);
-				globals.clear();
-				globals.putAll(map);
-				return null;
-			} catch(IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-				return null;
-			}
+			Map<String, Object> map = new ObjectSerializer().deserialize(globalMap);
+			globals.clear();
+			globals.putAll(map);
+			return null;
 		});
 	}
 }
