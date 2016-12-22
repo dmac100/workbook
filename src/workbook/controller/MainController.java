@@ -114,8 +114,8 @@ public class MainController {
 			
 			// Serialize globals.
 			Element globalsElement = new Element("Globals");
-			element.addContent(globalsElement);
 			globalsElement.setText(scriptController.serializeGlobals().get());
+			element.addContent(globalsElement);
 		} catch(ExecutionException | InterruptedException e) {
 			e.printStackTrace();
 		}
