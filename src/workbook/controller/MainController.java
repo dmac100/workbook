@@ -1,22 +1,17 @@
 package workbook.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.io.StringReader;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
 
-import com.google.common.base.Splitter;
 import com.google.common.eventbus.EventBus;
 
 import workbook.event.MinorRefreshEvent;
@@ -114,9 +109,9 @@ public class MainController {
 			
 			// Serialize globals.
 			Element globalsElement = new Element("Globals");
-			globalsElement.setText(scriptController.serializeGlobals().get());
+			addChildrenFromString(globalsElement, scriptController.serializeGlobals().get());
 			element.addContent(globalsElement);
-		} catch(ExecutionException | InterruptedException e) {
+		} catch(ExecutionException | InterruptedException | JDOMException | IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -127,6 +122,26 @@ public class MainController {
 		scriptController.setScriptType(scriptType);
 		
 		// Deserialize globals.
-		scriptController.deserializeGlobals(element.getChildText("Globals"));
+		List<Element> globals = element.getChild("Globals").getChildren();
+		if(!globals.isEmpty()) {
+			String globalsXml = toXmlString(globals.get(0));
+			scriptController.deserializeGlobals(globalsXml);
+		}
+	}
+	
+	/**
+	 * Returns the contents of the element as an XML String.
+	 */
+	private static String toXmlString(Element element) {
+		return new XMLOutputter().outputString(element);
+	}
+
+	/**
+	 * Adds the contents of childXml to the parent element after parsing as xml.
+	 */
+	private static void addChildrenFromString(Element parent, String childXml) throws JDOMException, IOException {
+		Element element = new SAXBuilder().build(new StringReader(childXml)).getRootElement();
+		element.detach();
+		parent.addContent(element);
 	}
 }
