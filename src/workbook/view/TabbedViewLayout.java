@@ -583,6 +583,8 @@ public class TabbedViewLayout {
 	 * Deserializes the state of the view from the given element.
 	 */
 	public void deserialize(TabbedViewFactory viewFactory, Element parentElement) {
+		clear();
+		
 		CTabFolder folder = new CTabFolder(parent, SWT.BORDER);
 		folders.add(folder);
 		setupTabFolder(folder);

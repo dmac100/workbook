@@ -161,6 +161,8 @@ public class MainView {
 			.addItem("Save\tCtrl+S").addSelectionListener(() -> save()).setAccelerator(SWT.CONTROL | 's')
 			.addItem("Save As...\tCtrl+Shift+S").addSelectionListener(() -> saveAs()).setAccelerator(SWT.CONTROL | SWT.SHIFT | 's')
 			.addSeparator()
+			.addItem("Reload...\tCtrl+R").addSelectionListener(() -> reload()).setAccelerator(SWT.CONTROL | 'r')
+			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose()).setAccelerator(SWT.CONTROL | 'q');
 		
 		
@@ -234,11 +236,18 @@ public class MainView {
 			
 			try {
 				String document = FileUtils.readFileToString(new File(location), "UTF-8");
-				tabbedViewLayout.clear();
 				deserialize(document);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void reload() {
+		try {
+			deserialize(serialize());
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
