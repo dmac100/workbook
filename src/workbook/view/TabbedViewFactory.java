@@ -1,6 +1,9 @@
 package workbook.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -17,18 +20,37 @@ import workbook.view.TabbedViewLayout.FolderPosition;
  */
 public class TabbedViewFactory {
 	public static class ViewInfo {
+		private final Class<? extends TabbedView> type;
 		private final String defaultTitle;
 		private final FolderPosition defaultPosition;
 		private final BiFunction<MainController, Composite, TabbedView> factory;
 		
-		public ViewInfo(String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+		public ViewInfo(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+			this.type = type;
 			this.defaultTitle = defaultTitle;
 			this.defaultPosition = defaultPosition;
 			this.factory = factory;
 		}
+
+		public Class<? extends TabbedView> getType() {
+			return type;
+		}
+
+		public String getDefaultTitle() {
+			return defaultTitle;
+		}
+
+		public FolderPosition getDefaultPosition() {
+			return defaultPosition;
+		}
+
+		public BiFunction<MainController, Composite, TabbedView> getFactory() {
+			return factory;
+		}
 	}
 	
 	private final Map<String, ViewInfo> viewInfos = new HashMap<>();
+	private final List<Class<? extends TabbedView>> types = new ArrayList<>();
 	
 	private final TabbedViewLayout tabbedViewLayout;
 	private final MainController mainController;
@@ -42,7 +64,14 @@ public class TabbedViewFactory {
 	 * Registers a new view type with a factory.
 	 */
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
-		viewInfos.put(type.getSimpleName(), new ViewInfo(defaultTitle, defaultPosition, factory));
+		viewInfos.put(type.getSimpleName(), new ViewInfo(type, defaultTitle, defaultPosition, factory));
+	}
+	
+	/**
+	 * Returns a list of the registered types.
+	 */
+	public Collection<ViewInfo> getRegisteredViews() {
+		return new ArrayList<>(viewInfos.values());
 	}
 
 	/**

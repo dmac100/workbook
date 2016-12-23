@@ -54,13 +54,7 @@ public class Workbook {
 		
 		registerViews();
 		
-		mainView.addView(WorksheetTabbedView.class);
-		//mainView.addView(ScriptTabbedView.class);
-		mainView.addView(ConsoleTabbedView.class);
-		//mainView.addView(TreeTabbedEditor.class, "x");
-		//mainView.addView(CanvasTabbedView.class);
-		//mainView.addView(StringTabbedEditor.class, "x");
-		//mainView.addView(HexTabbedEditor.class, "x");
+		addDefaultViews();
 		
 		Map<String, Object> system = new HashMap<>();
 		system.put("mainView", mainView);
@@ -96,25 +90,30 @@ public class Workbook {
 			return new FormTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
-		mainView.registerView(StringTabbedEditor.class, "StringEditor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(StringTabbedEditor.class, "String Editor", FolderPosition.RIGHT, (controller, parent) -> {
 			return new StringTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(TableTabbedEditor.class, "TableEditor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(TableTabbedEditor.class, "Table Editor", FolderPosition.RIGHT, (controller, parent) -> {
 			return new TableTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(TreeTabbedEditor.class, "TreeEditor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(TreeTabbedEditor.class, "Tree Editor", FolderPosition.RIGHT, (controller, parent) -> {
 			return new TreeTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(HexTabbedEditor.class, "HexEditor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(HexTabbedEditor.class, "Hex Editor", FolderPosition.RIGHT, (controller, parent) -> {
 			return new HexTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(PolygonTabbedEditor.class, "PolygonEditor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(PolygonTabbedEditor.class, "Polygon Editor", FolderPosition.RIGHT, (controller, parent) -> {
 			return new PolygonTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
+	}
+	
+	private void addDefaultViews() {
+		mainView.addView(WorksheetTabbedView.class);
+		mainView.addView(ConsoleTabbedView.class);
 	}
 
 	private ResultRenderer createResultRenders() {

@@ -3,8 +3,8 @@ package workbook;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
@@ -31,11 +31,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import workbook.controller.MainController;
-import workbook.editor.ui.HexTabbedEditor;
-import workbook.editor.ui.PolygonTabbedEditor;
-import workbook.editor.ui.StringTabbedEditor;
-import workbook.editor.ui.TableTabbedEditor;
-import workbook.editor.ui.TreeTabbedEditor;
+import workbook.editor.ui.Editor;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
@@ -46,17 +42,13 @@ import workbook.script.Engine;
 import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
-import workbook.view.ConsoleTabbedView;
-import workbook.view.FormTabbedView;
 import workbook.view.InputDialog;
 import workbook.view.MenuBuilder;
-import workbook.view.ScriptTabbedView;
 import workbook.view.TabbedView;
 import workbook.view.TabbedViewFactory;
+import workbook.view.TabbedViewFactory.ViewInfo;
 import workbook.view.TabbedViewLayout;
 import workbook.view.TabbedViewLayout.FolderPosition;
-import workbook.view.WorksheetTabbedView;
-import workbook.view.canvas.CanvasTabbedView;
 
 /**
  * Main view for the workbook that contains all the controls of this program.
@@ -138,6 +130,8 @@ public class MainView {
 	
 	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
 		viewFactory.registerView(type, defaultTitle, defaultPosition, factory);
+		
+		createMenuBar(shell);
 	}
 	
 	public TabbedView addView(Class<? extends TabbedView> type) {
@@ -165,19 +159,7 @@ public class MainView {
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose()).setAccelerator(SWT.CONTROL | 'q');
 		
-		
-		menuBuilder.addMenu("&Editors")
-			.addItem("New Console").addSelectionListener(() -> viewFactory.addView(ConsoleTabbedView.class))
-			.addItem("New Worksheet").addSelectionListener(() -> viewFactory.addView(WorksheetTabbedView.class))
-			.addItem("New Script").addSelectionListener(() -> viewFactory.addView(ScriptTabbedView.class))
-			.addItem("New Canvas").addSelectionListener(() -> viewFactory.addView(CanvasTabbedView.class))
-			.addItem("New Form").addSelectionListener(() -> viewFactory.addView(FormTabbedView.class))
-			.addSeparator()
-			.addItem("New String Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(StringTabbedEditor.class, expression)))
-			.addItem("New Table Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TableTabbedEditor.class, expression)))
-			.addItem("New Tree Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(TreeTabbedEditor.class, expression)))
-			.addItem("New Hex Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(HexTabbedEditor.class, expression)))
-			.addItem("New Polygon Editor...").addSelectionListener(() -> getExpression(expression -> viewFactory.addView(PolygonTabbedEditor.class, expression)));
+		addEditorsMenu(menuBuilder);
 		
 		menuBuilder.addMenu("&Script")
 			.addItem("Refresh All\tCtrl+Shift+Enter").addSelectionListener(() -> eventBus.post(new MajorRefreshEvent())).setAccelerator(SWT.CONTROL | SWT.SHIFT | '\r')
@@ -193,11 +175,35 @@ public class MainView {
 		menuBuilder.build();
 	}
 	
-	private void getExpression(Consumer<String> consumer) {
-		String expression = InputDialog.open(shell, "Expression", "Expression");
-		if(expression != null && !expression.trim().isEmpty()) {
-			consumer.accept(expression.trim());
-		}
+	private void addEditorsMenu(MenuBuilder menuBuilder) {
+		Collection<ViewInfo> viewInfos = viewFactory.getRegisteredViews();
+		
+		if(viewInfos.isEmpty()) return;
+		
+		menuBuilder.addMenu("&Editors");
+		
+		// Add not editor views that don't require an expression.
+		viewInfos.forEach(viewInfo -> {
+			if(!Editor.class.isAssignableFrom(viewInfo.getType())) {
+				menuBuilder.addItem("New " + viewInfo.getDefaultTitle()).addSelectionListener(() -> {
+					viewFactory.addView(viewInfo.getType());
+				});
+			}
+		});
+		
+		menuBuilder.addSeparator();
+		
+		// Add editor views that require an expression.
+		viewInfos.forEach(viewInfo -> {
+			if(Editor.class.isAssignableFrom(viewInfo.getType())) {
+				menuBuilder.addItem("New " + viewInfo.getDefaultTitle() + "...").addSelectionListener(() -> {
+					String expression = InputDialog.open(shell, "Expression", "Expression");
+					if(expression != null && !expression.trim().isEmpty()) {
+						viewFactory.addView(viewInfo.getType(), expression.trim());
+					}
+				});
+			}
+		});
 	}
 	
 	private void save() {
