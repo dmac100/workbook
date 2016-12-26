@@ -51,7 +51,6 @@ public class TabbedViewFactory {
 	}
 	
 	private final Map<String, ViewInfo> viewInfos = new LinkedHashMap<>();
-	private final List<Class<? extends TabbedView>> types = new ArrayList<>();
 	
 	private final TabbedViewLayout tabbedViewLayout;
 	private final MainController mainController;
