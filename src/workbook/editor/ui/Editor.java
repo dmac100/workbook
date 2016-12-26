@@ -1,6 +1,12 @@
 package workbook.editor.ui;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
@@ -11,6 +17,7 @@ import workbook.editor.reference.Reference;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.script.ScriptController;
+import workbook.view.InputDialog;
 
 /**
  * An editor view that can be used to view and modify the contents of a reference.
@@ -78,5 +85,18 @@ public abstract class Editor {
 		
 		setExpression(element.getChildText("Expression"));
 		readValue();
+	}
+	
+	public void createMenu(Menu menu) {
+		MenuItem clearItem = new MenuItem(menu, SWT.NONE);
+		clearItem.setText("Set Expression...");
+		clearItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				String expression = InputDialog.open(Display.getCurrent().getActiveShell(), "Set Expression", "Expression");
+				if(expression != null) {
+					setExpression(expression);
+				}
+			}
+		});
 	}
 }
