@@ -3,6 +3,7 @@ package workbook.view;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -41,6 +42,7 @@ public class WorksheetTabbedView implements TabbedView {
 	private final Composite cellsComposite;
 	private final ResultRenderer resultRenderer;
 	private Function<String, ScriptFuture<Object>> executeFunction;
+	private String executeFunctionName;
 	
 	private final Completion completion = new Completion();
 	private final List<Cell> cells = new ArrayList<>();
@@ -53,6 +55,15 @@ public class WorksheetTabbedView implements TabbedView {
 	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
 		this(parent, eventBus, resultRenderer);
 		this.executeFunction = command -> scriptController.eval(command);
+	}
+	
+	/**
+	 * Creates a worksheet that evaluates against the given evaluation function name.
+	 */
+	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer, String executeFunctionName) {
+		this(parent, eventBus, resultRenderer);
+		this.executeFunctionName = executeFunctionName;
+		this.executeFunction = command -> scriptController.evalMethodCall(executeFunctionName, Arrays.asList(command));
 	}
 	
 	/**
