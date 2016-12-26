@@ -3,6 +3,7 @@ package workbook.view;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -49,7 +50,7 @@ public class TabbedViewFactory {
 		}
 	}
 	
-	private final Map<String, ViewInfo> viewInfos = new HashMap<>();
+	private final Map<String, ViewInfo> viewInfos = new LinkedHashMap<>();
 	private final List<Class<? extends TabbedView>> types = new ArrayList<>();
 	
 	private final TabbedViewLayout tabbedViewLayout;
