@@ -111,7 +111,7 @@ public class WorksheetTabbedView implements TabbedView {
 	private void setExecuteFunctionName(String executeFunctionName) {
 		this.executeFunctionName = executeFunctionName;
 		
-		if(executeFunctionName == null) {
+		if(executeFunctionName == null || executeFunctionName.isEmpty()) {
 			this.executeFunction = scriptController::eval;
 		} else {
 			this.executeFunction = command -> scriptController.evalMethodCall(executeFunctionName, Arrays.asList(command));
@@ -308,6 +308,17 @@ public class WorksheetTabbedView implements TabbedView {
 			public void widgetSelected(SelectionEvent event) {
 				clear();
 				addPrompt(null);
+			}
+		});
+		
+		MenuItem setExecuteFunctionItem = new MenuItem(menu, SWT.NONE);
+		setExecuteFunctionItem.setText("Set Execute Function...");
+		setExecuteFunctionItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				String executeFunction = InputDialog.open(Display.getDefault().getActiveShell(), "Execute Function", "Execute Function");
+				if(executeFunction != null) {
+					setExecuteFunctionName(executeFunction);
+				}
 			}
 		});
 	}
