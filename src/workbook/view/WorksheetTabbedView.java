@@ -39,8 +39,10 @@ import workbook.view.result.ResultRenderer;
 public class WorksheetTabbedView implements TabbedView {
 	private final EventBus eventBus;
 	private final ScrolledComposite scrolledCellsComposite;
+	private final ScriptController scriptController;
 	private final Composite cellsComposite;
 	private final ResultRenderer resultRenderer;
+	
 	private Function<String, ScriptFuture<Object>> executeFunction;
 	private String executeFunctionName;
 	
@@ -50,20 +52,11 @@ public class WorksheetTabbedView implements TabbedView {
 	private Cell focusedCell = null;
 	
 	/**
-	 * Creates a worksheet that evaluates against the script controller evaluation function.
-	 */
-	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
-		this(parent, eventBus, resultRenderer);
-		this.executeFunction = command -> scriptController.eval(command);
-	}
-	
-	/**
 	 * Creates a worksheet that evaluates against the given evaluation function name.
 	 */
 	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer, String executeFunctionName) {
-		this(parent, eventBus, resultRenderer);
-		this.executeFunctionName = executeFunctionName;
-		this.executeFunction = command -> scriptController.evalMethodCall(executeFunctionName, Arrays.asList(command));
+		this(parent, eventBus, scriptController, resultRenderer);
+		setExecuteFunctionName(executeFunctionName);
 	}
 	
 	/**
@@ -71,12 +64,18 @@ public class WorksheetTabbedView implements TabbedView {
 	 */
 	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer, Function<String, Object> executeFunction) {
 		this(parent, eventBus, scriptController, resultRenderer);
+		
 		this.executeFunction = command -> scriptController.exec(() -> executeFunction.apply(command));
 	}
 	
-	private WorksheetTabbedView(Composite parent, EventBus eventBus, ResultRenderer resultRenderer) {
+	/**
+	 * Creates a worksheet that evaluates against the script controller evaluation function.
+	 */
+	public WorksheetTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, ResultRenderer resultRenderer) {
 		this.eventBus = eventBus;
+		this.scriptController = scriptController;
 		this.resultRenderer = resultRenderer;
+		this.executeFunction = scriptController::eval;
 		
 		Display display = parent.getDisplay();
 		
@@ -104,6 +103,19 @@ public class WorksheetTabbedView implements TabbedView {
 		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
+	}
+	
+	/**
+	 * Sets the name of the function to execute when evaluating a command, or null to use the default script evaluation.
+	 */
+	private void setExecuteFunctionName(String executeFunctionName) {
+		this.executeFunctionName = executeFunctionName;
+		
+		if(executeFunctionName == null) {
+			this.executeFunction = scriptController::eval;
+		} else {
+			this.executeFunction = command -> scriptController.evalMethodCall(executeFunctionName, Arrays.asList(command));
+		}
 	}
 	
 	@Subscribe
@@ -265,6 +277,12 @@ public class WorksheetTabbedView implements TabbedView {
 	}
 
 	public void serialize(Element element) {
+		if(this.executeFunctionName != null) {
+			Element executeFunctionNameElement = new Element("ExecuteFunctionName");
+			executeFunctionNameElement.setText(executeFunctionName);
+			element.addContent(executeFunctionNameElement);
+		}
+		
 		for(Cell cell:cells) {
 			Element command = new Element("Command");
 			command.setText(cell.getCommand());
@@ -274,6 +292,8 @@ public class WorksheetTabbedView implements TabbedView {
 
 	public void deserialize(Element element) {
 		clear();
+		
+		setExecuteFunctionName(element.getChildText("ExecuteFunctionName"));
 		
 		for(Element command:element.getChildren("Command")) {
 			Cell cell = addPrompt(null);
