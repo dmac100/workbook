@@ -92,7 +92,7 @@ public abstract class Editor {
 		clearItem.setText("Set Expression...");
 		clearItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-				String expression = InputDialog.open(Display.getCurrent().getActiveShell(), "Set Expression", "Expression");
+				String expression = InputDialog.open(Display.getCurrent().getActiveShell(), "Set Expression", "Expression", Editor.this.expression);
 				if(expression != null) {
 					setExpression(expression);
 				}

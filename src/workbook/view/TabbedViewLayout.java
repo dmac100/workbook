@@ -499,7 +499,7 @@ public class TabbedViewLayout {
 					public void widgetSelected(SelectionEvent event) {
 						CTabItem tabItem = folder.getSelection();
 						if(tabItem != null) {
-							String name = InputDialog.open(folder.getShell(), "Name", "Name");
+							String name = InputDialog.open(folder.getShell(), "Name", "Name", tabItem.getText());
 							if(name != null) {
 								tabItem.setText(name);
 							}

@@ -315,7 +315,7 @@ public class WorksheetTabbedView implements TabbedView {
 		setExecuteFunctionItem.setText("Set Execute Function...");
 		setExecuteFunctionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-				String executeFunction = InputDialog.open(Display.getDefault().getActiveShell(), "Execute Function", "Execute Function");
+				String executeFunction = InputDialog.open(Display.getDefault().getActiveShell(), "Execute Function", "Execute Function", executeFunctionName);
 				if(executeFunction != null) {
 					setExecuteFunctionName(executeFunction);
 				}

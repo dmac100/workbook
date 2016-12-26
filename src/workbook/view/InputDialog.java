@@ -19,10 +19,12 @@ import org.eclipse.swt.widgets.Text;
 public class InputDialog extends Dialog {
 	private String result;
 	private String labelText;
+	private String defaultValue;
 
-	public InputDialog(Shell parent, String labelText) {
+	public InputDialog(Shell parent, String labelText, String defaultValue) {
 		super(parent, 0);
 		this.labelText = labelText;
+		this.defaultValue = defaultValue;
 	}
 	
 	public String open() {
@@ -44,7 +46,11 @@ public class InputDialog extends Dialog {
 		
 		final Text text = new Text(formComposite, SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-
+		if(defaultValue != null) {
+			text.setText(defaultValue);
+			text.selectAll();
+		}
+		
 		// Button Composite
 		
 		Composite buttonComposite = new Composite(shell, SWT.NONE);
@@ -91,7 +97,11 @@ public class InputDialog extends Dialog {
 	}
 	
 	public static String open(Shell shell, String title, String prompt) {
-		InputDialog dialog = new InputDialog(shell, prompt);
+		return open(shell, title, prompt, null);
+	}
+	
+	public static String open(Shell shell, String title, String prompt, String defaultValue) {
+		InputDialog dialog = new InputDialog(shell, prompt, defaultValue);
 		dialog.setText(title);
 		return dialog.open();
 	}
