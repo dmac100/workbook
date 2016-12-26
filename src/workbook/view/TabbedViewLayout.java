@@ -2,6 +2,7 @@ package workbook.view;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -622,5 +623,20 @@ public class TabbedViewLayout {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Returns all the tabbed views contained within this layout.
+	 */
+	public List<TabbedView> getTabbedViews() {
+		List<TabbedView> views = new ArrayList<>();
+		for(CTabFolder folder:folders) {
+			for(CTabItem item:folder.getItems()) {
+				if(item.getData() instanceof TabbedView) {
+					views.add((TabbedView) item.getData());
+				}
+			}
+		}
+		return views;
 	}
 }

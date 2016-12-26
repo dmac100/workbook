@@ -3,7 +3,9 @@ package workbook;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
@@ -42,6 +44,7 @@ import workbook.script.Engine;
 import workbook.script.GroovyEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
+import workbook.util.SwtUtil;
 import workbook.view.InputDialog;
 import workbook.view.MenuBuilder;
 import workbook.view.TabbedView;
@@ -310,5 +313,9 @@ public class MainView {
 		e.printStackTrace();
 		
 		messageBox.open();
+	}
+	
+	public List<TabbedView> getTabbedViews() {
+		return tabbedViewLayout.getTabbedViews();
 	}
 }
