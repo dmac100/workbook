@@ -3,7 +3,7 @@ package workbook;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -70,43 +70,43 @@ public class Workbook {
 	private void registerViews() {
 		ResultRenderer resultRenderer = createResultRenders();
 		
-		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, (controller, parent) -> {
+		mainView.registerView(WorksheetTabbedView.class, "Worksheet", FolderPosition.LEFT, parent -> {
 			return new WorksheetTabbedView(parent, eventBus, mainController.getScriptController(), resultRenderer);
 		});
 		
-		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, (controller, parent) -> {
+		mainView.registerView(ScriptTabbedView.class, "Script", FolderPosition.LEFT, parent -> {
 			return new ScriptTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
-		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, (controller, parent) -> {
+		mainView.registerView(ConsoleTabbedView.class, "Console", FolderPosition.BOTTOM, parent -> {
 			return new ConsoleTabbedView(parent, eventBus);
 		});
 		
-		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(CanvasTabbedView.class, "Canvas", FolderPosition.RIGHT, parent -> {
 			return new CanvasTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
-		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, parent -> {
 			return new FormTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
-		mainView.registerView(StringTabbedEditor.class, "String Editor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(StringTabbedEditor.class, "String Editor", FolderPosition.RIGHT, parent -> {
 			return new StringTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(TableTabbedEditor.class, "Table Editor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(TableTabbedEditor.class, "Table Editor", FolderPosition.RIGHT, parent -> {
 			return new TableTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(TreeTabbedEditor.class, "Tree Editor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(TreeTabbedEditor.class, "Tree Editor", FolderPosition.RIGHT, parent -> {
 			return new TreeTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(HexTabbedEditor.class, "Hex Editor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(HexTabbedEditor.class, "Hex Editor", FolderPosition.RIGHT, parent -> {
 			return new HexTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
-		mainView.registerView(PolygonTabbedEditor.class, "Polygon Editor", FolderPosition.RIGHT, (controller, parent) -> {
+		mainView.registerView(PolygonTabbedEditor.class, "Polygon Editor", FolderPosition.RIGHT, parent -> {
 			return new PolygonTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 	}
@@ -129,7 +129,7 @@ public class Workbook {
 		mainView.addToolbarItem(name, callback);
 	}
 
-	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, Function<Composite, TabbedView> factory) {
 		mainView.registerView(type, defaultTitle, defaultPosition, factory);
 	}
 	
@@ -141,7 +141,7 @@ public class Workbook {
 		mainController.addVariable(name, value);
 	}
 	
-	public void register(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+	public void register(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, Function<Composite, TabbedView> factory) {
 		mainView.registerView(type, defaultTitle, defaultPosition, factory);
 	}
 	

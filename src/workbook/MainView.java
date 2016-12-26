@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.swt.SWT;
@@ -83,7 +83,7 @@ public class MainView {
 		this.mainController = mainController;
 		tabbedViewLayout = new TabbedViewLayout(tabsComposite);
 		
-		this.viewFactory = new TabbedViewFactory(tabbedViewLayout, mainController);
+		this.viewFactory = new TabbedViewFactory(tabbedViewLayout);
 		
 		registerEngine("Javascript", JavascriptEngine::new);
 		registerEngine("Ruby", RubyEngine::new);
@@ -128,7 +128,7 @@ public class MainView {
 		}
 	}
 	
-	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, BiFunction<MainController, Composite, TabbedView> factory) {
+	public void registerView(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, Function<Composite, TabbedView> factory) {
 		viewFactory.registerView(type, defaultTitle, defaultPosition, factory);
 		
 		createMenuBar(shell);
