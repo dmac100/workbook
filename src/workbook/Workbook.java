@@ -20,6 +20,7 @@ import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.model.Model;
 import workbook.view.ConsoleTabbedView;
+import workbook.view.DependencyTabbedView;
 import workbook.view.FormTabbedView;
 import workbook.view.ScriptTabbedView;
 import workbook.view.TabbedView;
@@ -88,6 +89,10 @@ public class Workbook {
 		
 		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, parent -> {
 			return new FormTabbedView(parent, eventBus, mainController.getScriptController(), model);
+		});
+		
+		mainView.registerView(DependencyTabbedView.class, "Dependencies", FolderPosition.RIGHT, parent -> {
+			return new DependencyTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "String Editor", FolderPosition.RIGHT, parent -> {
