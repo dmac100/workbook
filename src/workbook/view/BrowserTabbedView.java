@@ -1,5 +1,7 @@
 package workbook.view;
 
+import java.util.function.Consumer;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.LocationEvent;
@@ -26,6 +28,8 @@ import workbook.layout.GridDataBuilder;
 import workbook.layout.GridLayoutBuilder;
 import workbook.model.Model;
 import workbook.script.ScriptController;
+import workbook.util.DebouncedConsumer;
+import workbook.util.ThrottledConsumer;
 
 /**
  * A view that allows the editing and running of a script.
@@ -41,6 +45,8 @@ public class BrowserTabbedView implements TabbedView {
 	private String previousHtmlValue;
 	private String urlExpression;
 	private String htmlExpression;
+	
+	private Consumer<Void> throttledReadValue = new ThrottledConsumer<>(1000, true, value -> readValue());
 	
 	public BrowserTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, Model model) {
 		this.eventBus = eventBus;
@@ -143,7 +149,7 @@ public class BrowserTabbedView implements TabbedView {
 	
 	@Subscribe
 	public void onMinorRefresh(MinorRefreshEvent event) {
-		readValue();
+		throttledReadValue.accept(null);
 	}
 	
 	@Subscribe
