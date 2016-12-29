@@ -88,9 +88,9 @@ public abstract class Editor {
 	}
 	
 	public void createMenu(Menu menu) {
-		MenuItem clearItem = new MenuItem(menu, SWT.NONE);
-		clearItem.setText("Set Expression...");
-		clearItem.addSelectionListener(new SelectionAdapter() {
+		MenuItem setExpressionItem = new MenuItem(menu, SWT.NONE);
+		setExpressionItem.setText("Set Expression...");
+		setExpressionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				String expression = InputDialog.open(Display.getCurrent().getActiveShell(), "Set Expression", "Expression", Editor.this.expression);
 				if(expression != null) {
