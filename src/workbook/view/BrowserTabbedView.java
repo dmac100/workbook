@@ -6,22 +6,22 @@ import org.eclipse.swt.browser.LocationEvent;
 import org.eclipse.swt.browser.LocationListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 import org.jdom2.Element;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import workbook.editor.reference.OgnlReference;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;
-import workbook.layout.FillLayoutBuilder;
 import workbook.layout.GridDataBuilder;
 import workbook.layout.GridLayoutBuilder;
 import workbook.model.Model;
@@ -36,6 +36,11 @@ public class BrowserTabbedView implements TabbedView {
 	private final EventBus eventBus;
 	private final ScriptController scriptController;
 	private final Model model;
+	
+	private String previousUrlValue;
+	private String previousHtmlValue;
+	private String urlExpression;
+	private String htmlExpression;
 	
 	public BrowserTabbedView(Composite parent, EventBus eventBus, ScriptController scriptController, Model model) {
 		this.eventBus = eventBus;
@@ -87,7 +92,9 @@ public class BrowserTabbedView implements TabbedView {
 		
 		reloadButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-				browser.setUrl(browser.getUrl());
+				if(browser.getUrl() != null) {
+					browser.setUrl(browser.getUrl());
+				}
 			}
 		});
 		
@@ -110,18 +117,24 @@ public class BrowserTabbedView implements TabbedView {
 			}
 		});
 		
-		setUrl("http://www.google.com/");
-		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
 	public void setUrl(String url) {
-		browser.setUrl(url);
+		if(url != null && !url.equals(previousUrlValue)) {
+			browser.setUrl(url);
+			previousUrlValue = url;
+			previousHtmlValue = null;
+		}
 	}
 	
 	public void setHtml(String html) {
-		browser.setText(html);
+		if(html != null && !html.equals(previousHtmlValue)) {
+			browser.setText(html);
+			previousHtmlValue = html;
+			previousUrlValue = null;
+		}
 	}
 	
 	@Subscribe
@@ -130,19 +143,12 @@ public class BrowserTabbedView implements TabbedView {
 	
 	@Subscribe
 	public void onMinorRefresh(MinorRefreshEvent event) {
+		readValue();
 	}
 	
 	@Subscribe
 	public void onMajorRefresh(MajorRefreshEvent event) {
-		refresh();
-	}
-	
-	private void refresh() {
-		Display.getDefault().asyncExec(() -> {
-			if(!browser.getUrl().equals("about:blank")) {
-				browser.refresh();
-			}
-		});
+		readValue();
 	}
 
 	public Control getControl() {
@@ -150,15 +156,75 @@ public class BrowserTabbedView implements TabbedView {
 	}
 
 	public void serialize(Element element) {
-		Element url = new Element("URL");
-		url.setText(browser.getUrl());
-		element.addContent(url);
+		if(this.urlExpression != null) {
+			Element urlExpression = new Element("UrlExpression");
+			urlExpression.setText(this.urlExpression);
+			element.addContent(urlExpression);
+		}
+		
+		if(this.htmlExpression != null) {
+			Element htmlExpression = new Element("HtmlExpression");
+			htmlExpression.setText(this.htmlExpression);
+			element.addContent(htmlExpression);
+		}
 	}
 
 	public void deserialize(Element element) {
-		String url = element.getChildText("URL");
-		if(url != null) {
-			browser.setUrl(url);
+		this.urlExpression = element.getChildText("UrlExpression");
+		this.htmlExpression = element.getChildText("HtmlExpression");
+	}
+	
+	public void createMenu(Menu menu) {
+		MenuItem setUrlExpressionItem = new MenuItem(menu, SWT.NONE);
+		setUrlExpressionItem.setText("Set URL Expression...");
+		setUrlExpressionItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				String expression = InputDialog.open(Display.getCurrent().getActiveShell(), "Set URL Expression", "Expression", BrowserTabbedView.this.urlExpression);
+				if(expression != null) {
+					setUrlExpression(expression);
+				}
+			}
+		});
+		
+		MenuItem setHtmlExpressionItem = new MenuItem(menu, SWT.NONE);
+		setHtmlExpressionItem.setText("Set HTML Expression...");
+		setHtmlExpressionItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				String expression = InputDialog.open(Display.getCurrent().getActiveShell(), "Set HTML Expression", "Expression", BrowserTabbedView.this.htmlExpression);
+				if(expression != null) {
+					setHtmlExpression(expression);
+				}
+			}
+		});
+	}
+	
+	private void setUrlExpression(String expression) {
+		this.urlExpression = expression;
+		this.htmlExpression = null;
+		readValue();
+	}
+	
+	private void setHtmlExpression(String expression) {
+		this.htmlExpression = expression;
+		this.urlExpression = null;
+		readValue();
+	}
+	
+	private void readValue() {
+		if(urlExpression != null) {
+			new OgnlReference(scriptController, urlExpression).get().thenAccept(value -> {
+				String stringValue = (value == null) ? null : String.valueOf(value);
+				Display.getDefault().asyncExec(() -> {
+					setUrl(stringValue);
+				});
+			});
+		} else if(htmlExpression != null) {
+			new OgnlReference(scriptController, htmlExpression).get().thenAccept(value -> {
+				String stringValue = (value == null) ? null : String.valueOf(value);
+				Display.getDefault().asyncExec(() -> {
+					setHtml(stringValue);
+				});
+			});
 		}
 	}
 }
