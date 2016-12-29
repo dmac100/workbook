@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -19,6 +21,7 @@ import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.model.Model;
+import workbook.view.BrowserTabbedView;
 import workbook.view.ConsoleTabbedView;
 import workbook.view.DependencyTabbedView;
 import workbook.view.FormTabbedView;
@@ -89,6 +92,10 @@ public class Workbook {
 		
 		mainView.registerView(FormTabbedView.class, "Form", FolderPosition.RIGHT, parent -> {
 			return new FormTabbedView(parent, eventBus, mainController.getScriptController(), model);
+		});
+		
+		mainView.registerView(BrowserTabbedView.class, "Browser", FolderPosition.RIGHT, parent -> {
+			return new BrowserTabbedView(parent, eventBus, mainController.getScriptController(), model);
 		});
 		
 		mainView.registerView(DependencyTabbedView.class, "Dependencies", FolderPosition.RIGHT, parent -> {
