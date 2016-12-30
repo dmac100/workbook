@@ -114,7 +114,11 @@ public class WorksheetTabbedView implements TabbedView {
 		if(executeFunctionName == null || executeFunctionName.isEmpty()) {
 			this.executeFunction = scriptController::eval;
 		} else {
-			this.executeFunction = command -> scriptController.evalMethodCall(executeFunctionName, Arrays.asList(command));
+			if(executeFunctionName.contains("_")) {
+				this.executeFunction = command -> scriptController.eval(executeFunctionName.replace("_", command));	
+			} else {
+				this.executeFunction = command -> scriptController.evalMethodCall(executeFunctionName, Arrays.asList(command));
+			}
 		}
 	}
 	
