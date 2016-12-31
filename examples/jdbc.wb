@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Workbook>
   <Tabs>
-    <Split weight1="660" weight2="340" orientation="vertical">
+    <Split weight1="704" weight2="292" orientation="vertical">
       <Split weight1="500" weight2="500" orientation="horizontal">
         <Items>
           <Item title="Worksheet" type="WorksheetTabbedView">
             <ExecuteFunctionName>runSql</ExecuteFunctionName>
-            <Command>create table a ( a int, b int )</Command>
-            <Command>insert into a values ( 1, 1 )</Command>
-            <Command>insert into a values ( 2, 4 )</Command>
-            <Command>insert into a values ( 3, 5 )</Command>
             <Command>select * from a</Command>
+            <Command>select * from a where b &gt;= 4</Command>
             <Command />
           </Item>
         </Items>
@@ -19,8 +16,8 @@
             <Content>import java.sql.*;
 import java.util.*;
 
-
 def runSql(String sql) {
+	Class.forName("org.hsqldb.jdbc.JDBCDriver");
 	Connection connection = DriverManager.getConnection("jdbc:hsqldb:mem:test");
 	return runSql(connection, sql);
 }
@@ -49,10 +46,15 @@ def runSql(Connection connection, String sql) {
 	}
 	
 	return rows;
-}</Content>
+}
+
+createScript.split(";").each { runSql(it) }</Content>
           </Item>
           <Item title="Dependencies" type="DependencyTabbedView">
             <Content>org.hsqldb:hsqldb:2.3.4</Content>
+          </Item>
+          <Item title="Create Script" type="StringTabbedEditor">
+            <Expression>createScript</Expression>
           </Item>
         </Items>
       </Split>
@@ -92,6 +94,20 @@ def runSql(Connection connection, String sql) {
 &lt;p&gt;
 	${1 + 1}
 &lt;/p&gt;</string>
+        </entry>
+        <entry>
+          <string>sqlInit</string>
+          <string>create table a ( a int, b int );
+insert into a values ( 1, 1 );
+insert into a values ( 2, 4 );
+insert into a values ( 3, 5 );</string>
+        </entry>
+        <entry>
+          <string>createScript</string>
+          <string>create table a ( a int, b int );
+insert into a values ( 1, 1 );
+insert into a values ( 2, 4 );
+insert into a values ( 3, 5 );</string>
         </entry>
       </map>
     </Globals>
