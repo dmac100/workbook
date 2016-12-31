@@ -42,6 +42,8 @@ public class ObjectSerializer {
 		map.forEach((k, v) -> {
 			if(v == null || v instanceof Serializable) {
 				serializable.put(k, v);
+			} else {
+				serializable.put(k, null);
 			}
 		});
 		return xstream.toXML(serializable);

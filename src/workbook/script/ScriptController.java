@@ -183,6 +183,7 @@ public class ScriptController {
 		return exec(() -> {
 			Map<String, Object> map = new HashMap<>(globals);
 			map.remove("system");
+			map.remove("_");
 			return new ObjectSerializer().serialize(map);
 		});
 	}
