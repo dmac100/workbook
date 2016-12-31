@@ -28,7 +28,6 @@ import workbook.layout.GridDataBuilder;
 import workbook.layout.GridLayoutBuilder;
 import workbook.model.Model;
 import workbook.script.ScriptController;
-import workbook.util.DebouncedConsumer;
 import workbook.util.ThrottledConsumer;
 
 /**
@@ -98,15 +97,18 @@ public class BrowserTabbedView implements TabbedView {
 		
 		reloadButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-				if(browser.getUrl() != null) {
-					browser.setUrl(browser.getUrl());
+				if(browser.getUrl() != null && !browser.getUrl().equals("about:blank")) {
+					browser.refresh();
 				}
 			}
 		});
 		
 		location.addSelectionListener(new SelectionAdapter() {
 			public void widgetDefaultSelected(SelectionEvent event) {
-				browser.setUrl(location.getText());
+				urlExpression = null;
+				htmlExpression = null;
+				setUrl(location.getText());
+				previousUrlValue = location.getText();
 			}
 		});
 		
@@ -166,18 +168,21 @@ public class BrowserTabbedView implements TabbedView {
 			Element urlExpression = new Element("UrlExpression");
 			urlExpression.setText(this.urlExpression);
 			element.addContent(urlExpression);
-		}
-		
-		if(this.htmlExpression != null) {
+		} else if(this.htmlExpression != null) {
 			Element htmlExpression = new Element("HtmlExpression");
 			htmlExpression.setText(this.htmlExpression);
 			element.addContent(htmlExpression);
+		} else {
+			Element url = new Element("Url");
+			url.setText(previousUrlValue);
+			element.addContent(url);
 		}
 	}
 
 	public void deserialize(Element element) {
 		this.urlExpression = element.getChildText("UrlExpression");
 		this.htmlExpression = element.getChildText("HtmlExpression");
+		setUrl(element.getChildText("Url"));
 	}
 	
 	public void createMenu(Menu menu) {
@@ -230,6 +235,10 @@ public class BrowserTabbedView implements TabbedView {
 				Display.getDefault().asyncExec(() -> {
 					setHtml(stringValue);
 				});
+			});
+		} else {
+			Display.getDefault().asyncExec(() -> {
+				browser.refresh();
 			});
 		}
 	}
