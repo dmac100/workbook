@@ -40,11 +40,11 @@ public class ObjectSerializer {
 	public String serialize(Map<String, Object> map) throws IOException {
 		Map<String, Object> serializable = new HashMap<>();
 		map.forEach((k, v) -> {
-			if(v instanceof Serializable) {
+			if(v == null || v instanceof Serializable) {
 				serializable.put(k, v);
 			}
 		});
-		return xstream.toXML(map);
+		return xstream.toXML(serializable);
 	}
 
 	/**

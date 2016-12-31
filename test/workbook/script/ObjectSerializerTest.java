@@ -1,6 +1,6 @@
 package workbook.script;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -21,6 +21,18 @@ public class ObjectSerializerTest {
 		Map<String, Object> returned = serializer.deserialize(data);
 		
 		assertEquals("b", returned.get("a"));
+	}
+	
+	@Test
+	public void roundTripNull() throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		map.put("a", null);
+		
+		String data = serializer.serialize(map);
+		
+		Map<String, Object> returned = serializer.deserialize(data);
+		
+		assertTrue(returned.containsKey("a"));
 	}
 	
 	@Test
