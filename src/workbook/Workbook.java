@@ -189,5 +189,6 @@ public class Workbook {
 			workbook.open(args[0]);
 		}
 		workbook.waitForExit();
+		System.exit(0);
 	}
 }
