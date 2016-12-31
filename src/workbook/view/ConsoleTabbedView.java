@@ -1,5 +1,6 @@
 package workbook.view;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -68,14 +69,14 @@ public class ConsoleTabbedView implements TabbedView {
 	}
 	
 	private void addOutput(String output) {
-		text.append(output);
+		text.append(WordUtils.wrap(String.valueOf(output), 1000, "\n", true));
 		text.setTopIndex(text.getLineCount() - 1);
 	}
 	
 	private void addError(String error) {
 		int start = text.getCharCount();
 		
-		text.append(error);
+		text.append(WordUtils.wrap(String.valueOf(error), 1000, "\n", true));
 		text.setTopIndex(text.getLineCount() - 1);
 		
 		StyleRange styleRange = new StyleRange();

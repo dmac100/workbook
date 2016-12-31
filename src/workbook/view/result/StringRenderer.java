@@ -1,5 +1,6 @@
 package workbook.view.result;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
@@ -7,6 +8,9 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.junit.Test;
+
+import com.google.common.base.Strings;
 
 import workbook.script.ScriptController;
 import workbook.view.FontList;
@@ -28,7 +32,7 @@ public class StringRenderer implements ResultRenderer {
 	
 	public void addView(Composite parent, Object value, boolean changed, Runnable callback) {
 		scriptController.exec(() -> {
-			String valueString = String.valueOf(value);
+			String valueString = WordUtils.wrap(String.valueOf(value), 1000, "\n", true);
 			
 			Display.getDefault().asyncExec(() -> {
 				// Remove any existing results.
@@ -59,7 +63,7 @@ public class StringRenderer implements ResultRenderer {
 			return null;
 		});
 	}
-
+	
 	/**
 	 * Updates the background of the styledText to animate a transition from a color to white as t goes from 0 to 1.
 	 */
