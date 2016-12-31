@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workbook>
+  <Tabs>
+    <Split weight1="660" weight2="340" orientation="vertical">
+      <Split weight1="500" weight2="500" orientation="horizontal">
+        <Items>
+          <Item title="Worksheet" type="WorksheetTabbedView">
+            <ExecuteFunctionName>runSql</ExecuteFunctionName>
+            <Command>create table a ( a int, b int )</Command>
+            <Command>insert into a values ( 1, 1 )</Command>
+            <Command>insert into a values ( 2, 4 )</Command>
+            <Command>insert into a values ( 3, 5 )</Command>
+            <Command>select * from a</Command>
+            <Command />
+          </Item>
+        </Items>
+        <Items>
+          <Item title="Script" type="ScriptTabbedView">
+            <Content>import java.sql.*;
+import java.util.*;
+
+
+def runSql(String sql) {
+	Connection connection = DriverManager.getConnection("jdbc:hsqldb:mem:test");
+	return runSql(connection, sql);
+}
+
+def runSql(Connection connection, String sql) {
+	Statement statement = connection.prepareStatement(sql);
+	
+	statement.execute();
+	
+	ResultSet resultSet = statement.getResultSet();
+	
+	if(resultSet == null) {
+		return null;
+	}
+	
+	List&lt;Map&lt;String, Object&gt;&gt; rows = new ArrayList&lt;&gt;();
+	
+	while(resultSet.next()) {
+		Map&lt;String, Object&gt; row = new LinkedHashMap&lt;&gt;();
+		for(int column = 1; column &lt;= resultSet.getMetaData().getColumnCount(); column++) {
+			String name = resultSet.getMetaData().getColumnName(column);
+			Object value = resultSet.getObject(column);
+			row.put(name, value);
+		}
+		rows.add(row)
+	}
+	
+	return rows;
+}</Content>
+          </Item>
+          <Item title="Dependencies" type="DependencyTabbedView">
+            <Content>org.hsqldb:hsqldb:2.3.4</Content>
+          </Item>
+        </Items>
+      </Split>
+      <Items>
+        <Item title="Console" type="ConsoleTabbedView" />
+      </Items>
+    </Split>
+  </Tabs>
+  <Controller>
+    <ScriptType>Groovy</ScriptType>
+    <Globals>
+      <map>
+        <entry>
+          <string>server</string>
+          <null />
+        </entry>
+        <entry>
+          <string>helloJsp</string>
+          <string>&lt;%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+
+&lt;h1&gt;Hello, JSP&lt;/h1&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;
+	&lt;%= 2 + 2 %&gt;
+&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;
+	&lt;c:out value="${2 + 3}"/&gt;
+&lt;/p&gt;
+
+&lt;hr&gt;
+
+&lt;p&gt;
+	${1 + 1}
+&lt;/p&gt;</string>
+        </entry>
+      </map>
+    </Globals>
+  </Controller>
+</Workbook>
