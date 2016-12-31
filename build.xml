@@ -1,6 +1,7 @@
 <project name="Project" default="compile" basedir=".">
 	<path id="classpath">
 		<fileset dir="lib" includes="**/*.jar"/>
+		<fileset dir="libtest" includes="**/*.jar"/>
 		<pathelement path="build"/>
 	</path>
 
