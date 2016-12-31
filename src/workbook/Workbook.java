@@ -168,7 +168,6 @@ public class Workbook {
 	}
 
 	public void waitForExit() {
-		shell.setText("Workbook");
 		shell.setSize(1000, 700);
 		shell.open();
 

@@ -72,6 +72,7 @@ public class MainView {
 		this.shell = shell;
 		this.eventBus = eventBus;
 		
+		shell.setText("Untitled - Workbook");
 		shell.setLayout(new GridLayoutBuilder().numColumns(1).makeColumnsEqualWidth(false).marginHeight(0).marginWidth(0).verticalSpacing(0).build());
 
 		toolbarComposite = new Composite(shell, SWT.NONE);
@@ -121,6 +122,24 @@ public class MainView {
 	@Subscribe
 	public void onScriptTypeChange(ScriptTypeChangeEvent event) {
 		Display.getDefault().asyncExec(() -> createMenuBar(shell));
+	}
+	
+	@Subscribe
+	public void onMinorRefresh(MinorRefreshEvent event) {
+		Display.getDefault().asyncExec(() -> {
+			if(!shell.getText().startsWith("*")) {
+				shell.setText("*" + shell.getText());
+			}
+		});
+	}
+	
+	@Subscribe
+	public void onMajorRefresh(MajorRefreshEvent event) {
+		Display.getDefault().asyncExec(() -> {
+			if(!shell.getText().startsWith("*")) {
+				shell.setText("*" + shell.getText());
+			}
+		});
 	}
 	
 	private void registerEngine(String name, Supplier<Engine> engineSupplier) {
@@ -230,6 +249,7 @@ public class MainView {
 		
 		try {
 			FileUtils.writeStringToFile(new File(location), document, "UTF-8");
+			updateTitle(location);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -246,12 +266,20 @@ public class MainView {
 			try {
 				String document = FileUtils.readFileToString(new File(location), "UTF-8");
 				deserialize(document);
+				updateTitle(location);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
+	private void updateTitle(String location) {
+		File file = new File(location);
+		String name = file.getName();
+		String path = file.getParentFile().getAbsolutePath();
+		shell.setText(name + " (" + path + ") - Workbook");
+	}
+
 	public void reload() {
 		try {
 			deserialize(serialize());
