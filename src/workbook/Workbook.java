@@ -47,6 +47,8 @@ public class Workbook {
 	private final Shell shell;
 	
 	public Workbook() {
+		System.setProperty("line.separator", "\n");
+		
 		eventBus = new EventBus();
 		model = new Model();
 		mainController = new MainController(eventBus, model);
