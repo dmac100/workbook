@@ -111,7 +111,7 @@ public class MainController {
 			Element globalsElement = new Element("Globals");
 			addChildrenFromString(globalsElement, scriptController.serializeGlobals().get());
 			element.addContent(globalsElement);
-		} catch(ExecutionException | InterruptedException | JDOMException | IOException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -128,7 +128,7 @@ public class MainController {
 				String globalsXml = toXmlString(globals.get(0));
 				scriptController.deserializeGlobals(globalsXml).get();
 			}
-		} catch (InterruptedException | ExecutionException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
