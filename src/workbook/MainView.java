@@ -267,6 +267,7 @@ public class MainView {
 				String document = FileUtils.readFileToString(new File(location), "UTF-8");
 				deserialize(document);
 				updateTitle(location);
+				createMenuBar(shell);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
