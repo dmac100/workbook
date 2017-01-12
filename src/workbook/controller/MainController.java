@@ -119,7 +119,7 @@ public class MainController {
 	public void deserialize(Element element) {
 		// Deserialize script type.
 		String scriptType = element.getChildText("ScriptType");
-		scriptController.setScriptType(scriptType);
+		setEngine(scriptType);
 		
 		// Deserialize globals.
 		try {
