@@ -11,7 +11,6 @@ import org.jdom2.Element;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-import workbook.IvyDownloader;
 import workbook.event.MajorRefreshEvent;
 import workbook.event.MinorRefreshEvent;
 import workbook.event.ScriptTypeChangeEvent;

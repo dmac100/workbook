@@ -1,4 +1,4 @@
-package workbook;
+package workbook.view;
 
 import java.io.File;
 import java.lang.reflect.Method;
