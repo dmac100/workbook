@@ -2,15 +2,15 @@ package workbook.view.result;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.junit.Test;
 
-import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 
 import workbook.script.ScriptController;
 import workbook.view.FontList;
@@ -32,7 +32,16 @@ public class StringRenderer implements ResultRenderer {
 	
 	public void addView(Composite parent, Object value, boolean changed, Runnable callback) {
 		scriptController.exec(() -> {
-			String valueString = WordUtils.wrap(String.valueOf(value), 1000, "\n", true);
+			String valueString;
+			boolean red;
+			
+			if(value instanceof Throwable) {
+				valueString = Throwables.getStackTraceAsString((Throwable) value);
+				red = true;
+			} else {
+				valueString = WordUtils.wrap(String.valueOf(value), 1000, "\n", true);
+				red = false;
+			}
 			
 			Display.getDefault().asyncExec(() -> {
 				// Remove any existing results.
@@ -40,10 +49,19 @@ public class StringRenderer implements ResultRenderer {
 					control.dispose();
 				}
 				
-				StyledText styledText = new StyledText(parent, SWT.NONE);
+				StyledText styledText = new StyledText(parent, SWT.V_SCROLL);
 				styledText.setFont(FontList.consolas10);
 				styledText.setEditable(false);
 				styledText.setText(valueString);
+				styledText.setAlwaysShowScrollBars(false);
+				
+				if(red) {
+					StyleRange styleRange = new StyleRange();
+					styleRange.start = 0;
+					styleRange.length = styledText.getCharCount();
+					styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+					styledText.replaceStyleRanges(0, styledText.getCharCount(), new StyleRange[] { styleRange });
+				}
 				
 				// Remove selection after losing focus.
 				styledText.addFocusListener(new FocusAdapter() {
@@ -81,6 +99,8 @@ public class StringRenderer implements ResultRenderer {
 					updateBackground(styledText, t + 0.015);
 				}
 			});
+		} else {
+			styledText.setBackground(colorCache.getColor(255, 255, 255));
 		}
 	}
 

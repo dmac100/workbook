@@ -3,6 +3,7 @@ package workbook.view;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
@@ -178,12 +179,14 @@ public class Cell {
 			
 			parent.pack();
 			
-			executeFunction.apply(command.getText()).thenAccept(resultObject -> {
-				result.setValue(resultObject, () -> {
-					Display.getDefault().asyncExec(() -> {
-						callback.run();
-						parent.pack();
-						parent.layout();
+			executeFunction.apply(command.getText()).thenAcceptAlways(resultObject -> {
+				Display.getDefault().asyncExec(() -> {
+					result.setValue(resultObject, () -> {
+						Display.getDefault().asyncExec(() -> {
+							callback.run();
+							parent.pack();
+							parent.layout();
+						});
 					});
 				});
 			});

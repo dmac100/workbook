@@ -148,9 +148,8 @@ public class RubyEngine implements Engine {
 			
 			return value;
         } catch(Throwable e) {
-        	e.printStackTrace();
-        	return null;
-        }
+        	throw new RuntimeException("Error evaluating command", e);
+		}
 	}
 	
 	private static String getScriptExceptionCause(Throwable e) {

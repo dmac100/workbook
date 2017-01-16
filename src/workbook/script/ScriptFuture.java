@@ -28,11 +28,20 @@ public class ScriptFuture<T> {
 	public T get() throws InterruptedException, ExecutionException {
 		return future.get();
 	}
-
+	
 	public void thenAccept(Consumer<T> callback) {
 		future
 			.thenAccept(runOnScriptThread(callback))
 			.exceptionally(this::exceptionHandler);
+	}
+	
+	public void thenAcceptAlways(Consumer<Object> callback) {
+		future
+			.thenAccept(runOnScriptThread(callback))
+			.exceptionally(e -> {
+				runOnScriptThread(callback).accept(e);
+				return null;
+			});
 	}
 
 	public void thenRun(Runnable callback) {
@@ -52,7 +61,7 @@ public class ScriptFuture<T> {
 			.exceptionally(this::exceptionHandler);
 	}
 	
-	private Consumer<T> runOnScriptThread(Consumer<T> callback) {
+	private <U> Consumer<U> runOnScriptThread(Consumer<U> callback) {
 		return value -> {
 			scriptController.exec(() -> {
 				callback.accept(value);
