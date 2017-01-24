@@ -6,9 +6,11 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.ScrollBar;
 
 import com.google.common.base.Throwables;
 
@@ -49,7 +51,7 @@ public class StringRenderer implements ResultRenderer {
 					control.dispose();
 				}
 				
-				StyledText styledText = new StyledText(parent, SWT.V_SCROLL);
+				StyledText styledText = createStyledText(parent);
 				styledText.setFont(FontList.consolas10);
 				styledText.setEditable(false);
 				styledText.setText(valueString);
@@ -81,7 +83,27 @@ public class StringRenderer implements ResultRenderer {
 			return null;
 		});
 	}
-	
+
+	/**
+	 * Creates a StyledText that disables the refreshing of the scrollbars when setting the background.
+	 * This causes flickering when animating the background color on Windows.
+	 */
+	private static StyledText createStyledText(Composite parent) {
+		return new StyledText(parent, SWT.V_SCROLL) {
+			boolean settingBackground = false;
+			
+			public void setBackground(Color color) {
+				settingBackground = true;
+				super.setBackground(color);
+				settingBackground = false;
+			}
+			
+			public ScrollBar getVerticalBar() {
+				return settingBackground ? null : super.getVerticalBar();
+			}
+		};
+	}
+
 	/**
 	 * Updates the background of the styledText to animate a transition from a color to white as t goes from 0 to 1.
 	 */
