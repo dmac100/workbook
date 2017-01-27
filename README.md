@@ -11,7 +11,6 @@ Features
 --------
 
 * Run commands against a scripting engine.
-* Tab-completion.
 * Two-way editors, tab views, and inline views.
 * Save workbook to a file, saving tab layout, global variables, and editor states.
 * Run from Java program to access variables and execute methods from that program.
