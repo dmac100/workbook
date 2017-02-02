@@ -21,6 +21,7 @@ import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
 import workbook.model.Model;
+import workbook.script.ScriptFuture;
 import workbook.view.BrowserTabbedView;
 import workbook.view.ConsoleTabbedView;
 import workbook.view.DependencyTabbedView;
@@ -68,7 +69,7 @@ public class Workbook {
 		system.put("model", model);
 		system.put("eventBus", eventBus);
 		system.put("display", Display.getDefault());
-		mainController.addVariable("system", system);
+		mainController.setVariable("system", system);
 		
 		mainView.removeEmptyFolders();
 	}
@@ -151,8 +152,12 @@ public class Workbook {
 		mainView.addView(type);
 	}
 	
-	public void addVariable(String name, Object value) {
-		mainController.addVariable(name, value);
+	public ScriptFuture<Object> getVariable(String name) {
+		return mainController.getVariable(name);
+	}
+	
+	public void setVariable(String name, Object value) {
+		mainController.setVariable(name, value);
 	}
 	
 	public void register(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, Function<Composite, TabbedView> factory) {

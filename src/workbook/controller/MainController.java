@@ -20,6 +20,7 @@ import workbook.event.ScriptTypeChangeEvent;
 import workbook.model.Model;
 import workbook.script.Engine;
 import workbook.script.ScriptController;
+import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
 
 public class MainController {
@@ -96,7 +97,11 @@ public class MainController {
 		return model.getScriptType();
 	}
 	
-	public void addVariable(String name, Object value) {
+	public ScriptFuture<Object> getVariable(String name) {
+		return scriptController.getVariable(name);
+	}
+	
+	public void setVariable(String name, Object value) {
 		scriptController.setVariable(name, value);
 	}
 

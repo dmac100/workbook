@@ -55,13 +55,13 @@ public class GroovyEngine implements Engine {
 		}
 	}
 	
+	public Object getVariable(String name) {
+		return globals.get(name);
+	}
+	
 	public void setVariable(String name, Object value) {
 		engine.put(name, value);
 		globals.put(name, value);
-	}
-	
-	public Object getVariable(String name) {
-		return engine.get(name);
 	}
 	
 	public boolean isScriptObject(Object object) {

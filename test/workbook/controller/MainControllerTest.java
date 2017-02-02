@@ -29,9 +29,9 @@ public class MainControllerTest {
 	public void serializationRoundTrip() throws Exception {
 		Element root = new Element("root");
 		
-		mainController.addVariable("x", 1);
+		mainController.setVariable("x", 1);
 		mainController.serialize(root);
-		mainController.addVariable("x", 2);
+		mainController.setVariable("x", 2);
 		
 		mainController.deserialize(root);
 		Object result = scriptController.eval("x").get();
@@ -40,7 +40,7 @@ public class MainControllerTest {
 	
 	@Test
 	public void serializationRoundTrip_keepSystem() throws Exception {
-		mainController.addVariable("system", 3);
+		mainController.setVariable("system", 3);
 		
 		Element root = new Element("root");
 		mainController.serialize(root);

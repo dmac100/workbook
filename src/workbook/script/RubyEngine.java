@@ -65,7 +65,7 @@ public class RubyEngine implements Engine {
 	}
 	
 	public Object getVariable(String name) {
-		return engine.get(name);
+		return globals.get(name);
 	}
 	
 	public boolean isScriptObject(Object object) {

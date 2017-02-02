@@ -139,6 +139,12 @@ public class ScriptController {
 		});
 	}
 
+	public ScriptFuture<Object> getVariable(String name) {
+		return exec(() -> {
+			return engine.getVariable(name);
+		});
+	}
+	
 	public ScriptFuture<Void> setVariable(String name, Object value) {
 		return exec(() -> {
 			engine.setVariable(name, value);

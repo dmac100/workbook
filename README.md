@@ -35,5 +35,5 @@ Run jar:
 or run from Java:
 
 	Workbook workbook = new Workbook();
-	workbook.addVariable(...);
+	workbook.setVariable(...);
 	workbook.waitForExit();
