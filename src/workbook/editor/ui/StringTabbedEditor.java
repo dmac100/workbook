@@ -1,5 +1,7 @@
 package workbook.editor.ui;
 
+import java.util.function.Consumer;
+
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -10,6 +12,7 @@ import com.google.common.eventbus.EventBus;
 
 import workbook.event.MinorRefreshEvent;
 import workbook.script.ScriptController;
+import workbook.util.ThrottledConsumer;
 import workbook.view.TabbedView;
 import workbook.view.text.EditorText;
 
@@ -20,6 +23,8 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	private final Composite parent;
 	private final EventBus eventBus;
 	private final EditorText editorText;
+	
+	private final Consumer<Void> refreshConsumer;
 	
 	private boolean disableModifyCallback;
 	
@@ -37,6 +42,10 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 					writeValue();
 				}
 			}
+		});
+		
+		refreshConsumer = new ThrottledConsumer<Void>(500, true, result -> {
+			eventBus.post(new MinorRefreshEvent(this));
 		});
 		
 		registerEvents();
@@ -62,9 +71,7 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	
 	public void writeValue() {
 		if(reference != null) {
-			reference.set(editorText.getText()).thenRun(() -> {
-				eventBus.post(new MinorRefreshEvent(this));
-			});
+			reference.set(editorText.getText()).thenAccept(refreshConsumer);
 		}
 	}
 
