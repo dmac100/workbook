@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -20,6 +18,7 @@ import workbook.editor.ui.PolygonTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
 import workbook.editor.ui.TableTabbedEditor;
 import workbook.editor.ui.TreeTabbedEditor;
+import workbook.event.MinorRefreshEvent;
 import workbook.model.Model;
 import workbook.script.ScriptFuture;
 import workbook.view.BrowserTabbedView;
@@ -158,6 +157,10 @@ public class Workbook {
 	
 	public void setVariable(String name, Object value) {
 		mainController.setVariable(name, value);
+	}
+	
+	public void refresh() {
+		eventBus.post(new MinorRefreshEvent(this));
 	}
 	
 	public void register(Class<? extends TabbedView> type, String defaultTitle, FolderPosition defaultPosition, Function<Composite, TabbedView> factory) {
