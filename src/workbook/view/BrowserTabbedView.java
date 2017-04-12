@@ -238,7 +238,9 @@ public class BrowserTabbedView implements TabbedView {
 			});
 		} else {
 			Display.getDefault().asyncExec(() -> {
-				browser.refresh();
+				if(browser.getUrl() != null && !browser.getUrl().equals("about:blank")) {
+					browser.refresh();
+				}
 			});
 		}
 	}
