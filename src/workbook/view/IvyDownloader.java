@@ -5,11 +5,8 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.List;
 
 import org.apache.ivy.Ivy;
@@ -33,7 +30,7 @@ public class IvyDownloader {
 	public static void downloadDependency(String dependency) {
 		String retrievePattern = WORKBOOK_DIR.getAbsolutePath() + "/[organization]-[artifact]-[revision](-[classifier]).[ext]";
 		
-		String[] parts = dependency.split(":");
+		String[] parts = dependency.split("[: ]");
 		if(parts.length == 3) {
 			try {
 				List<File> files = retrieveIvy(parts[0], parts[1], parts[2], retrievePattern);
