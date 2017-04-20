@@ -76,15 +76,17 @@ public class ConsoleTabbedView implements TabbedView {
 	private void addError(String error) {
 		int start = text.getCharCount();
 		
-		text.append(WordUtils.wrap(String.valueOf(error), 1000, "\n", true));
+		String wrappedOutput = WordUtils.wrap(String.valueOf(error), 1000, "\n", true);
+		
+		text.append(wrappedOutput);
 		text.setTopIndex(text.getLineCount() - 1);
 		
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = start;
-		styleRange.length = error.length();
+		styleRange.length = wrappedOutput.length();
 		styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 		
-		text.replaceStyleRanges(start, error.length(), new StyleRange[] { styleRange });
+		text.replaceStyleRanges(start, wrappedOutput.length(), new StyleRange[] { styleRange });
 	}
 	
 	public void clear() {
