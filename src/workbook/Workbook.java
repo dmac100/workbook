@@ -13,6 +13,7 @@ import org.jdom2.JDOMException;
 import com.google.common.eventbus.EventBus;
 
 import workbook.controller.MainController;
+import workbook.editor.ui.ChartTabbedEditor;
 import workbook.editor.ui.HexTabbedEditor;
 import workbook.editor.ui.PolygonTabbedEditor;
 import workbook.editor.ui.StringTabbedEditor;
@@ -102,6 +103,10 @@ public class Workbook {
 		
 		mainView.registerView(DependencyTabbedView.class, "Dependencies", FolderPosition.RIGHT, parent -> {
 			return new DependencyTabbedView(parent, eventBus, mainController.getScriptController(), model);
+		});
+		
+		mainView.registerView(ChartTabbedEditor.class, "Chart Editor", FolderPosition.RIGHT, parent -> {
+			return new ChartTabbedEditor(parent, eventBus, mainController.getScriptController());
 		});
 		
 		mainView.registerView(StringTabbedEditor.class, "String Editor", FolderPosition.RIGHT, parent -> {

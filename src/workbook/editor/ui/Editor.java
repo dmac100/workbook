@@ -45,7 +45,7 @@ public abstract class Editor {
 	/**
 	 * Reads the reference value, updating this view.
 	 */
-	public abstract void readValue();
+	protected abstract void readValue();
 	
 	/**
 	 * Returns the control that represents this view.
