@@ -33,6 +33,7 @@ public class GroovyEngine implements Engine {
 	private Map<String, Object> globals = new HashMap<>();
 	
 	public GroovyEngine() {
+		System.setProperty("groovy.antlr4", "true");
 		engine = new GroovyScriptEngineImpl();
 	}
 	
