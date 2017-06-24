@@ -1,7 +1,9 @@
 package workbook.view.text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.Bullet;
@@ -15,6 +17,8 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -24,6 +28,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 import com.google.common.base.Optional;
 
@@ -45,6 +51,7 @@ public class EditorText {
 	private final EditFunctions editFunctions;
 	
 	private Brush brush = null;
+	private Map<String, Brush> brushes = new HashMap<>();
 	private final Theme theme = new ThemeSublime();
 	private StyleRange[] syntaxHighlightingRanges = new StyleRange[0];
 	
@@ -173,6 +180,8 @@ public class EditorText {
 		
 		refreshStyle();
 		refreshLineStyles();
+		
+		refreshContextMenu();
 	}
 	
 	private void newline() {
@@ -566,6 +575,37 @@ public class EditorText {
 		updateSyntaxHighlightingRanges();
 		refreshStyle();
 		refreshLineStyles();
+	}
+	
+	public void setBrushes(Map<String, Brush> brushes) {
+		this.brushes = brushes;
+		refreshContextMenu();
+	}
+	
+	private void refreshContextMenu() {
+		if(!brushes.isEmpty()) {
+			Menu menu = new Menu(styledText);
+			
+			MenuItem syntaxMenuItem = new MenuItem(menu, SWT.CASCADE);
+			syntaxMenuItem.setText("Syntax");
+			Menu syntaxMenu = new Menu(menu);
+			syntaxMenuItem.setMenu(syntaxMenu);
+
+			brushes.forEach((name, brush) -> {
+				MenuItem item = new MenuItem(syntaxMenu, SWT.NONE);
+				item.setText(name);
+				item.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent event) {
+						setBrush(brush);
+					}
+				});
+			});
+			
+			if(styledText.getMenu() != null) {
+				styledText.getMenu().dispose();
+			}
+			styledText.setMenu(menu);
+		}
 	}
 
 	public StyledText getStyledText() {

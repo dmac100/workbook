@@ -1,5 +1,7 @@
 package workbook.editor.ui;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.eclipse.swt.events.ModifyEvent;
@@ -10,6 +12,31 @@ import org.eclipse.swt.widgets.Display;
 
 import com.google.common.eventbus.EventBus;
 
+import syntaxhighlighter.brush.Brush;
+import syntaxhighlighter.brush.BrushAS3;
+import syntaxhighlighter.brush.BrushAppleScript;
+import syntaxhighlighter.brush.BrushBash;
+import syntaxhighlighter.brush.BrushCSharp;
+import syntaxhighlighter.brush.BrushColdFusion;
+import syntaxhighlighter.brush.BrushCpp;
+import syntaxhighlighter.brush.BrushCss;
+import syntaxhighlighter.brush.BrushDelphi;
+import syntaxhighlighter.brush.BrushDiff;
+import syntaxhighlighter.brush.BrushErlang;
+import syntaxhighlighter.brush.BrushGroovy;
+import syntaxhighlighter.brush.BrushJScript;
+import syntaxhighlighter.brush.BrushJava;
+import syntaxhighlighter.brush.BrushJavaFX;
+import syntaxhighlighter.brush.BrushPerl;
+import syntaxhighlighter.brush.BrushPhp;
+import syntaxhighlighter.brush.BrushPowerShell;
+import syntaxhighlighter.brush.BrushPython;
+import syntaxhighlighter.brush.BrushRuby;
+import syntaxhighlighter.brush.BrushSass;
+import syntaxhighlighter.brush.BrushScala;
+import syntaxhighlighter.brush.BrushSql;
+import syntaxhighlighter.brush.BrushVb;
+import syntaxhighlighter.brush.BrushXml;
 import workbook.event.MinorRefreshEvent;
 import workbook.script.ScriptController;
 import workbook.util.ThrottledConsumer;
@@ -36,6 +63,8 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 		
 		this.editorText = new EditorText(parent);
 		
+		editorText.setBrushes(getBrushes());
+		
 		editorText.getStyledText().addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
 				if(!disableModifyCallback) {
@@ -51,6 +80,35 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 		registerEvents();
 	}
 	
+	private static Map<String, Brush> getBrushes() {
+		Map<String, Brush> brushes = new LinkedHashMap<>();
+		brushes.put("AppleScript", new BrushAppleScript());
+		brushes.put("AS3", new BrushAS3());
+		brushes.put("Bash", new BrushBash());
+		brushes.put("ColdFusion", new BrushColdFusion());
+		brushes.put("Cpp", new BrushCpp());
+		brushes.put("CSharp", new BrushCSharp());
+		brushes.put("Css", new BrushCss());
+		brushes.put("Delphi", new BrushDelphi());
+		brushes.put("Diff", new BrushDiff());
+		brushes.put("Erlang", new BrushErlang());
+		brushes.put("Groovy", new BrushGroovy());
+		brushes.put("Java", new BrushJava());
+		brushes.put("JavaFX", new BrushJavaFX());
+		brushes.put("JScript", new BrushJScript());
+		brushes.put("Perl", new BrushPerl());
+		brushes.put("Php", new BrushPhp());
+		brushes.put("PowerShell", new BrushPowerShell());
+		brushes.put("Python", new BrushPython());
+		brushes.put("Ruby", new BrushRuby());
+		brushes.put("Sass", new BrushSass());
+		brushes.put("Scala", new BrushScala());
+		brushes.put("Sql", new BrushSql());
+		brushes.put("Vb", new BrushVb());
+		brushes.put("Xml", new BrushXml());
+		return brushes;
+	}
+
 	public void readValue() {
 		if(reference != null) {
 			reference.get().thenAccept(value -> {
