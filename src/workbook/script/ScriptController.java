@@ -201,8 +201,8 @@ public class ScriptController {
 		return exec(() -> {
 			Map<String, Object> map = new ObjectSerializer().deserialize(globalMap);
 			Object system = globals.get("system");
-			globals.put("system", system);
 			globals.putAll(map);
+			globals.put("system", system);
 			return null;
 		});
 	}
