@@ -9,7 +9,9 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.jdom2.Element;
 
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 
 import syntaxhighlighter.brush.Brush;
@@ -132,6 +134,26 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	public void writeValue() {
 		if(reference != null) {
 			reference.set(editorText.getText()).thenAccept(refreshConsumer);
+		}
+	}
+	
+	public void serialize(Element element) {
+		super.serialize(element);
+		Element brush = new Element("Brush");
+		brush.setText(getBrushName(editorText.getBrush()));
+		element.addContent(brush);
+	}
+
+	private static String getBrushName(Brush brush) {
+		Map<String, Brush> filtered = Maps.filterValues(getBrushes(), v -> v.getClass() == brush.getClass());
+		return (filtered.isEmpty()) ? null : filtered.keySet().iterator().next();
+	}
+
+	public void deserialize(Element element) {
+		super.deserialize(element);
+		Brush brush = getBrushes().get(element.getChildText("Brush"));
+		if(brush != null) {
+			editorText.setBrush(brush);
 		}
 	}
 

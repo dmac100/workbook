@@ -570,6 +570,10 @@ public class EditorText {
 		styledText.setText(styledText.getText().replaceAll("\t", "    "));
 	}
 	
+	public Brush getBrush() {
+		return brush;
+	}
+	
 	public void setBrush(Brush brush) {
 		this.brush = brush;
 		updateSyntaxHighlightingRanges();
