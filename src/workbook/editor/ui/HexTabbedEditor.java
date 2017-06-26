@@ -143,8 +143,8 @@ class HexView {
 		if(selectedCallback != null) {
 			if(y - x <= 8) {
 				byte[] s = new byte[y - x];
-				if(y < data.length) {
-					System.arraycopy(data, x, s, 0, Math.min(s.length, data.length - y));
+				if(y <= data.length) {
+					System.arraycopy(data, x, s, 0, s.length);
 					selectedCallback.accept(s);
 				}
 			}
