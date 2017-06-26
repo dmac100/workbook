@@ -29,6 +29,7 @@ import syntaxhighlighter.brush.BrushJava;
 import syntaxhighlighter.brush.BrushJavaFX;
 import syntaxhighlighter.brush.BrushPerl;
 import syntaxhighlighter.brush.BrushPhp;
+import syntaxhighlighter.brush.BrushPlain;
 import syntaxhighlighter.brush.BrushPowerShell;
 import syntaxhighlighter.brush.BrushPython;
 import syntaxhighlighter.brush.BrushRuby;
@@ -98,6 +99,7 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 		brushes.put("JScript", new BrushJScript());
 		brushes.put("Perl", new BrushPerl());
 		brushes.put("Php", new BrushPhp());
+		brushes.put("Plain", new BrushPlain());
 		brushes.put("PowerShell", new BrushPowerShell());
 		brushes.put("Python", new BrushPython());
 		brushes.put("Ruby", new BrushRuby());
