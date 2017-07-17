@@ -1,23 +1,27 @@
 package workbook.view;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CaretEvent;
+import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -52,6 +56,7 @@ public class Cell {
 	private Function<String, String> completionFunction = null;
 	
 	private String previousCommandText = "";
+	private Point previousSelection = new Point(0, 0);
 	
 	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer, Cell cellAbove) {
 		this.parent = parent;
@@ -62,8 +67,6 @@ public class Cell {
 		prompt = addLabel(parent, ">>>");
 		command = new StyledText(parent, SWT.NONE);
 		result = new Result(parent, resultRenderer);
-		
-		List<Composite> commandAndResultComposites = Arrays.asList(command, result.asComposite());
 		
 		if(cellAbove != null) {
 			prompt.moveBelow(cellAbove.result.asComposite());
@@ -77,11 +80,16 @@ public class Cell {
 			public void verifyText(VerifyEvent event) {
 				previousCommandText = command.getText();
 				
-				// Remove whitespace on insertion.
-				if(event.text.matches("[\r\n\t]+")) {
+				// Don't allow changes that are only newlines to allow key listener to handle these.
+				if(event.text.matches("[\r\n]+")) {
 					event.doit = false;
 				}
-				event.text = event.text.replaceAll("[\r\n\t]+", "");
+			}
+		});
+		
+		command.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent event) {
+				parent.layout();
 			}
 		});
 		
@@ -91,51 +99,78 @@ public class Cell {
 			}
 		});
 		
-		commandAndResultComposites.forEach(composite -> {
-			composite.addKeyListener(new KeyAdapter() {
-				public void keyReleased(KeyEvent event) {
-					if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
-						// Run run callbacks on return.
-						runCallbacks.forEach(Runnable::run);
-						evaluate(() -> notifyCallbacks.forEach(Runnable::run));
-					} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
-						// Run runAll callbacks on ctrl+return.
-						runAllCallbacks.forEach(Runnable::run);
-						event.doit = false;
-					} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
-						// Run insert callbacks on shift+return.
-						event.doit = false;
-						insertCallbacks.forEach(Runnable::run);
-						evaluate(() -> notifyCallbacks.forEach(Runnable::run));
-					}
+		command.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent event) {
+				if(event.keyCode == SWT.CR && event.stateMask == SWT.NONE) {
+					// Run run callbacks on return.
+					runCallbacks.forEach(Runnable::run);
+					evaluate(() -> notifyCallbacks.forEach(Runnable::run));
+				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
+					// Run runAll callbacks on ctrl+return.
+					runAllCallbacks.forEach(Runnable::run);
+					event.doit = false;
+				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
+					// Insert newline into this cell on shift+return.
+					String text = command.getText();
+					int x = command.getCaretOffset();
+					command.setText(text.substring(0, x) + "\n" + text.substring(x));
+					command.setCaretOffset(x + 1);
+					
+					// Scroll down if necessary.
+					scrolledComposite.setMinSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+					ScrollUtil.scrollVerticallyTo(scrolledComposite, getBounds());
+				} else if(event.keyCode == SWT.INSERT) {
+					// Run insert callbacks on insert.
+					event.doit = false;
+					insertCallbacks.forEach(Runnable::run);
+					evaluate(() -> notifyCallbacks.forEach(Runnable::run));
+				} else if(event.keyCode == 'a' && event.stateMask == SWT.CONTROL) {
+					selectAll();
 				}
-			});
+			}
 		});
 		
-		commandAndResultComposites.forEach(composite -> {
-			composite.addKeyListener(new KeyAdapter() {
-				public void keyPressed(KeyEvent event) {
-					if(event.character == SWT.BS && previousCommandText.isEmpty()) {
-						// Run delete callbacks on backspace, if the previous text value was empty.
-						deleteCallbacks.forEach(Runnable::run);
-					} else if(event.keyCode == SWT.ARROW_UP) {
-						// Return up callback.
-						upCallbacks.forEach(Runnable::run);
-					} else if(event.keyCode == SWT.ARROW_DOWN) {
-						// Return down callback.
-						downCallbacks.forEach(Runnable::run);
-					}
-					
-					if(event.keyCode != SWT.TAB) {
-						// Dismiss completion on any character except tab.
-						completionFunction.apply(null);
-					}
-					
-					if(!command.isDisposed()) {
-						previousCommandText = command.getText();
+		command.addCaretListener(new CaretListener() {
+			public void caretMoved(CaretEvent event) {
+				Display.getCurrent().asyncExec(() -> previousSelection = command.getSelection());
+			}
+		});
+		
+		command.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				Display.getCurrent().asyncExec(() -> previousSelection = command.getSelection());
+			}
+		});
+		
+		command.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent event) {
+				if(event.character == SWT.BS && previousCommandText.isEmpty()) {
+					// Run delete callbacks on backspace, if the previous text value was empty.
+					deleteCallbacks.forEach(Runnable::run);
+				} else if(event.keyCode == SWT.ARROW_UP || event.keyCode == SWT.ARROW_DOWN) {
+					int previousCaretOffset = (event.keyCode == SWT.ARROW_UP) ? previousSelection.x : previousSelection.y;
+					if(previousCaretOffset >= 0 && previousCaretOffset <= command.getCharCount()) {
+						if(event.keyCode == SWT.ARROW_UP && command.getLineAtOffset(previousCaretOffset) == 0) {
+							// Return up callback.
+							upCallbacks.forEach(Runnable::run);
+						} else if(event.keyCode == SWT.ARROW_DOWN) {
+							// Return down callback.
+							if(command.getLineAtOffset(previousCaretOffset) == command.getLineCount() - 1) {
+								downCallbacks.forEach(Runnable::run);
+							}
+						}
 					}
 				}
-			});
+				
+				if(event.keyCode != SWT.TAB) {
+					// Dismiss completion on any character except tab.
+					completionFunction.apply(null);
+				}
+				
+				if(!command.isDisposed()) {
+					previousCommandText = command.getText();
+				}
+			}
 		});
 		
 		command.addTraverseListener(new TraverseListener() {
@@ -162,6 +197,8 @@ public class Cell {
 		
 		command.setLayoutData(new GridDataBuilder().fillHorizontal().build());
 		result.asComposite().setLayoutData(new GridDataBuilder().horizontalSpan(2).build());
+		
+		prompt.setLayoutData(new GridDataBuilder().verticalAlignment(SWT.TOP).build());
 		
 		prompt.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
 		prompt.setForeground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -276,6 +313,7 @@ public class Cell {
 	
 	public void selectAll() {
 		command.selectAll();
+		previousSelection = command.getSelection();
 	}
 	
 	public void setFocus() {
