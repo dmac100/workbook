@@ -274,14 +274,10 @@ public class ChartTabbedEditor extends Editor implements TabbedView {
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
 	}
 	
-	protected void readValue() {
-		if(reference != null) {
-			reference.get().thenAccept(value -> {
-				Display.getDefault().asyncExec(() -> {
-					chart.setData(value);
-				});
-			});
-		}
+	public void setValue(Object value) {
+		Display.getDefault().asyncExec(() -> {
+			chart.setData(value);
+		});
 	}
 	
 	public void serialize(Element element) {

@@ -164,17 +164,16 @@ public class TreeTabbedEditor extends Editor implements TabbedView {
 	/**
 	 * Sets the root tree items based on the current referenced value.
 	 */
-	public void readValue() {
-		if(reference != null) {
-			reference.get().thenAccept(value -> {
-				if(value != null) {
-					Map<String, Reference> rows = scriptTableUtil.getTableRow(value);
-					tree.getDisplay().asyncExec(() -> {
-						if(!tree.isDisposed()) {
-							setTreeItems(rows);
-						}
-					});
-				}
+	public void setValue(Object value) {
+		if(value != null) {
+			scriptController.exec(() -> {
+				Map<String, Reference> rows = scriptTableUtil.getTableRow(value);
+				tree.getDisplay().asyncExec(() -> {
+					if(!tree.isDisposed()) {
+						setTreeItems(rows);
+					}
+				});
+				return null;
 			});
 		}
 	}

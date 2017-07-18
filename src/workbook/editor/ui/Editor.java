@@ -23,8 +23,8 @@ import workbook.view.InputDialog;
  * An editor view that can be used to view and modify the contents of a reference.
  */
 public abstract class Editor {
-	private final ScriptController scriptController;
-	private final EventBus eventBus;
+	protected final ScriptController scriptController;
+	protected final EventBus eventBus;
 	
 	private String expression;
 	protected Reference reference;
@@ -45,7 +45,16 @@ public abstract class Editor {
 	/**
 	 * Reads the reference value, updating this view.
 	 */
-	protected abstract void readValue();
+	protected void readReference() {
+		if(reference != null) {
+			reference.get().thenAccept(value -> setValue(value));
+		}
+	}
+	
+	/**
+	 * Sets the value, updating this view.
+	 */
+	public abstract void setValue(Object value);
 	
 	/**
 	 * Returns the control that represents this view.
@@ -55,13 +64,13 @@ public abstract class Editor {
 	@Subscribe
 	public void onMinorRefresh(MinorRefreshEvent event) {
 		if(event.getSource() != this) {
-			readValue();
+			readReference();
 		}
 	}
 	
 	@Subscribe
 	public void onMajorRefresh(MajorRefreshEvent event) {
-		readValue();
+		readReference();
 	}
 	
 	/**
@@ -70,7 +79,7 @@ public abstract class Editor {
 	public void setExpression(String expression) {
 		this.expression = expression;
 		this.reference = new OgnlReference(scriptController, expression);
-		readValue();
+		readReference();
 	}
 	
 	public void serialize(Element element) {
@@ -84,7 +93,7 @@ public abstract class Editor {
 		this.reference = null;
 		
 		setExpression(element.getChildText("Expression"));
-		readValue();
+		readReference();
 	}
 	
 	public void createMenu(Menu menu) {

@@ -309,15 +309,11 @@ public class HexTabbedEditor extends Editor implements TabbedView {
 		return sashForm;
 	}
 
-	public void readValue() {
-		if(reference != null) {
-			reference.get().thenAccept(value -> {
-				if(value instanceof byte[]) {
-					Display.getDefault().asyncExec(() -> {
-						if(!parent.isDisposed()) {
-							hexView.setData((byte[]) value);
-						}
-					});
+	public void setValue(Object value) {
+		if(value instanceof byte[]) {
+			Display.getDefault().asyncExec(() -> {
+				if(!parent.isDisposed()) {
+					hexView.setData((byte[]) value);
 				}
 			});
 		}

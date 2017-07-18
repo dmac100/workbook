@@ -71,7 +71,7 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 		editorText.getStyledText().addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
 				if(!disableModifyCallback) {
-					writeValue();
+					writeReference();
 				}
 			}
 		});
@@ -113,25 +113,21 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 		return brushes;
 	}
 
-	public void readValue() {
-		if(reference != null) {
-			reference.get().thenAccept(value -> {
-				if(value instanceof String) {
-					Display.getDefault().asyncExec(() -> {
-						if(!editorText.getControl().isDisposed()) {
-							disableModifyCallback = true;
-							if(!editorText.getText().equals(value)) {
-								editorText.setText((String)value);
-							}
-							disableModifyCallback = false;
-						}
-					});
+	public void setValue(Object value) {
+		if(value instanceof String) {
+			Display.getDefault().asyncExec(() -> {
+				if(!editorText.getControl().isDisposed()) {
+					disableModifyCallback = true;
+					if(!editorText.getText().equals(value)) {
+						editorText.setText((String)value);
+					}
+					disableModifyCallback = false;
 				}
 			});
 		}
 	}
 	
-	public void writeValue() {
+	public void writeReference() {
 		if(reference != null) {
 			reference.set(editorText.getText()).thenAccept(refreshConsumer);
 		}

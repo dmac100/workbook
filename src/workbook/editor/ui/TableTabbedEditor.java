@@ -142,17 +142,16 @@ public class TableTabbedEditor extends Editor implements TabbedView {
 	/**
 	 * Sets the table items based on the current reference value.
 	 */
-	public void readValue() {
-		if(reference != null) {
-			reference.get().thenAccept(value -> {
-				if(value != null) {
-					Map<String, List<Reference>> rows = scriptTableUtil.getTable(value);
-					table.getDisplay().asyncExec(() -> {
-						if(!table.isDisposed()) {
-							setTableData(rows);
-						}
-					});
-				}
+	public void setValue(Object value) {
+		if(value != null) {
+			scriptController.exec(() -> {
+				Map<String, List<Reference>> rows = scriptTableUtil.getTable(value);
+				table.getDisplay().asyncExec(() -> {
+					if(!table.isDisposed()) {
+						setTableData(rows);
+					}
+				});
+				return null;
 			});
 		}
 	}

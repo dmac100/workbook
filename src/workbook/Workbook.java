@@ -31,6 +31,7 @@ import workbook.view.TabbedView;
 import workbook.view.TabbedViewLayout.FolderPosition;
 import workbook.view.WorksheetTabbedView;
 import workbook.view.canvas.CanvasTabbedView;
+import workbook.view.result.EditorRenderer;
 import workbook.view.result.ResultRenderer;
 import workbook.view.result.StringRenderer;
 import workbook.view.result.TableRenderer;
@@ -140,6 +141,10 @@ public class Workbook {
 		
 		resultRenderer = new StringRenderer(resultRenderer, mainController.getScriptController());
 		resultRenderer = new TableRenderer(resultRenderer, mainController.getScriptController());
+		
+		resultRenderer = new EditorRenderer(resultRenderer, mainView, PolygonTabbedEditor::isPolygonList, PolygonTabbedEditor.class, 400);
+		
+		resultRenderer = new EditorRenderer(resultRenderer, mainView);
 		
 		return resultRenderer;
 	}

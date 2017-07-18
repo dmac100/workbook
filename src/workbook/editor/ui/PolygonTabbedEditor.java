@@ -430,7 +430,7 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 		canvas.getControl().setLayoutData(layout1);
 		toolbar.setLayoutData(layout2);
 		
-		canvas.setChangeCallback(this::writeValue);
+		canvas.setChangeCallback(this::writeReference);
 	}
 	
 	private Control createToolbar(Composite parent) {
@@ -452,21 +452,20 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 		});
 	}
 
-	public void readValue() {
-		if(reference != null) {
-			reference.get().thenAccept(value -> {
-				if(isPolygonList(value)) {
-					Display.getDefault().asyncExec(() -> {
-						if(!canvas.getControl().isDisposed()) {
-							canvas.setPolygons((List<List<Point>>) value);
-						}
-					});
-				}
-			});
-		}
+	public void setValue(Object value) {
+		scriptController.exec(() -> {
+			if(isPolygonList(value)) {
+				Display.getDefault().asyncExec(() -> {
+					if(!canvas.getControl().isDisposed()) {
+						canvas.setPolygons((List<List<Point>>) value);
+					}
+				});
+			}
+			return null;
+		});
 	}
 	
-	public void writeValue() {
+	public void writeReference() {
 		if(reference != null) {
 			reference.set(canvas.getPolygons()).thenRun(() ->
 				eventBus.post(new MinorRefreshEvent(this))
@@ -474,7 +473,7 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 		}
 	}
 
-	private static boolean isPolygonList(Object list) {
+	public static boolean isPolygonList(Object list) {
 		return isListOfOrEmpty(list, sublist -> isListOf(sublist, x -> x instanceof Point));
 	}
 

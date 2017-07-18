@@ -156,6 +156,14 @@ public class MainView {
 		createMenuBar(shell);
 	}
 	
+	public Function<Composite, TabbedView> getViewFactory(Class<? extends TabbedView> type) {
+		return viewFactory.getViewFactory(type);
+	}
+	
+	public Function<Composite, TabbedView> getViewFactory(String type) {
+		return viewFactory.getViewFactory(type);
+	}
+	
 	public TabbedView addView(Class<? extends TabbedView> type) {
 		return viewFactory.addView(type);
 	}

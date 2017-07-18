@@ -68,6 +68,22 @@ public class TabbedViewFactory {
 	public Collection<ViewInfo> getRegisteredViews() {
 		return new ArrayList<>(viewInfos.values());
 	}
+	
+	/**
+	 * Returns the view factory for a registered type.
+	 */
+	public Function<Composite, TabbedView> getViewFactory(Class<? extends TabbedView> type) {
+		ViewInfo viewInfo = viewInfos.get(type.getSimpleName());
+		return (viewInfo == null) ? null : viewInfo.factory;
+	}
+	
+	/**
+	 * Returns the view factory for a registered type.
+	 */
+	public Function<Composite, TabbedView> getViewFactory(String type) {
+		ViewInfo viewInfo = viewInfos.get(type);
+		return (viewInfo == null) ? null : viewInfo.factory;
+	}
 
 	/**
 	 * Creates a new view of the given type.
