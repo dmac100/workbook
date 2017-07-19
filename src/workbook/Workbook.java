@@ -5,6 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -204,10 +213,47 @@ public class Workbook {
 	
 	public static void main(String[] args) {
 		Workbook workbook = new Workbook();
+		workbook.parseArgs(args);
 		if(args.length == 1) {
 			workbook.open(args[0]);
 		}
 		workbook.waitForExit();
 		System.exit(0);
+	}
+	
+	private void parseArgs(String[] args) {
+		CommandLineParser parser = new GnuParser();
+		
+		Options options = new Options();
+		options.addOption(new Option("l", "language", true, "set the language by name"));
+		options.addOption(new Option("f", "file", true, "load a file"));
+		options.addOption(new Option("h", "help", false, "show help"));
+		
+		try {
+			CommandLine command = parser.parse(options, args);
+		
+			if(command.hasOption("h") || command.getArgs().length > 1) {
+				new HelpFormatter().printHelp("java -jar workbook.jar [options] [filename]", options);
+				System.exit(0);
+			}
+			
+			if(command.hasOption("l")) {
+				mainController.setEngine(command.getOptionValue("l"));
+			}
+			
+			
+			if(command.hasOption("f")) {
+				open(command.getOptionValue("f"));
+			}
+			
+			for(String s:command.getArgs()) {
+				open(s);
+			}
+		} catch(Throwable e) {
+			// Print usage and exit on any error.
+			System.err.println(e.getMessage());
+			new HelpFormatter().printHelp("java -jar workbook.jar", options);
+			System.exit(0);
+		}
 	}
 }

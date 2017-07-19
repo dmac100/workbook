@@ -99,9 +99,13 @@ public class ScriptController {
 	public ScriptFuture<Void> setScriptType(String scriptType) {
 		this.scriptType = scriptType;
 		return exec(() -> {
-			engine = engines.get(scriptType);
-			if(engine == null) {
-				throw new IllegalArgumentException("Unknown script type: " + scriptType);
+			for(String key:engines.keySet()) {
+				if(key.equalsIgnoreCase(scriptType)) {
+					engine = engines.get(key);
+					if(engine == null) {
+						throw new IllegalArgumentException("Unknown script type: " + scriptType);
+					}
+				}
 			}
 			return null;
 		});

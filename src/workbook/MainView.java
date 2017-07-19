@@ -197,14 +197,18 @@ public class MainView {
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt())
 			.addSeparator()
 			.addSubmenu("Engine", submenu -> submenu
-				.addRadioItem("Javascript", Objects.equal(mainController.getEngine(), "Javascript")).addSelectionListener(() -> mainController.setEngine("Javascript"))
-				.addRadioItem("Ruby", Objects.equal(mainController.getEngine(), "Ruby")).addSelectionListener(() -> mainController.setEngine("Ruby"))
-				.addRadioItem("Groovy", Objects.equal(mainController.getEngine(), "Groovy")).addSelectionListener(() -> mainController.setEngine("Groovy"))
+				.addRadioItem("Javascript", equalsIgnoreCase(mainController.getEngine(), "Javascript")).addSelectionListener(() -> mainController.setEngine("Javascript"))
+				.addRadioItem("Ruby", equalsIgnoreCase(mainController.getEngine(), "Ruby")).addSelectionListener(() -> mainController.setEngine("Ruby"))
+				.addRadioItem("Groovy", equalsIgnoreCase(mainController.getEngine(), "Groovy")).addSelectionListener(() -> mainController.setEngine("Groovy"))
 			);
 		
 		menuBuilder.build();
 	}
 	
+	private static boolean equalsIgnoreCase(String a, String b) {
+		return a == b || (a != null && b != null && a.equalsIgnoreCase(b));
+	}
+
 	private void addEditorsMenu(MenuBuilder menuBuilder) {
 		Collection<ViewInfo> viewInfos = viewFactory.getRegisteredViews();
 		
