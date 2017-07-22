@@ -10,10 +10,10 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 
 public class FontList {
-	private static final String monospaceName = getMonospaceName();
+	private static final String MONO_NAME = getMonospaceName();
 	
-	public static final Font consolas10 = new Font(Display.getCurrent(), monospaceName, 10, SWT.NORMAL);
-	public static final Font consolas8 = new Font(Display.getCurrent(), monospaceName, 8, SWT.NORMAL);
+	public static final Font MONO_NORMAL = new Font(Display.getCurrent(), MONO_NAME, 12, SWT.NORMAL);
+	public static final Font MONO_SMALL = new Font(Display.getCurrent(), MONO_NAME, 10, SWT.NORMAL);
 	
 	/**
 	 * Returns the first found monospace font.

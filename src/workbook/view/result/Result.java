@@ -37,7 +37,7 @@ public class Result {
 		removeChildren();
 		
 		StyledText styledText = new StyledText(composite, SWT.NONE);
-		styledText.setFont(FontList.consolas10);
+		styledText.setFont(FontList.MONO_NORMAL);
 		styledText.setEditable(false);
 		styledText.setText("...");
 	}

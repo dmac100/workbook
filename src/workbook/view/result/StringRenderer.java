@@ -52,7 +52,7 @@ public class StringRenderer implements ResultRenderer {
 				}
 				
 				StyledText styledText = createStyledText(parent);
-				styledText.setFont(FontList.consolas10);
+				styledText.setFont(FontList.MONO_NORMAL);
 				styledText.setEditable(false);
 				styledText.setText(valueString);
 				styledText.setAlwaysShowScrollBars(false);

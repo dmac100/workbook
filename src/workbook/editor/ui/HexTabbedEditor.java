@@ -38,7 +38,7 @@ class HexView {
 	public HexView(Composite parent) {
 		this.parent = parent;
 		
-		Font font = FontList.consolas10;
+		Font font = FontList.MONO_NORMAL;
 		
 		GridLayout gridLayout = new GridLayout(3, false);
 		gridLayout.marginHeight = 2;

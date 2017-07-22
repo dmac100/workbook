@@ -32,7 +32,7 @@ public class ConsoleTabbedView implements TabbedView {
 		this.parent = parent;
 		
 		text = new StyledText(parent, SWT.WRAP | SWT.V_SCROLL);
-		text.setFont(FontList.consolas10);
+		text.setFont(FontList.MONO_NORMAL);
 		text.setEditable(false);
 		
 		text.addKeyListener(new KeyAdapter() {

@@ -65,7 +65,7 @@ public class EditorText {
 		editFunctions = new EditFunctions(styledText);
 		completion = new StyledTextCompletion(styledText);
 		
-		styledText.setFont(FontList.consolas10);
+		styledText.setFont(FontList.MONO_NORMAL);
 
 		styledText.addDisposeListener(colorCache);
 

@@ -74,7 +74,7 @@ public class Cell {
 			result.asComposite().moveBelow(command);
 		}
 		
-		command.setFont(FontList.consolas10);
+		command.setFont(FontList.MONO_NORMAL);
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {
