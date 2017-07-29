@@ -84,6 +84,13 @@ public class Cell {
 				if(event.text.matches("[\r\n]+")) {
 					event.doit = false;
 				}
+				
+				// Don't allow tabs after word characters to allow key listener to handle these.
+				if(!command.getText().substring(0, event.start).matches("(?s).*\\W")) {
+					if(event.text.matches("[\t]+")) {
+						event.doit = false;
+					}
+				}
 			}
 		});
 		
