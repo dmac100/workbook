@@ -120,8 +120,13 @@ public class Cell {
 					// Insert newline into this cell on shift+return.
 					String text = command.getText();
 					int x = command.getCaretOffset();
-					command.setText(text.substring(0, x) + "\n" + text.substring(x));
-					command.setCaretOffset(x + 1);
+					
+					// Preserve current line indentation.
+					String currentLine = text.substring(0, x).replaceAll("(?s).*[\r\n]", "");
+					String indent = currentLine.replaceAll("\\S.*", "");
+					
+					command.setText(text.substring(0, x) + "\n" + 	indent + text.substring(x));
+					command.setCaretOffset(x + 1 + indent.length());
 					
 					// Scroll down if necessary.
 					scrolledComposite.setMinSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
