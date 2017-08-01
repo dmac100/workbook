@@ -32,6 +32,7 @@ import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.result.Result;
 import workbook.view.result.ResultRenderer;
+import workbook.view.text.EditFunctions;
 
 /**
  * A view that displays a single cell in a worksheets, with a prompt, command, and result view.
@@ -67,6 +68,8 @@ public class Cell {
 		prompt = addLabel(parent, ">>>");
 		command = new StyledText(parent, SWT.NONE);
 		result = new Result(parent, resultRenderer);
+		
+		new EditFunctions(command);
 		
 		if(cellAbove != null) {
 			prompt.moveBelow(cellAbove.result.asComposite());
