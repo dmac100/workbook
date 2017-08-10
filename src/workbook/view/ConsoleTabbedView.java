@@ -69,14 +69,14 @@ public class ConsoleTabbedView implements TabbedView {
 	}
 	
 	private void addOutput(String output) {
-		text.append(WordUtils.wrap(String.valueOf(output), 1000, "\n", true));
+		text.append(wrap(output));
 		text.setTopIndex(text.getLineCount() - 1);
 	}
 	
 	private void addError(String error) {
 		int start = text.getCharCount();
 		
-		String wrappedOutput = WordUtils.wrap(String.valueOf(error), 1000, "\n", true);
+		String wrappedOutput = wrap(error);
 		
 		text.append(wrappedOutput);
 		text.setTopIndex(text.getLineCount() - 1);
@@ -89,6 +89,18 @@ public class ConsoleTabbedView implements TabbedView {
 		text.replaceStyleRanges(start, wrappedOutput.length(), new StyleRange[] { styleRange });
 	}
 	
+	private static String wrap(String output) {
+		StringBuilder s = new StringBuilder();
+		for(String line:output.split("\\r?\\n", -1)) {
+			if(s.length() != 0) {
+				s.append("\n");
+			}
+			String wrappedLine = WordUtils.wrap(String.valueOf(line), 1000, "\n", true);
+			s.append(wrappedLine);
+		}
+		return s.toString();
+	}
+
 	public void clear() {
 		text.setText("");
 	}
