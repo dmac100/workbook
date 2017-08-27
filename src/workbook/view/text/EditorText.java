@@ -200,13 +200,17 @@ public class EditorText {
 		int startLine = styledText.getLineAtOffset(selection.x);
 		int endLine = styledText.getLineAtOffset(selection.y);
 		
-		for(int line = startLine; line <= endLine; line++) {
+		StringBuilder text = new StringBuilder(styledText.getText());
+		
+		for(int line = endLine; line >= startLine; line--) {
 			int offset = styledText.getOffsetAtLine(line);
-			styledText.replaceTextRange(offset, 0, "\t");
+			text.replace(offset, offset, "\t");
 		}
+		
+		styledText.setText(text.toString());
 
 		int lines = endLine - startLine + 1;
-		styledText.setSelection(selection.x + 1, selection.y + lines);
+		styledText.setSelection(selection.x, selection.y + lines);
 	}
 	
 	private void unindentSelection() {
@@ -218,7 +222,9 @@ public class EditorText {
 		int firstLineCharactersRemoved = 0;
 		int totalCharactersRemoved = 0;
 		
-		for(int line = startLine; line <= endLine; line++) {
+		StringBuilder text = new StringBuilder(styledText.getText());
+		
+		for(int line = endLine; line >= startLine; line--) {
 			int offset = styledText.getOffsetAtLine(line);
 			String lineText = styledText.getLine(line);
 			
@@ -228,8 +234,10 @@ public class EditorText {
 			}
 			totalCharactersRemoved += charactersToRemove;
 			
-			styledText.replaceTextRange(offset, charactersToRemove, "");
+			text.delete(offset, offset + charactersToRemove);
 		}
+		
+		styledText.setText(text.toString());
 		
 		int newSelectionStart = Math.max(styledText.getOffsetAtLine(startLine), selection.x - firstLineCharactersRemoved);
 		styledText.setSelection(newSelectionStart, selection.y - totalCharactersRemoved);
