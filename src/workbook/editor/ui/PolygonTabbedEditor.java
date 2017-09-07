@@ -454,7 +454,7 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 
 	public void setValue(Object value) {
 		scriptController.exec(() -> {
-			if(isPolygonList(value)) {
+			if(isPolygonListOrEmpty(value)) {
 				Display.getDefault().asyncExec(() -> {
 					if(!canvas.getControl().isDisposed()) {
 						canvas.setPolygons((List<List<Point>>) value);
@@ -472,8 +472,12 @@ public class PolygonTabbedEditor extends Editor implements TabbedView {
 			);
 		}
 	}
-
+	
 	public static boolean isPolygonList(Object list) {
+		return isListOf(list, sublist -> isListOf(sublist, x -> x instanceof Point));
+	}
+
+	private static boolean isPolygonListOrEmpty(Object list) {
 		return isListOfOrEmpty(list, sublist -> isListOf(sublist, x -> x instanceof Point));
 	}
 
