@@ -9,6 +9,7 @@ import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -97,6 +98,15 @@ public class Cell {
 			}
 		});
 		
+		command.addVerifyKeyListener(new VerifyKeyListener() {
+			public void verifyKey(VerifyEvent event) {
+				// Prevent insert from entering insert mode.
+				if(event.keyCode == SWT.INSERT) {
+					event.doit = false;
+				}
+			}
+		});
+		
 		command.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
 				parent.layout();
@@ -118,7 +128,6 @@ public class Cell {
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					// Run runAll callbacks on ctrl+return.
 					runAllCallbacks.forEach(Runnable::run);
-					event.doit = false;
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
 					// Insert newline into this cell on shift+return.
 					String text = command.getText();
@@ -136,7 +145,6 @@ public class Cell {
 					ScrollUtil.scrollVerticallyTo(scrolledComposite, getBounds());
 				} else if(event.keyCode == SWT.INSERT) {
 					// Run insert callbacks on insert.
-					event.doit = false;
 					insertCallbacks.forEach(Runnable::run);
 					evaluate(() -> notifyCallbacks.forEach(Runnable::run));
 				} else if(event.keyCode == 'a' && event.stateMask == SWT.CONTROL) {
