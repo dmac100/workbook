@@ -1,6 +1,7 @@
 package workbook.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,7 +30,7 @@ public class Completion {
 	 * Returns the next String to complete based on the current string.
 	 */
 	public String getCompletion(String text) {
-		String prefix = text.replaceAll("\\w*$", "");
+		String prefix = text.replaceAll("\\w*\\z", "");
 		String suffix = text.substring(prefix.length());
 		
 		if(suffix.length() == 0) {

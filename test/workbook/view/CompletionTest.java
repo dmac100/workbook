@@ -72,4 +72,22 @@ public class CompletionTest {
 		assertEquals("dd ac", completion.getCompletion("dd ab"));
 		assertEquals("dd a", completion.getCompletion("dd ab"));
 	}
+	
+	@Test
+	public void getCompletion_multiline() {
+		Completion completion = new Completion();
+		completion.setHistory(Arrays.asList(
+			"abc"
+		));
+		assertEquals("abc\n", completion.getCompletion("abc\n"));
+	}
+	
+	@Test
+	public void getCompletion_multilineCompletion() {
+		Completion completion = new Completion();
+		completion.setHistory(Arrays.asList(
+			"abc"
+		));
+		assertEquals("abc\nabc", completion.getCompletion("abc\na"));
+	}
 }

@@ -1,10 +1,6 @@
 package workbook.view;
 
 import java.io.File;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +16,8 @@ import org.apache.ivy.core.retrieve.RetrieveReport;
 import org.apache.ivy.core.settings.IvySettings;
 import org.apache.ivy.util.AbstractMessageLogger;
 import org.apache.ivy.util.MessageLogger;
+
+import ClassPathAgent.ClassPathUtil;
 
 public class IvyDownloader {
 	private static File WORKBOOK_DIR = new File(System.getProperty("user.home"), ".workbook");
@@ -45,19 +43,10 @@ public class IvyDownloader {
 	 * Loads a list of files into the system class loader. 
 	 */
 	private static void loadJars(List<File> files) {
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-		if(classLoader instanceof URLClassLoader) {
-			URLClassLoader urlClassLoader = ((URLClassLoader) classLoader);
-			
-			for(File file:files) {
-				try {
-					Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-					method.setAccessible(true);
-					method.invoke(urlClassLoader, file.toURL());
-				} catch (ReflectiveOperationException | MalformedURLException e) {
-					e.printStackTrace();
-				}
-			}
+		try {
+			ClassPathUtil.addJarsToClassPath(files);
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -65,6 +54,8 @@ public class IvyDownloader {
 	 * Retrieves a dependency from an ivy description, and returns the list of the retrieved files.
 	 */
 	private static List<File> retrieveIvy(String organization, String name, String revision, String retrievePattern) throws Exception {
+		System.out.println("DOWNLOADING: " + organization + ", " + name + ", " + revision);
+		
 		Ivy ivy = Ivy.newInstance();
 		ivy.getLoggerEngine().pushLogger(createQuietLogger());
 		IvySettings settings = ivy.getSettings();

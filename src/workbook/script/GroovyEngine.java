@@ -147,6 +147,9 @@ public class GroovyEngine implements Engine {
 			
 			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));
 			
+			engine.getContext().getWriter().flush();
+			engine.getContext().getErrorWriter().flush();
+			
 			return value;
         } catch(Throwable e) {
         	throw new RuntimeException("Error evaluating command", e);

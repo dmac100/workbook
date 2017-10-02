@@ -9,6 +9,7 @@ import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -32,6 +33,7 @@ import workbook.script.ScriptFuture;
 import workbook.util.ScrollUtil;
 import workbook.view.result.Result;
 import workbook.view.result.ResultRenderer;
+import workbook.view.text.EditFunctions;
 
 /**
  * A view that displays a single cell in a worksheets, with a prompt, command, and result view.
@@ -68,6 +70,8 @@ public class Cell {
 		command = new StyledText(parent, SWT.NONE);
 		result = new Result(parent, resultRenderer);
 		
+		new EditFunctions(command);
+		
 		if(cellAbove != null) {
 			prompt.moveBelow(cellAbove.result.asComposite());
 			command.moveBelow(prompt);
@@ -82,6 +86,22 @@ public class Cell {
 				
 				// Don't allow changes that are only newlines to allow key listener to handle these.
 				if(event.text.matches("[\r\n]+")) {
+					event.doit = false;
+				}
+				
+				// Don't allow tabs after word characters to allow key listener to handle these.
+				if(!command.getText().substring(0, event.start).matches("(?s).*\\W")) {
+					if(event.text.matches("[\t]+")) {
+						event.doit = false;
+					}
+				}
+			}
+		});
+		
+		command.addVerifyKeyListener(new VerifyKeyListener() {
+			public void verifyKey(VerifyEvent event) {
+				// Prevent insert from entering insert mode.
+				if(event.keyCode == SWT.INSERT) {
 					event.doit = false;
 				}
 			}
@@ -108,20 +128,23 @@ public class Cell {
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.CONTROL) {
 					// Run runAll callbacks on ctrl+return.
 					runAllCallbacks.forEach(Runnable::run);
-					event.doit = false;
 				} else if(event.keyCode == SWT.CR && event.stateMask == SWT.SHIFT) {
 					// Insert newline into this cell on shift+return.
 					String text = command.getText();
 					int x = command.getCaretOffset();
-					command.setText(text.substring(0, x) + "\n" + text.substring(x));
-					command.setCaretOffset(x + 1);
+					
+					// Preserve current line indentation.
+					String currentLine = text.substring(0, x).replaceAll("(?s).*[\r\n]", "");
+					String indent = currentLine.replaceAll("\\S.*", "");
+					
+					command.setText(text.substring(0, x) + "\n" + 	indent + text.substring(x));
+					command.setCaretOffset(x + 1 + indent.length());
 					
 					// Scroll down if necessary.
 					scrolledComposite.setMinSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 					ScrollUtil.scrollVerticallyTo(scrolledComposite, getBounds());
 				} else if(event.keyCode == SWT.INSERT) {
 					// Run insert callbacks on insert.
-					event.doit = false;
 					insertCallbacks.forEach(Runnable::run);
 					evaluate(() -> notifyCallbacks.forEach(Runnable::run));
 				} else if(event.keyCode == 'a' && event.stateMask == SWT.CONTROL) {
