@@ -1,5 +1,8 @@
 package workbook.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -20,6 +23,10 @@ import com.google.common.eventbus.Subscribe;
 
 import workbook.event.MajorRefreshEvent;
 import workbook.event.OutputEvent;
+import workbook.view.ansi.AnsiParser;
+import workbook.view.ansi.AnsiStyle;
+import workbook.view.ansi.ParseResult;
+import workbook.view.canvas.ColorCache;
 
 /**
  * A view that displays the console output.
@@ -27,6 +34,10 @@ import workbook.event.OutputEvent;
 public class ConsoleTabbedView implements TabbedView {
 	private final Composite parent;
 	private final StyledText text;
+	private final ColorCache colorCache;
+	
+	private List<StyleRange> styles = new ArrayList<StyleRange>();
+	private AnsiStyle lastStyle;
 	
 	public ConsoleTabbedView(Composite parent, EventBus eventBus) {
 		this.parent = parent;
@@ -47,6 +58,11 @@ public class ConsoleTabbedView implements TabbedView {
 		
 		eventBus.register(this);
 		getControl().addDisposeListener(event -> eventBus.unregister(this));
+		
+		colorCache = new ColorCache(Display.getCurrent());
+		getControl().addDisposeListener(colorCache);
+		
+		clear();
 	}
 	
 	@Subscribe
@@ -69,7 +85,7 @@ public class ConsoleTabbedView implements TabbedView {
 	}
 	
 	private void addOutput(String output) {
-		text.append(wrap(output));
+		addWithStyles(wrap(output));
 		text.setTopIndex(text.getLineCount() - 1);
 	}
 	
@@ -89,6 +105,44 @@ public class ConsoleTabbedView implements TabbedView {
 		text.replaceStyleRanges(start, wrappedOutput.length(), new StyleRange[] { styleRange });
 	}
 	
+	/**
+	 * Adds text to the console by extracting any new styles from it, appending
+	 * the text, and applying the styles.
+	 */
+	private void addWithStyles(String newText) {
+		ParseResult parseResult = new AnsiParser().parseText(lastStyle, newText);
+		
+		int offset = text.getCharCount();
+		text.append(parseResult.getNewText());
+		
+		for(AnsiStyle ansiStyle:parseResult.getStyleRanges()) {
+			StyleRange style = new StyleRange(styles.get(styles.size() - 1));
+			style.start = offset + ansiStyle.start;
+			style.length = ansiStyle.length;
+			
+			if(ansiStyle.foreground == null) {
+				style.foreground = null;
+			} else {
+				style.foreground = colorCache.getColor(ansiStyle.foreground);
+			}
+			if(ansiStyle.background == null) {
+				style.background = null;
+			} else {
+				style.background = colorCache.getColor(ansiStyle.background);
+			}
+			
+			if(ansiStyle.bold) style.fontStyle |= SWT.BOLD;
+			if(ansiStyle.italic) style.fontStyle |= SWT.ITALIC;
+			if(ansiStyle.underline) style.underline = true;
+			if(ansiStyle.doubleUnderline) style.underlineStyle = SWT.UNDERLINE_DOUBLE;
+			
+			styles.add(style);
+			lastStyle = ansiStyle;
+		}
+		
+		text.setStyleRanges(styles.toArray(new StyleRange[styles.size()]));
+	}
+	
 	private static String wrap(String output) {
 		StringBuilder s = new StringBuilder();
 		for(String line:output.split("\\r?\\n", -1)) {
@@ -103,6 +157,11 @@ public class ConsoleTabbedView implements TabbedView {
 
 	public void clear() {
 		text.setText("");
+		
+		styles.clear();
+		styles.add(new StyleRange());
+		
+		lastStyle = new AnsiStyle();
 	}
 
 	public Control getControl() {
