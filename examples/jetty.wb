@@ -8,7 +8,7 @@
             <Url>http://127.0.0.1:8080/HelloJsp</Url>
           </Item>
         </Items>
-        <Split weight1="500" weight2="500" orientation="vertical">
+        <Split weight1="670" weight2="330" orientation="vertical">
           <Items>
             <Item title="Main" type="ScriptTabbedView">
               <Content>import java.io.File;
@@ -20,7 +20,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.Test;
+import org.eclipse.jetty.webapp.Configuration.ClassList;
 
 class StringFileSystem {
 	private final File dir;
@@ -44,7 +44,9 @@ class StringFileSystem {
 def runServer() {
 	if(server != null) {
 		try {
-			server.stop();
+			if(server.isStarted()) {
+				server.stop();
+			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -56,6 +58,10 @@ def runServer() {
 	WebAppContext context = new WebAppContext();
 	context.setContextPath("/");
 	context.setParentLoaderPriority(true);
+	
+	ClassList classlist = ClassList.setServerDefault(server);
+	classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
+	context.setExtraClasspath(ClassPathAgent.ClassPathUtil.extraClassPath.join(","));
 	
 	context.addServlet(new ServletHolder(new HelloServlet()), "/HelloServlet");
 	context.addServlet(new ServletHolder(new HelloJsp()), "/HelloJsp");
@@ -73,10 +79,12 @@ def runServer() {
 runServer()</Content>
             </Item>
             <Item title="Dependencies" type="DependencyTabbedView">
-              <Content>org.eclipse.jetty:jetty-webapp:9.3.0.M1
-org.eclipse.jetty:jetty-servlet:9.3.0.M1
-org.eclipse.jetty:jetty-util:9.3.0.M1
-org.eclipse.jetty:jetty-jsp:9.3.0.M1</Content>
+              <Content>org.eclipse.jetty:jetty-webapp:9.4.7.v20170914
+org.eclipse.jetty:jetty-servlet:9.4.7.v20170914
+org.eclipse.jetty:jetty-util:9.4.7.v20170914
+org.eclipse.jetty:apache-jsp:9.4.7.v20170914
+org.eclipse.jetty:apache-jstl:9.4.7.v20170914
+org.eclipse.jetty:jetty-annotations:9.4.7.v20170914</Content>
             </Item>
             <Item title="Servlets" type="ScriptTabbedView">
               <Content>import java.io.IOException;
@@ -104,6 +112,7 @@ public class HelloJsp extends HttpServlet {
           <Items>
             <Item title="hello.jsp" type="StringTabbedEditor">
               <Expression>helloJsp</Expression>
+              <Brush />
             </Item>
           </Items>
         </Split>
@@ -114,8 +123,6 @@ public class HelloJsp extends HttpServlet {
         </Items>
         <Items>
           <Item title="Worksheet" type="WorksheetTabbedView">
-            <ExecuteFunctionName>workbook.util.SwtUtil.execDisplay { _ }</ExecuteFunctionName>
-            <Command />
           </Item>
         </Items>
       </Split>
