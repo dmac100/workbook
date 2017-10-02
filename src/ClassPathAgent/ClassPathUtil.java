@@ -23,7 +23,7 @@ public class ClassPathUtil {
 	
 	private static Set<String> extraClassPath = new HashSet<>();
 	
-	public static void addJarsToClassPath(List<File> jarFiles) throws IOException {
+	public static void addJarsToClassPath(List<File> jarFiles) throws Exception {
 		try {
 			addJarsToClassPathUsingUrlClassLoader(jarFiles);
 		} catch(Exception e) {
@@ -33,7 +33,7 @@ public class ClassPathUtil {
 		extraClassPath.addAll(Lists.transform(jarFiles, Object::toString));
 	}
 	
-	private static void addJarsToClassPathUsingAgent(List<File> jarFiles) throws IOException {
+	private static void addJarsToClassPathUsingAgent(List<File> jarFiles) throws IOException, ReflectiveOperationException {
 		if(agentJar == null) {
 			agentJar = Files.createTempFile("agent", ".jar").toFile();
 			agentJar.deleteOnExit();
@@ -42,8 +42,9 @@ public class ClassPathUtil {
 		try(InputStream inputStream = ClassPathUtil.class.getResourceAsStream("/ClassPathAgent/agent.jar")) {
 			FileUtils.copyInputStreamToFile(inputStream, agentJar);
 		}
-		
-		long pid = ProcessHandle.current().pid();
+	
+		Object currentProcess = Class.forName("java.lang.ProcessHandle").getMethod("current").invoke(null);
+		long pid = (Long) Class.forName("java.lang.ProcessHandle").getMethod("pid").invoke(currentProcess);
 		
 		ByteBuddyAgent.attach(agentJar, String.valueOf(pid), StringUtils.join(jarFiles, ","));
 	}
