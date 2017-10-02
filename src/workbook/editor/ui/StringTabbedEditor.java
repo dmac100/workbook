@@ -141,7 +141,7 @@ public class StringTabbedEditor extends Editor implements TabbedView {
 	}
 
 	private static String getBrushName(Brush brush) {
-		Map<String, Brush> filtered = Maps.filterValues(getBrushes(), v -> v.getClass() == brush.getClass());
+		Map<String, Brush> filtered = Maps.filterValues(getBrushes(), v -> brush != null && v.getClass() == brush.getClass());
 		return (filtered.isEmpty()) ? null : filtered.keySet().iterator().next();
 	}
 
