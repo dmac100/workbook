@@ -7,15 +7,21 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Lists;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class ClassPathUtil {
 	private static File agentJar = null;
+	
+	private static Set<String> extraClassPath = new HashSet<>();
 	
 	public static void addJarsToClassPath(List<File> jarFiles) throws IOException {
 		try {
@@ -23,6 +29,8 @@ public class ClassPathUtil {
 		} catch(Exception e) {
 			addJarsToClassPathUsingAgent(jarFiles);
 		}
+		
+		extraClassPath.addAll(Lists.transform(jarFiles, Object::toString));
 	}
 	
 	private static void addJarsToClassPathUsingAgent(List<File> jarFiles) throws IOException {
