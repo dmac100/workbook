@@ -1,5 +1,8 @@
 package workbook.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -58,9 +61,11 @@ public class DependencyTabbedView implements TabbedView {
 	private void refresh() {
 		Display.getDefault().asyncExec(() -> {
 			String text = editorText.getText();
+			List<String> dependencies = new ArrayList<>();
 			for(String line:text.split("\n")) {
-				IvyDownloader.downloadDependency(line.trim());
+				dependencies.add(line.trim());
 			}
+			IvyDownloader.downloadDependencies(dependencies);
 		});
 	}
 

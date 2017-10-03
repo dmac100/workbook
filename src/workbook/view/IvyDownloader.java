@@ -2,6 +2,7 @@ package workbook.view;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,17 +27,29 @@ public class IvyDownloader {
 	 * Downloads and loads a dependency given by a short form ivy description.
 	 */
 	public static void downloadDependency(String dependency) {
+		downloadDependencies(Arrays.asList(dependency));
+	}
+	
+	/**
+	 * Downloads and loads a list of dependencies given by short form ivy descriptions.
+	 */
+	public static void downloadDependencies(List<String> dependencies) {
 		String retrievePattern = WORKBOOK_DIR.getAbsolutePath() + "/[organization]-[artifact]-[revision](-[classifier]).[ext]";
 		
-		String[] parts = dependency.split("[: ]");
-		if(parts.length == 3) {
-			try {
-				List<File> files = retrieveIvy(parts[0], parts[1], parts[2], retrievePattern);
-				loadJars(files);
-			} catch(Exception e) {
-				e.printStackTrace();
+		List<File> files = new ArrayList<>();
+		
+		for(String dependency:dependencies) {
+			String[] parts = dependency.split("[: ]");
+			if(parts.length == 3) {
+				try {
+					files.addAll(retrieveIvy(parts[0], parts[1], parts[2], retrievePattern));
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
+		
+		loadJars(files);
 	}
 
 	/**

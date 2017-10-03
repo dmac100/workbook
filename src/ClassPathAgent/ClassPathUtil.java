@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -46,7 +47,14 @@ public class ClassPathUtil {
 		Object currentProcess = Class.forName("java.lang.ProcessHandle").getMethod("current").invoke(null);
 		long pid = (Long) Class.forName("java.lang.ProcessHandle").getMethod("pid").invoke(currentProcess);
 		
-		ByteBuddyAgent.attach(agentJar, String.valueOf(pid), StringUtils.join(jarFiles, ","));
+		File jarListFile = Files.createTempFile("jarlist", ".txt").toFile();
+		jarListFile.deleteOnExit();
+		
+		FileUtils.writeStringToFile(jarListFile, StringUtils.join(jarFiles, ","), Charsets.UTF_8);
+		
+		ByteBuddyAgent.attach(agentJar, String.valueOf(pid), jarListFile.getAbsolutePath());
+		
+		jarListFile.delete();
 	}
 	
 	private static void addJarsToClassPathUsingUrlClassLoader(List<File> jarFiles) throws ReflectiveOperationException, IOException {
