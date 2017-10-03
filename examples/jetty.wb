@@ -123,6 +123,7 @@ public class HelloJsp extends HttpServlet {
         </Items>
         <Items>
           <Item title="Worksheet" type="WorksheetTabbedView">
+            <Command />
           </Item>
         </Items>
       </Split>
@@ -143,6 +144,8 @@ public class HelloJsp extends HttpServlet {
 &lt;h1&gt;Hello, JSP&lt;/h1&gt;
 
 &lt;hr&gt;
+
+
 
 &lt;p&gt;
 	&lt;%= 2 + 2 %&gt;
