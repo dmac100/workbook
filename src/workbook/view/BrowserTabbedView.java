@@ -107,8 +107,9 @@ public class BrowserTabbedView implements TabbedView {
 			public void widgetDefaultSelected(SelectionEvent event) {
 				urlExpression = null;
 				htmlExpression = null;
-				setUrl(location.getText());
+				browser.setUrl(location.getText());
 				previousUrlValue = location.getText();
+				previousHtmlValue = null;
 			}
 		});
 		
