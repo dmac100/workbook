@@ -3,7 +3,6 @@ package workbook;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
@@ -27,7 +26,6 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Supplier;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -42,9 +40,9 @@ import workbook.layout.GridDataBuilder;
 import workbook.layout.GridLayoutBuilder;
 import workbook.script.Engine;
 import workbook.script.GroovyEngine;
+import workbook.script.JShellEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
-import workbook.util.SwtUtil;
 import workbook.view.InputDialog;
 import workbook.view.MenuBuilder;
 import workbook.view.TabbedView;
@@ -89,6 +87,7 @@ public class MainView {
 		
 		this.viewFactory = new TabbedViewFactory(tabbedViewLayout);
 		
+		registerEngine("Java", JShellEngine::new);
 		registerEngine("Javascript", JavascriptEngine::new);
 		registerEngine("Ruby", RubyEngine::new);
 		registerEngine("Groovy", GroovyEngine::new);
@@ -197,6 +196,7 @@ public class MainView {
 			.addItem("Interrupt").addSelectionListener(() -> mainController.interrupt())
 			.addSeparator()
 			.addSubmenu("Engine", submenu -> submenu
+				.addRadioItem("Java", equalsIgnoreCase(mainController.getEngine(), "Java")).addSelectionListener(() -> mainController.setEngine("Java"))
 				.addRadioItem("Javascript", equalsIgnoreCase(mainController.getEngine(), "Javascript")).addSelectionListener(() -> mainController.setEngine("Javascript"))
 				.addRadioItem("Ruby", equalsIgnoreCase(mainController.getEngine(), "Ruby")).addSelectionListener(() -> mainController.setEngine("Ruby"))
 				.addRadioItem("Groovy", equalsIgnoreCase(mainController.getEngine(), "Groovy")).addSelectionListener(() -> mainController.setEngine("Groovy"))
