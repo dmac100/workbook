@@ -12,12 +12,12 @@ import java.util.function.Consumer;
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.jruby.RubyArray;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
+import org.jruby.embed.jsr223.JRubyEngineFactory;
 
 import com.google.common.base.Throwables;
 
@@ -34,7 +34,7 @@ public class RubyEngine implements Engine {
 	public RubyEngine() {
 		System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
 		
-		engine = new ScriptEngineManager().getEngineByName("jruby");
+		engine = new JRubyEngineFactory().getScriptEngine();
 		if(engine == null) {
 			throw new RuntimeException("Can't create JRuby engine");
 		}
