@@ -18,7 +18,7 @@ import org.apache.ivy.core.settings.IvySettings;
 import org.apache.ivy.util.AbstractMessageLogger;
 import org.apache.ivy.util.MessageLogger;
 
-import ClassPathAgent.ClassPathUtil;
+import classpathagent.ClassPathUtil;
 
 public class IvyDownloader {
 	private static File WORKBOOK_DIR = new File(System.getProperty("user.home"), ".workbook");

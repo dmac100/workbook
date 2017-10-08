@@ -1,4 +1,4 @@
-package ClassPathAgent;
+package classpathagent;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;

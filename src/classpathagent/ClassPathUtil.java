@@ -1,4 +1,4 @@
-package ClassPathAgent;
+package classpathagent;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class ClassPathUtil {
 			agentJar.deleteOnExit();
 		}
 		
-		try(InputStream inputStream = ClassPathUtil.class.getResourceAsStream("/ClassPathAgent/agent.jar")) {
+		try(InputStream inputStream = ClassPathUtil.class.getResourceAsStream("/classpathagent/agent.jar")) {
 			FileUtils.copyInputStreamToFile(inputStream, agentJar);
 		}
 	

@@ -61,7 +61,7 @@ def runServer() {
 	
 	ClassList classlist = ClassList.setServerDefault(server);
 	classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
-	context.setExtraClasspath(ClassPathAgent.ClassPathUtil.extraClassPath.join(","));
+	context.setExtraClasspath(classpathagent.ClassPathUtil.extraClassPath.join(","));
 	
 	context.addServlet(new ServletHolder(new HelloServlet()), "/HelloServlet");
 	context.addServlet(new ServletHolder(new HelloJsp()), "/HelloJsp");
