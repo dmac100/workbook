@@ -10,20 +10,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.junit.Test;
 
 public class JShellEngineTest {
 	private final JShellEngine script = new JShellEngine();
-	
-	@Test
-	public void test() throws ScriptException {
-		ScriptEngine engine = new ScriptEngineManager().getEngineByName("jshell");
-		assertEquals("Hello World!", (engine.eval("\"Hello World!\"")));
-	}
 	
 	@Test
 	public void eval() {
