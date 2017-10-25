@@ -30,7 +30,7 @@ public class JavascriptEngine implements Engine {
 	
 	public JavascriptEngine() {
 		NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
-		engine = factory.getScriptEngine(new String[] { "--class-cache-size = 0" });
+		engine = factory.getScriptEngine(new String[] { "--class-cache-size = 0", "--language=es6" });
 		if(engine == null) {
 			throw new RuntimeException("Can't create JavaScript engine");
 		}
