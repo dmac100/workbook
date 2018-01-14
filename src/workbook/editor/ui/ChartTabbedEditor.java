@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Paint;
+import java.util.Date;
 import java.util.Map;
 
 import javax.swing.JMenuItem;
@@ -29,6 +30,9 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.time.Minute;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -46,6 +50,7 @@ class Chart {
 	private ChartType type = ChartType.XYLINE;
 	private CategoryDataset categoryDataset = new DefaultCategoryDataset();
 	private XYDataset xyDataset = new DefaultXYDataset();
+	private XYDataset timeDataset = new TimeSeriesCollection();
 	
 	private enum ChartType {
 		BAR("Bar Chart"),
@@ -53,7 +58,8 @@ class Chart {
 		LINE("Line Chart"),
 		STACKEDAREA("Stacked Area Chart"),
 		SCATTER("Scatter Plot"),
-		XYLINE("XY Line Chart");
+		XYLINE("XY Line Chart"),
+		TIMECHART("Time Chart");
 		
 		private String label;
 		
@@ -84,6 +90,8 @@ class Chart {
 				return ChartFactory.createScatterPlot(null, null, null, xyDataset);
 			case XYLINE:
 				return ChartFactory.createXYLineChart(null, null, null, xyDataset);
+			case TIMECHART:
+				return ChartFactory.createTimeSeriesChart(null, null, null, timeDataset);
 			default:
 				throw new IllegalArgumentException("Unknown type: " + type);
 		}
@@ -175,6 +183,7 @@ class Chart {
 	public void setData(Object data) {
 		this.categoryDataset = createCategoryDataset(data);
 		this.xyDataset = createXYDataset(data);
+		this.timeDataset = createTimeDataset(data);
 		refreshChart();
 	}
 	
@@ -201,7 +210,7 @@ class Chart {
 	}
 
 	/**
-	 * Creates an xy series from data f the form:
+	 * Creates an xy series from data of the form:
 	 * [[1, 2], [3, 4], [5, 6], ...]
 	 */
 	private XYSeries createXYSeries(String name, Iterable<?> data) {
@@ -212,6 +221,46 @@ class Chart {
 				Object[] items = Iterables.toArray((Iterable<?>) item, Object.class);
 				if(items.length >= 2 && items[0] instanceof Number && items[1] instanceof Number) {
 					series.add((Number) items[0], (Number) items[1]);
+				}
+			}
+		}
+		
+		return series;
+	}
+	
+	/**
+	 * Creates an time dataset from data of the forms:
+	 * [[2000/01/01, 2], [2000/01/03, 4], [2000/01/05, 6], ...]
+	 * [series1: [[2000/01/01, 2], [2000/01/03, 4], [2000/01/05, 6], ...], ...]
+	 */
+	private TimeSeriesCollection createTimeDataset(Object data) {
+		TimeSeriesCollection dataset = new TimeSeriesCollection();
+		
+		if(data instanceof Iterable) {
+			dataset.addSeries(createTimeSeries("Series1", (Iterable<?>) data));
+		} else if(data instanceof Map) {
+			((Map<?, ?>) data).forEach((key, value) -> {
+				if(key instanceof String && value instanceof Iterable) {
+					dataset.addSeries(createTimeSeries((String) key, (Iterable<?>) value));
+				}
+			});
+		}
+		
+		return dataset;
+	}
+
+	/**
+	 * Creates an time series from data of the form:
+	 * [[2000/01/01, 2], [2000/01/03, 4], [2000/01/05, 6], ...]
+	 */
+	private TimeSeries createTimeSeries(String name, Iterable<?> data) {
+		TimeSeries series = new TimeSeries(name);
+		
+		for(Object item:(Iterable<?>) data) {
+			if(item instanceof Iterable) {
+				Object[] items = Iterables.toArray((Iterable<?>) item, Object.class);
+				if(items.length >= 2 && items[0] instanceof Date && items[1] instanceof Number) {
+					series.add(new Minute((Date) items[0]), (Number) items[1]);
 				}
 			}
 		}
