@@ -142,7 +142,6 @@ public class Workbook {
 	
 	private void addDefaultViews() {
 		mainView.addView(WorksheetTabbedView.class);
-		mainView.addView(ConsoleTabbedView.class);
 	}
 
 	private ResultRenderer createResultRenders() {
@@ -195,7 +194,7 @@ public class Workbook {
 	}
 
 	public void waitForExit() {
-		shell.setSize(1000, 700);
+		shell.setSize(800, 600);
 		shell.open();
 
 		while(!shell.isDisposed()) {
