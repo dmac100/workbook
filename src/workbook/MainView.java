@@ -185,6 +185,8 @@ public class MainView {
 		menuBuilder.addMenu("&File")
 			.addItem("Open...\tCtrl+O").addSelectionListener(() -> open()).setAccelerator(SWT.CONTROL | 'o')
 			.addSeparator()
+			.addItem("Close...\tCtrl+W").addSelectionListener(() -> close()).setAccelerator(SWT.CONTROL | 'w')
+			.addSeparator()
 			.addItem("Save\tCtrl+S").addSelectionListener(() -> save()).setAccelerator(SWT.CONTROL | 's')
 			.addItem("Save As...\tCtrl+Shift+S").addSelectionListener(() -> saveAs()).setAccelerator(SWT.CONTROL | SWT.SHIFT | 's')
 			.addSeparator()
@@ -289,6 +291,10 @@ public class MainView {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void close() {
+		tabbedViewLayout.closeTab();
 	}
 	
 	private void updateTitle(String location) {

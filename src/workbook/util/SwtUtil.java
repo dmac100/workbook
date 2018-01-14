@@ -37,4 +37,17 @@ public class SwtUtil {
 			throw new RuntimeException("Error executing on display thread", e);
 		}
 	}
+	
+	/**
+	 * Returns whether parent is an ancestor of child.
+	 */
+	public static boolean isAncestor(Control parent, Control child) {
+		if(child == null) {
+			return false;
+		}
+		if(child == parent) {
+			return true;
+		}
+		return isAncestor(parent, child.getParent());
+	}
 }

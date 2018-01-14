@@ -33,6 +33,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tracker;
 import org.jdom2.Element;
 
+import workbook.util.SwtUtil;
+
 /**
  * A tabbed view layout that displays views arranged in tabs and allows the dragged of tabs between views
  * to split and merge tab folders together.
@@ -638,5 +640,21 @@ public class TabbedViewLayout {
 			}
 		}
 		return views;
+	}
+
+	/**
+	 * Closes the currently focused tab.
+	 */
+	public void closeTab() {
+		for(CTabFolder tabFolder:folders) {
+			for(CTabItem tabItem:tabFolder.getItems()) {
+				TabbedView tabbedView = (TabbedView) tabItem.getData();
+				if(SwtUtil.isAncestor(tabbedView.getControl(), Display.getCurrent().getFocusControl())) {
+					tabItem.dispose();
+					removeIfEmpty(tabFolder);
+					return;
+				}
+			}
+		}
 	}
 }
