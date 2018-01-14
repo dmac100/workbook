@@ -43,8 +43,10 @@ import workbook.script.GroovyEngine;
 import workbook.script.JShellEngine;
 import workbook.script.JavascriptEngine;
 import workbook.script.RubyEngine;
+import workbook.view.CommandList;
 import workbook.view.InputDialog;
 import workbook.view.MenuBuilder;
+import workbook.view.RunCommand;
 import workbook.view.TabbedView;
 import workbook.view.TabbedViewFactory;
 import workbook.view.TabbedViewFactory.ViewInfo;
@@ -55,6 +57,8 @@ import workbook.view.TabbedViewLayout.FolderPosition;
  * Main view for the workbook that contains all the controls of this program.
  */
 public class MainView {
+	private final CommandList commandList = new CommandList();
+	
 	private final Shell shell;
 	private final MainController mainController;
 	private final EventBus eventBus;
@@ -176,7 +180,7 @@ public class MainView {
 	}
 	
 	private void createMenuBar(final Shell shell) {
-		MenuBuilder menuBuilder = new MenuBuilder(shell);
+		MenuBuilder menuBuilder = new MenuBuilder(shell, commandList);
 		
 		menuBuilder.addMenu("&File")
 			.addItem("Open...\tCtrl+O").addSelectionListener(() -> open()).setAccelerator(SWT.CONTROL | 'o')
@@ -184,6 +188,7 @@ public class MainView {
 			.addItem("Save\tCtrl+S").addSelectionListener(() -> save()).setAccelerator(SWT.CONTROL | 's')
 			.addItem("Save As...\tCtrl+Shift+S").addSelectionListener(() -> saveAs()).setAccelerator(SWT.CONTROL | SWT.SHIFT | 's')
 			.addSeparator()
+			.addItem("Run Command...\tCtrl+3").addSelectionListener(() -> runCommand()).setAccelerator(SWT.CONTROL | '3')
 			.addItem("Reload...\tCtrl+R").addSelectionListener(() -> reload()).setAccelerator(SWT.CONTROL | 'r')
 			.addSeparator()
 			.addItem("E&xit\tCtrl+Q").addSelectionListener(() -> shell.dispose()).setAccelerator(SWT.CONTROL | 'q');
@@ -298,6 +303,15 @@ public class MainView {
 			deserialize(serialize());
 		} catch(Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void runCommand() {
+		RunCommand runCommand = new RunCommand(shell);
+		runCommand.setSearchFunction(findText -> commandList.findCommands(findText));
+		String result = runCommand.open();
+		if(result != null) {
+			commandList.runCommand(result);
 		}
 	}
 	

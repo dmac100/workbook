@@ -14,18 +14,25 @@ import org.eclipse.swt.widgets.Shell;
  * Builds a menu.
  */
 public class MenuBuilder {
-	private Shell shell;
+	private final Shell shell;
+	private final CommandList commandList;
+	private String path;
 	private Menu menubar;
 	private Menu menu;
 	private MenuItem item;
 	
-	public MenuBuilder(Shell shell) {
+	public MenuBuilder(Shell shell, CommandList commandList) {
 		this.shell = shell;
+		this.commandList = commandList;
 		this.menubar = new Menu(shell, SWT.BAR);
+		this.path = "";
 	}
 	
-	private MenuBuilder(Menu menu) {
+	private MenuBuilder(Menu menu, CommandList commandList, String path) {
+		this.shell = null;
 		this.menu = menu;
+		this.commandList = commandList;
+		this.path = path;
 	}
 	
 	public MenuBuilder addMenu(String name) {
@@ -33,6 +40,8 @@ public class MenuBuilder {
 		this.menu = new Menu(item);
 		item.setText(name);
 		item.setMenu(menu);
+		
+		path = getPlainTextLabel(name);
 		
 		return this;
 	}
@@ -63,7 +72,7 @@ public class MenuBuilder {
 		Menu submenu = new Menu(item);
 		item.setMenu(submenu);
 		
-		consumer.accept(new MenuBuilder(submenu));
+		consumer.accept(new MenuBuilder(submenu, commandList, path + " > " + getPlainTextLabel(name)));
 		
 		return this;
 	}
@@ -84,15 +93,9 @@ public class MenuBuilder {
 		return this;
 	}
 	
-	public MenuBuilder addSelectionListener(SelectionListener listener) {
-		if(item == null) throw new IllegalStateException("No menuitem");
-		
-		item.addSelectionListener(listener);
-		
-		return this;
-	}
-	
 	public MenuBuilder addSelectionListener(Runnable callback) {
+		commandList.addCommand(getMenuItemPath(), callback);
+		
 		return addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				callback.run();
@@ -100,6 +103,22 @@ public class MenuBuilder {
 		});
 	}
 	
+	private MenuBuilder addSelectionListener(SelectionListener listener) {
+		if(item == null) throw new IllegalStateException("No menuitem");
+		
+		item.addSelectionListener(listener);
+		
+		return this;
+	}
+	
+	private String getMenuItemPath() {
+		return path + " > " + getPlainTextLabel(item.getText());
+	}
+	
+	private static String getPlainTextLabel(String text) {
+		return text.replace("&", "").replace("...", "").replaceAll("\t.*", "");
+	}
+
 	public MenuBuilder setAccelerator(int a) {
 		if(item == null) throw new IllegalStateException("No menuitem");
 		
