@@ -1,5 +1,7 @@
 package workbook.view.result;
 
+import javax.script.ScriptException;
+
 import org.apache.commons.lang3.text.WordUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -38,7 +40,7 @@ public class StringRenderer implements ResultRenderer {
 			boolean red;
 			
 			if(value instanceof Throwable) {
-				valueString = Throwables.getStackTraceAsString((Throwable) value);
+				valueString = Throwables.getStackTraceAsString(trimException((Throwable) value)).trim();
 				red = true;
 			} else {
 				valueString = WordUtils.wrap(String.valueOf(value), 1000, "\n", true);
@@ -82,6 +84,26 @@ public class StringRenderer implements ResultRenderer {
 			
 			return null;
 		});
+	}
+
+	/**
+	 * Returns the exception thrown as the cause of the innermost ScriptException, if it exists.
+	 */
+	private static Throwable trimException(Throwable originalException) {
+		ScriptException scriptException = null;
+		for(Throwable t = originalException; t != null; t = t.getCause()) {
+			if(t instanceof ScriptException) {
+				scriptException = (ScriptException) t;
+			}
+		}
+		
+		if(scriptException == null) {
+			return originalException;
+		} else if(scriptException.getCause() != null) {
+			return scriptException.getCause();
+		} else {
+			return scriptException;
+		}
 	}
 
 	/**
