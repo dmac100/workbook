@@ -10,6 +10,9 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -54,6 +57,12 @@ public class RunCommand extends Dialog {
 		
 		text.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
 		list.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		list.addSelectionListener(new SelectionAdapter() {
+			public void widgetDefaultSelected(SelectionEvent event) {
+				selectCurrent();
+			}
+		});
 		
 		text.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent event) {
