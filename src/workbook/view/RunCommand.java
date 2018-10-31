@@ -65,7 +65,7 @@ public class RunCommand extends Dialog {
 		});
 		
 		text.addKeyListener(new KeyAdapter() {
-			public void keyReleased(KeyEvent event) {
+			public void keyPressed(KeyEvent event) {
 				if(event.keyCode == SWT.ESC) {
 					shell.dispose();
 				} else if(event.keyCode == SWT.ARROW_UP) {
