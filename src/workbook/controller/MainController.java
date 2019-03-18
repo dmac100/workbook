@@ -2,9 +2,11 @@ package workbook.controller;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.swt.widgets.Display;
 import org.jdom2.Element;
@@ -22,11 +24,14 @@ import workbook.script.Engine;
 import workbook.script.ScriptController;
 import workbook.script.ScriptFuture;
 import workbook.util.ThrottledConsumer;
+import workbook.view.result.wrapper.Wrapper;
 
 public class MainController {
 	private final ScriptController scriptController = new ScriptController();
 	private final EventBus eventBus;
 	private final Model model;
+	
+	private final Map<String, Function<Object, ? extends Wrapper>> wrapperFunctions = new HashMap<>();
 	
 	private final Consumer<Void> flushConsoleConsumer;
 	
@@ -85,6 +90,7 @@ public class MainController {
 	public void setEngine(String scriptType) {
 		scriptController.setScriptType(scriptType)
 			.thenRun(() -> {
+				initScriptEngine();
 				scriptController.getScript(engine -> {
 					model.setScriptType(scriptType);
 					model.setBrush(engine.getBrush());
@@ -93,6 +99,15 @@ public class MainController {
 			});
 	}
 	
+	private void initScriptEngine() {
+		wrapperFunctions.forEach(scriptController::defineFunction);
+	}
+	
+	public void registerWrapperFunction(String name, Function<Object, ? extends Wrapper> function) {
+		wrapperFunctions.put(name, function);
+		scriptController.defineFunction(name, function);
+	}
+
 	public String getEngine() {
 		return model.getScriptType();
 	}

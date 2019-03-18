@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -75,6 +76,14 @@ public class GroovyEngine implements Engine {
 		}
 		
 		return new HashMap<>();
+	}
+
+	/**
+	 * Defines a global function that call the given callback function when called.
+	 */
+	public void defineFunction(String name, Function<Object, Object> callback) {
+		globals.put("_"+name+"Callback", callback);
+		eval(String.format("def %s(param) { _%sCallback.apply(param); }", name, name));
 	}
 	
 	/**

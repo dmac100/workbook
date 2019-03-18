@@ -10,6 +10,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
+import workbook.view.result.wrapper.ChartWrapper;
 
 /**
  * Manages the interaction with the script engines. The script engine runs on a separate thread, and all interactions with it
@@ -121,6 +124,13 @@ public class ScriptController {
 			}
 		});
 		return future;
+	}
+	
+	public ScriptFuture<Void> defineFunction(String name, Function<?, ?> callback) {
+		return exec(() -> {
+			engine.defineFunction(name, ChartWrapper::new);
+			return null;
+		});
 	}
 	
 	public ScriptFuture<Object> evalMethodCall(String methodName, List<Object> params) {

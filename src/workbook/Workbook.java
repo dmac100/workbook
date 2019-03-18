@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -44,6 +41,7 @@ import workbook.view.result.EditorRenderer;
 import workbook.view.result.ResultRenderer;
 import workbook.view.result.StringRenderer;
 import workbook.view.result.TableRenderer;
+import workbook.view.result.wrapper.ChartWrapper;
 
 /**
  * Main entry point to this workbook. Creates the views and starts the workbook.
@@ -80,6 +78,8 @@ public class Workbook {
 		system.put("eventBus", eventBus);
 		system.put("display", Display.getDefault());
 		mainController.setVariable("system", system);
+		
+		mainController.registerWrapperFunction("chart", ChartWrapper::new);
 		
 		mainView.removeEmptyFolders();
 	}
@@ -151,6 +151,8 @@ public class Workbook {
 		resultRenderer = new TableRenderer(resultRenderer, mainController.getScriptController());
 		
 		resultRenderer = new EditorRenderer(resultRenderer, mainView, PolygonTabbedEditor::isPolygonList, PolygonTabbedEditor.class, 400);
+		
+		resultRenderer = new EditorRenderer(resultRenderer, mainView, value -> value instanceof ChartWrapper, ChartTabbedEditor.class, 250);
 		
 		resultRenderer = new EditorRenderer(resultRenderer, mainView);
 		

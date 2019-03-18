@@ -1,5 +1,7 @@
 package workbook.view.result;
 
+import workbook.view.result.wrapper.Wrapper;
+
 /**
  * A wrapper for a result value that will be displayed in an editor of editorType.
  */
@@ -21,6 +23,11 @@ public class EditorResult {
 	}
 
 	public Object getValue() {
+		// Unwrap value if it's a Wrapper.
+		if(value instanceof Wrapper) {
+			return ((Wrapper) value).getValue();
+		}
+		
 		return value;
 	}
 

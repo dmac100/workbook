@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -81,6 +82,15 @@ public class RubyEngine implements Engine {
 	}
 	
 	/**
+	 * Defines a global function that call the given callback function when called.
+	 */
+	public void defineFunction(String name, Function<Object, Object> callback) {
+		globals.put(name, callback);
+		eval("$" + name + " = " + name);
+		eval(String.format("def %s(param) $%s.apply(param); end", name, name));
+	}
+	
+	/**
 	 * Evaluates a method given its name and list of parameters, and returns the result.
 	 */
 	public Object evalMethodCall(String name, List<Object> params) {
@@ -97,7 +107,7 @@ public class RubyEngine implements Engine {
 	public Object eval(String command) {
 		return eval(command, null);
 	}
-
+	
 	/**
 	 * Evaluates a command against a list of callback functions and returns the functions that were called. So if callbackFunctionNames contains
 	 * 'rect', and command contains the function call 'rect({x: 1})', then [NameAndProperties('rect', { x => 1 })] will be returned.

@@ -129,4 +129,10 @@ public class RubyEngineTest {
 		Object object = script.eval("10");
 		assertFalse(script.isScriptObject(object));
 	}
+	
+	@Test
+	public void defineFunction() {
+		script.defineFunction("chart", param -> param);
+		assertEquals("param", script.eval("chart('param')"));
+	}
 }

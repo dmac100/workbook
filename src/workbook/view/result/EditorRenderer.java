@@ -13,6 +13,7 @@ import com.google.common.base.Predicate;
 import workbook.MainView;
 import workbook.editor.ui.Editor;
 import workbook.view.TabbedView;
+import workbook.view.result.wrapper.Wrapper;
 
 /**
  * Renders results from either EditorResults or conditions in corresponding editor.
