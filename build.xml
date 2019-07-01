@@ -18,8 +18,8 @@
 		<javac srcdir="test" destdir="build" classpathref="classpath" source="1.8" target="1.8"/>
 	</target>
 
-	<target name="java" depends="compile" fork="true">
-		<java classname="workbook.Workbook">
+	<target name="java" depends="compile">
+		<java classname="workbook.Workbook" fork="true">
 			<classpath refid="classpath"/>
 		</java>
 	</target>
