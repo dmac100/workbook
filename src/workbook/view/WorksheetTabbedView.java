@@ -131,8 +131,8 @@ public class WorksheetTabbedView implements TabbedView {
 		refresh();
 	}
 	
-	private Cell addPrompt(Cell cellAbove) {
-		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, resultRenderer, cellAbove);
+	private Cell addPrompt(Cell cellBelow) {
+		final Cell cell = new Cell(cellsComposite, scrolledCellsComposite, resultRenderer, cellBelow);
 		cell.setExecuteFunction(command -> executeFunction.apply(command));
 		
 		cell.addNotifyCallbacks(() -> {
@@ -172,7 +172,7 @@ public class WorksheetTabbedView implements TabbedView {
 			public void run() {
 				addPrompt(cell);
 				scrollToFocusedCell();
-				focusCell(cells.get(cells.indexOf(cell) + 1));
+				focusCell(cells.get(cells.indexOf(cell) - 1));
 			}
 		});
 		
@@ -207,10 +207,10 @@ public class WorksheetTabbedView implements TabbedView {
 			}
 		});
 
-		if(cellAbove == null) {
+		if(cellBelow == null) {
 			cells.add(cell);
 		} else {
-			cells.add(cells.indexOf(cellAbove) + 1, cell);
+			cells.add(cells.indexOf(cellBelow), cell);
 		}
 		
 		cell.setFocus();

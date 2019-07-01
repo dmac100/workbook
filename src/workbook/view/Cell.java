@@ -60,7 +60,7 @@ public class Cell {
 	private String previousCommandText = "";
 	private Point previousSelection = new Point(0, 0);
 	
-	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer, Cell cellAbove) {
+	public Cell(Composite parent, ScrolledComposite scrolledComposite, ResultRenderer resultRenderer, Cell cellBelow) {
 		this.parent = parent;
 		this.resultRenderer = resultRenderer;
 		
@@ -72,8 +72,8 @@ public class Cell {
 		
 		new EditFunctions(command);
 		
-		if(cellAbove != null) {
-			prompt.moveBelow(cellAbove.result.asComposite());
+		if(cellBelow != null) {
+			prompt.moveAbove(cellBelow.prompt);
 			command.moveBelow(prompt);
 			result.asComposite().moveBelow(command);
 		}
