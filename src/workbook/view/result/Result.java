@@ -8,6 +8,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 
 import workbook.view.FontList;
 
@@ -40,6 +41,7 @@ public class Result {
 		styledText.setFont(FontList.MONO_NORMAL);
 		styledText.setEditable(false);
 		styledText.setText("...");
+		styledText.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 	}
 	
 	public void clear() {

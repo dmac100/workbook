@@ -79,6 +79,7 @@ public class Cell {
 		}
 		
 		command.setFont(FontList.MONO_NORMAL);
+		command.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
 		
 		command.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent event) {

@@ -58,6 +58,8 @@ public class StringRenderer implements ResultRenderer {
 				styledText.setEditable(false);
 				styledText.setText(valueString);
 				styledText.setAlwaysShowScrollBars(false);
+				styledText.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+				styledText.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 				
 				if(red) {
 					StyleRange styleRange = new StyleRange();
