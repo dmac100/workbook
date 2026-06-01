@@ -37,6 +37,8 @@
 			</restrict>
 			<manifest>
 				<attribute name="Main-Class" value="workbook.Workbook"/>
+				<attribute name="SWT-OS" value="linux"/>
+				<attribute name="SWT-Arch" value="x86_64"/>
 			</manifest>
 		</jar>
 	</target>
