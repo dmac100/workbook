@@ -111,27 +111,28 @@ public class TabbedViewLayout {
 			public void dragDetected(DragDetectEvent event) {
 				CTabItem dragItem = folder.getItem(new Point(event.x, event.y));
 				if(dragItem != null) {
-					// Create tracker to handle move events and display visual feedback.
+					// Create overlay to handle move events and display visual feedback.
 					dragCallback = null;
-					Tracker tracker = new Tracker(Display.getCurrent(), SWT.NONE);
-					tracker.setStippled(false);
-					tracker.addListener(SWT.Move, new Listener() {
+					Display display = Display.getCurrent();
+					RectangleOverlay overlay = new RectangleOverlay(display, display.getActiveShell());
+					overlay.addMoveListener(new Listener() {
 						public void handleEvent(Event event) {
 							for(CTabFolder folder:folders) {
-								if(handleDrag(tracker, folder, dragItem)) {
+								if(handleDrag(overlay, folder, dragItem)) {
 									return;
 								}
 							}
 						}
 					});
+					overlay.start();
 					
 					// Wait until drag is finished, then run callback if any is set.
-					if(tracker.open()) {
+					overlay.addDoneCallback(() -> {
 						if(dragCallback != null) {
 							restoreFolder(folder);
 							dragCallback.run();
 						}
-					}
+					});
 				}
 			}
 		});
@@ -140,19 +141,19 @@ public class TabbedViewLayout {
 	/**
 	 * Handles dragging within a folder to allow repositioning of tab items.
 	 */
-	private boolean handleDrag(Tracker tracker, CTabFolder folder, CTabItem dragItem) {
+	private boolean handleDrag(RectangleOverlay overlay, CTabFolder folder, CTabItem dragItem) {
 		int folderOffsetX = folder.toDisplay(0, 0).x;
 		int folderOffsetY = folder.toDisplay(0, 0).y;
 		
 		Point point = folder.toControl(Display.getCurrent().getCursorLocation());
-		tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
+		overlay.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_HAND));
 		
 		Rectangle clientArea = folder.getClientArea();
 
 		// Check if point is within folder bounds.
 		if(!(point.x >= 0 && point.y >= 0 && point.x < folder.getBounds().width && point.y < folder.getBounds().height)) {
-			tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_NO));
-			tracker.setRectangles(new Rectangle[0]);
+			overlay.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_NO));
+			overlay.setRectangles(new Rectangle[0]);
 			return false;
 		}
 		
@@ -163,8 +164,7 @@ public class TabbedViewLayout {
 			int width = clientArea.width;
 			int height = clientArea.height;
 			
-			tracker.setStippled(false);
-			tracker.setRectangles(new Rectangle[] {
+			overlay.setRectangles(new Rectangle[] {
 				new Rectangle(x, y, width, height)
 			});
 			dragCallback = () -> moveToEmptyFolder(folder, dragItem);
@@ -181,8 +181,7 @@ public class TabbedViewLayout {
 				
 				// Check placement to the left of item i.
 				if((i == 0 || folder.getItem(i - 1) != dragItem) && Math.abs(point.x - startX) < width / 2) {
-					tracker.setStippled(false);
-					tracker.setRectangles(new Rectangle[] {
+					overlay.setRectangles(new Rectangle[] {
 						new Rectangle(folderOffsetX + startX, folderOffsetY + item.getBounds().y, 0, item.getBounds().height)
 					});
 					dragCallback = () -> moveTabItem(dragItem, item, true);
@@ -191,8 +190,7 @@ public class TabbedViewLayout {
 				
 				// Check placement to the right of item i.
 				if(item != dragItem && Math.abs(point.x - endX) < width / 2) {
-					tracker.setStippled(false);
-					tracker.setRectangles(new Rectangle[] {
+					overlay.setRectangles(new Rectangle[] {
 						new Rectangle(folderOffsetX + endX, folderOffsetY + item.getBounds().y, 0, item.getBounds().height)
 					});
 					dragCallback = () -> moveTabItem(dragItem, item, false);
@@ -207,8 +205,7 @@ public class TabbedViewLayout {
 			if(point.y >= 0 && point.y <= item.getBounds().height) {
 				int endX = item.getBounds().x + item.getBounds().width;
 				if(item != dragItem && point.x > endX) {
-					tracker.setStippled(false);
-					tracker.setRectangles(new Rectangle[] {
+					overlay.setRectangles(new Rectangle[] {
 						new Rectangle(folderOffsetX + endX, folderOffsetY + item.getBounds().y, 0, item.getBounds().height)
 					});
 					dragCallback = () -> moveTabItem(dragItem, item, false);
@@ -237,25 +234,25 @@ public class TabbedViewLayout {
 			int height = clientArea.height;
 			
 			if(fromTop == min) {
-				tracker.setRectangles(new Rectangle[] {
+				overlay.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width, height / 2 - 1),
 					new Rectangle(x, y + height / 2 + 1, width, height / 2 - 1)
 				});
 				dragCallback = () -> split(folder, dragItem, 0, -1, 50);
 			} else if(fromBottom == min) {
-				tracker.setRectangles(new Rectangle[] {
+				overlay.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width, height / 2 - 1),
 					new Rectangle(x, y + height / 2 + 1, width, height / 2 - 1)
 				});
 				dragCallback = () -> split(folder, dragItem, 0, 1, 50);
 			} else if(fromLeft == min) {
-				tracker.setRectangles(new Rectangle[] {
+				overlay.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width / 2 - 1, height),
 					new Rectangle(x + width / 2 + 1, y, width / 2 - 1, height)
 				});
 				dragCallback = () -> split(folder, dragItem, -1, 0, 50);
 			} else if(fromRight == min) {
-				tracker.setRectangles(new Rectangle[] {
+				overlay.setRectangles(new Rectangle[] {
 					new Rectangle(x, y, width / 2 - 1, height),
 					new Rectangle(x + width / 2 + 1, y, width / 2 - 1, height)
 				});
@@ -266,8 +263,8 @@ public class TabbedViewLayout {
 		}
 		
 		// No drag target found.
-		tracker.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_NO));
-		tracker.setRectangles(new Rectangle[0]);
+		overlay.setCursor(Display.getCurrent().getSystemCursor(SWT.CURSOR_NO));
+		overlay.setRectangles(new Rectangle[0]);
 		return false;
 	}
 
