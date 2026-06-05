@@ -15,10 +15,11 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
+
 import com.google.common.base.Throwables;
 
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import syntaxhighlighter.brush.Brush;
 import syntaxhighlighter.brush.BrushJScript;
 
@@ -36,7 +37,7 @@ public class JavascriptEngine implements Engine {
 			throw new RuntimeException("Can't create JavaScript engine");
 		}
 		
-		eval("function print() { System.out.println([].slice.call(arguments).join(', ')) }");
+		eval("function print() { java.lang.System.out.println([].slice.call(arguments).join(', ')) }");
 	}
 	
 	public Brush getBrush() {
@@ -99,7 +100,7 @@ public class JavascriptEngine implements Engine {
 	 */
 	public void defineFunction(String name, Function<Object, Object> callback) {
 		globals.put("_"+name+"Callback", callback);
-		eval(String.format("function %s(param) { return _%sCallback.accept(param); }", name, name));
+		eval(String.format("%s = function(param) { return _%sCallback.apply(param); }", name, name));
 	}
 	
 	/**
@@ -144,7 +145,7 @@ public class JavascriptEngine implements Engine {
 		
 		StringBuilder prefix = new StringBuilder();
 		for(String name:callbackFunctionNames) {
-			prefix.append(String.format("function %s(values) { callback.accept('%s', new java.util.HashMap(values)); }", name, name));
+			prefix.append(String.format("%s = function(values) { callback.accept('%s', new java.util.HashMap(values)); }", name, name));
 			prefix.append("\n");
 		}
 		
@@ -162,7 +163,7 @@ public class JavascriptEngine implements Engine {
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).clear();
         	engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(globals);
         	
-        	String script = String.format("with(new JavaImporter(java.util, java.lang)) { %s; }", command);
+        	String script = command;
 			Object value = (bindings == null) ? engine.eval(script) : engine.eval(script, bindings);
 			
 			globals.putAll(engine.getBindings(ScriptContext.ENGINE_SCOPE));

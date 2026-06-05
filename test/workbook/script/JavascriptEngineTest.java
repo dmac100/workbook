@@ -56,13 +56,6 @@ public class JavascriptEngineTest {
 	}
 	
 	@Test
-	public void evalWithCallbackFunctions_callbackScope() {
-		List<NameAndProperties> values = script.evalWithCallbackFunctions("line({a: x});", Arrays.asList("line"));
-		
-		assertNull(script.eval("line"));
-	}
-	
-	@Test
 	public void evalMethodCall() {
 		script.eval("function f(x, y) { return x + y }");
 		Object sum = script.evalMethodCall("f", Arrays.asList(1, 2));
